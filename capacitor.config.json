@@ -1,0 +1,6 @@
+{
+  "appId": "de.joergz.fogwalk",
+  "appName": "Fogwalk",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}

@@ -736,8 +736,17 @@ html,body{
 }
 .leaflet-control-attribution a{color:var(--dim)!important;}
 #pixmap{position:absolute;inset:0;pointer-events:none;z-index:200;display:none;}
-#fog{position:absolute;inset:0;pointer-events:none;z-index:400;transition:opacity .2s steps(4);}
-#fog.dim{opacity:0;}
+/* Beim Zoom laufen beide Ebenen mit der Karte mit, statt zu verschwinden. */
+#fog,#pixmap{will-change:transform;}
+#fog.zoomanim,#pixmap.zoomanim,#fogpad.zoomanim{transition:transform .25s cubic-bezier(0,0,.25,1);}
+/* Gleiche Ebene wie die Karte selbst (Leaflets Kartenflaeche liegt auf 400)
+   und im Dokument danach – so deckt sie die Kacheln wirklich zu. */
+/* Nebelfarbe ringsherum ueber einen Schlagschatten statt ueber einen Rahmen:
+   der liegt ausserhalb des Elements und laesst den Drehpunkt der Streckung
+   bei (0,0), genau wie bei der Nebelebene. */
+#fogpad{position:absolute;left:0;top:0;background:none;pointer-events:none;
+  z-index:400;box-shadow:0 0 0 4000px #14121f;transform-origin:0 0;}
+#fog{position:absolute;inset:0;pointer-events:none;z-index:400;}
 
 /* ---------- Marker ---------- */
 .poi{
@@ -1180,6 +1189,48 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
   padding:9px 10px;margin:2px 1px 4px;}
 .live b{color:var(--ember-lt);font-weight:700;}
 .live .ok{color:var(--moss);} .live .bad{color:var(--rose);} .live .warn{color:var(--ember);}
+
+/* ---- Notausgang: Text zum Kopieren ---- */
+#copyText{width:100%;box-sizing:border-box;--brd:var(--dark);
+  background:var(--night);color:var(--dim);border:0;border-radius:0;
+  box-shadow:var(--frame);font-family:var(--f-body);font-size:12px;
+  line-height:1.5;padding:9px 10px;margin:2px 0 4px;resize:vertical;
+  white-space:pre-wrap;word-break:break-all;}
+#copyBox .subline{margin:0 1px 10px;}
+
+/* ---- Besuchte Orte ---- */
+#placeSort{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:9px;}
+#placeSort button{--brd:var(--dark);background:var(--panel2);color:var(--dim);
+  border:0;border-radius:0;padding:9px 13px;cursor:pointer;
+  font-family:var(--f-body);font-size:12.5px;box-shadow:var(--frame);}
+#placeSort button:active{transform:translateY(3px);}
+#placeSort button.on{background:var(--ember);color:#2a1802;--brd:var(--ember-dk);font-weight:700;}
+#placeQ{width:100%;box-sizing:border-box;--brd:var(--dark);background:var(--night);
+  color:var(--paper);border:0;border-radius:0;box-shadow:var(--frame);
+  font-family:var(--f-body);font-size:13.5px;padding:10px 11px;margin-bottom:10px;}
+#placeQ::placeholder{color:var(--mist);}
+#places{max-height:340px;overflow-y:auto;}
+.prow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  --brd:var(--dark);background:var(--deep);border:0;border-radius:0;
+  box-shadow:var(--frame);padding:9px 10px;margin-bottom:8px;cursor:pointer;}
+.prow:active{transform:translateY(3px);}
+.prow .pg{flex:0 0 auto;width:24px;height:24px;display:flex;align-items:center;
+  justify-content:center;font-size:14px;color:var(--c,var(--ember));}
+.prow .pn{flex:1 1 auto;min-width:0;}
+.prow .pn b{display:block;font-family:var(--f-body);font-size:13.5px;
+  color:var(--paper);font-weight:700;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;}
+.prow .pn em{display:block;font-style:normal;font-family:var(--f-body);
+  font-size:11.5px;color:var(--mist);margin-top:2px;}
+.prow .pd{flex:0 0 auto;font-family:var(--f-disp);font-size:9px;color:var(--ember-lt);}
+/* Kurzer Ring auf dem angesprungenen Ort */
+.flash{width:64px;height:64px;box-sizing:border-box;
+  border:4px solid var(--ember);border-radius:50%;
+  animation:flash 2.6s steps(9) 1;}
+@keyframes flash{
+  0%{transform:scale(.4);opacity:1}
+  60%{transform:scale(1);opacity:1}
+  100%{transform:scale(1.15);opacity:0}}
 </style>
 </head>
 <body>
@@ -1245,6 +1296,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
       <div class="tabp" data-t="karte">
         <h3 class="sec">Kartenstil</h3>
         <div id="styles"></div>
+        <label class="chk"><input type="checkbox" id="fogAnim"> Nebel bewegt sich
+          <em class="nh">etwas mehr Akku</em></label>
+        <h3 class="sec">Besuchte Orte</h3>
+        <div id="placeSort"></div>
+        <input id="placeQ" placeholder="Ort suchen" autocomplete="off">
+        <div id="places"></div>
         <h3 class="sec">Karte offline sichern</h3>
         <button class="btn" id="btnPrefetch">Sichtbaren Bereich herunterladen</button>
         <button class="btn" id="btnPoi">Sehenswürdigkeiten laden</button>
@@ -1278,7 +1335,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
         <button class="btn" id="btnGpx">Weg als GPX speichern</button>
         <h3 class="sec">Spielstand</h3>
         <button class="btn ghost" id="btnExport">Spielstand exportieren</button>
-        <button class="btn ghost" id="btnImport">Spielstand importieren</button>
+        <button class="btn ghost" id="btnImport">Spielstand aus Datei laden</button>
+        <button class="btn ghost" id="btnPaste">Spielstand einfügen</button>
         <button class="btn ghost" id="btnReset">Fortschritt zurücksetzen</button>
       </div>
     </div>
@@ -1304,6 +1362,20 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
     <h1>Gut gelaufen</h1>
     <div id="sumRows"></div>
     <button class="primary" id="sumClose">Weiter</button>
+  </div>
+</div>
+
+<div class="modal hide" id="copyBox">
+  <div class="sheet">
+    <div class="eyebrow">Zum Kopieren</div>
+    <h1 id="copyName">Datei</h1>
+    <p>Dieses Gerät kann die Datei nicht direkt ablegen. Kopier den Text und
+       sichere ihn, wo du magst – über „Spielstand importieren" kommt er
+       genauso wieder zurück.</p>
+    <textarea id="copyText" readonly rows="6"></textarea>
+    <div class="subline"><span id="copyInfo"></span></div>
+    <button class="btn" id="copyGo">In die Zwischenablage</button>
+    <button class="primary" id="copyClose">Schließen</button>
   </div>
 </div>
 
@@ -1469,6 +1541,8 @@ const S = {
   cellCount:0, trail:[], poisFound:{}, items:{}, itemsTaken:{},
   log:[], since:null, seen:false, lat:null, lng:null,
   styleId:"osm", gpsFilter:"normal", saver:false, font:"pixel", stepGate:true,
+  fogAnim:true,
+  placeSort:"neu",
   gear:{lantern:0,boots:0,compass:0,glass:0}, itemsTotal:0, coins:0,
   rareTotal:0, found:{}, setDone:{}, quests:{}, streak:{n:0,last:""},
   days:{}, tab:"ziele",
@@ -1510,7 +1584,7 @@ function serialize(){
     poisFound:S.poisFound, items:S.items, itemsTaken:S.itemsTaken, log:S.log.slice(-40),
     since:S.since, seen:S.seen, lat:S.lat, lng:S.lng,
     styleId:S.styleId, gpsFilter:S.gpsFilter, saver:S.saver, font:S.font,
-    stepGate:S.stepGate,
+    stepGate:S.stepGate, placeSort:S.placeSort, fogAnim:S.fogAnim,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
     streak:S.streak, days:S.days, tab:S.tab, notify:S.notify };
@@ -1525,6 +1599,8 @@ function hydrate(o){
   S.saver=!!o.saver;
   S.font=o.font||"pixel";
   S.stepGate=(o.stepGate!==false);
+  S.placeSort=o.placeSort||"neu";
+  S.fogAnim=(o.fogAnim!==false);
   S.gear=Object.assign({lantern:0,boots:0,compass:0,glass:0},o.gear||{});
   S.itemsTotal=o.itemsTotal||Object.values(S.items).reduce((a,b)=>a+b,0);
   S.coins=o.coins||0;
@@ -1556,6 +1632,8 @@ document.addEventListener("visibilitychange",()=>{
 
 function chunkKeyOf(cx,cy){ return Math.floor(cx/CHUNK)+":"+Math.floor(cy/CHUNK); }
 function addCellKey(k){
+  // Aufgedecktes aendert die Maske – beim naechsten Bild neu bauen.
+  maskDirty=true;
   const i=k.indexOf(","); const cx=+k.slice(0,i), cy=+k.slice(i+1);
   const ck=chunkKeyOf(cx,cy);
   let set=S.cells.get(ck); if(!set){ set=new Set(); S.cells.set(ck,set); }
@@ -1848,61 +1926,278 @@ const maskCv=document.createElement("canvas");
 const mctx=maskCv.getContext("2d");
 let dpr=Math.min(2,window.devicePixelRatio||1);
 
+/* Der Nebel wird bewusst in einfacher Aufloesung gezeichnet statt in der
+   des Bildschirms. Er besteht aus groben Schwaden mit weichem Saum – da
+   faellt das nicht auf, spart aber auf einem 3x-Display drei Viertel der
+   Bildpunkte je Bild. Genau daran haengt, ob die Bewegung fluessig laeuft. */
+const FOG_DPR=1;
 function sizeFog(){
   const s=map.getSize();
-  fogCv.width=s.x*dpr; fogCv.height=s.y*dpr;
+  fogCv.width=Math.round(s.x*FOG_DPR); fogCv.height=Math.round(s.y*FOG_DPR);
   fogCv.style.width=s.x+"px"; fogCv.style.height=s.y+"px";
-  maskCv.width=fogCv.width; maskCv.height=fogCv.height;
-  fctx.setTransform(dpr,0,0,dpr,0,0);
-  mctx.setTransform(dpr,0,0,dpr,0,0);
+  fctx.setTransform(FOG_DPR,0,0,FOG_DPR,0,0);
+  maskDirty=true;
 }
-function drawFog(){
-  if(!map._loaded) return;
-  const s=map.getSize(), w=s.x, h=s.y;
-  if(fogCv.width!==Math.round(w*dpr)||fogCv.height!==Math.round(h*dpr)) sizeFog();
+/* Wolkenmuster. Einmal erzeugt, dann nur noch verschoben gezeichnet.
+   Bewusst grob und ohne Weichzeichnung hochskaliert – der Nebel soll aus
+   denselben groben Punkten bestehen wie der Rest des Spiels. Zwei Lagen
+   mit unterschiedlicher Kachelgroesse und Richtung ergeben die Tiefe:
+   eine allein sieht aus wie eine wandernde Tapete. */
+function makeNoise(n, up, farbe, kontrast){
+  const src=document.createElement("canvas");
+  src.width=n; src.height=n;
+  const x=src.getContext("2d");
+  const img=x.createImageData(n,n);
+  // Wertrauschen mit weicher Interpolation, an den Raendern umlaufend,
+  // damit die Kachel nahtlos anschliesst.
+  const g=8, grid=[];
+  for(let i=0;i<g*g;i++) grid.push(Math.random());
+  const at=(i,j)=>grid[((j%g)+g)%g*g+((i%g)+g)%g];
+  const sm=t=>t*t*(3-2*t);
+  const rgb=[parseInt(farbe.substr(1,2),16),parseInt(farbe.substr(3,2),16),
+             parseInt(farbe.substr(5,2),16)];
+  for(let y=0;y<n;y++) for(let xx=0;xx<n;xx++){
+    let v=0, amp=1, f=1, sum=0;
+    for(let o=0;o<3;o++){
+      const fx=xx/n*g*f, fy=y/n*g*f;
+      const i0=Math.floor(fx), j0=Math.floor(fy);
+      const tx=sm(fx-i0), ty=sm(fy-j0);
+      const a=at(i0,j0), b=at(i0+1,j0), c2=at(i0,j0+1), d=at(i0+1,j0+1);
+      v+=amp*((a+(b-a)*tx)+((c2+(d-c2)*tx)-(a+(b-a)*tx))*ty);
+      sum+=amp; amp*=0.5; f*=2;
+    }
+    v/=sum;
+    v=Math.max(0,Math.min(1,(v-0.5)*kontrast+0.5));
+    const k=(y*n+xx)*4;
+    img.data[k]=rgb[0]; img.data[k+1]=rgb[1]; img.data[k+2]=rgb[2];
+    img.data[k+3]=Math.round(v*255);
+  }
+  x.putImageData(img,0,0);
+  // Grob hochziehen, damit die Wolken dieselbe Koernung haben wie das Spiel
+  const out=document.createElement("canvas");
+  out.width=n*up; out.height=n*up;
+  const o2=out.getContext("2d");
+  o2.imageSmoothingEnabled=false;
+  o2.drawImage(src,0,0,out.width,out.height);
+  return out;
+}
+let noiseA=null, noiseB=null, patA=null, patB=null;
+function fogPatterns(){
+  if(patA) return;
+  noiseA=makeNoise(40,5,"#3a3358",1.5);   // helle Schwaden
+  noiseB=makeNoise(28,7,"#0a0812",1.8);   // dunkle Ballen
+  patA=fctx.createPattern(noiseA,"repeat");
+  patB=fctx.createPattern(noiseB,"repeat");
+}
 
-  const z=map.getZoom();
-  const pxPerMerc=(256*Math.pow(2,z))/(2*Math.PI*R_EARTH);
-  const c=map.getCenter();
-  const cX=mx(c.lng), cY=my(c.lat);
-  const toPx=(X,Y)=>[(X-cX)*pxPerMerc+w/2,(cY-Y)*pxPerMerc+h/2];
-
-  fctx.clearRect(0,0,w,h);
-  fctx.fillStyle="#14121f";
-  fctx.fillRect(0,0,w,h);
-
-  if(S.cellCount>0){
-    mctx.clearRect(0,0,w,h);
-    mctx.fillStyle="#fff";
-    const cellPx=MERC_CELL*pxPerMerc;
-    const pad=MERC_CELL*2;
-    const minX=cX-(w/2)/pxPerMerc-pad, maxX=cX+(w/2)/pxPerMerc+pad;
-    const minY=cY-(h/2)/pxPerMerc-pad, maxY=cY+(h/2)/pxPerMerc+pad;
-    const c0x=Math.floor(minX/MERC_CELL), c1x=Math.floor(maxX/MERC_CELL);
-    const c0y=Math.floor(minY/MERC_CELL), c1y=Math.floor(maxY/MERC_CELL);
-    const k0x=Math.floor(c0x/CHUNK), k1x=Math.floor(c1x/CHUNK);
-    const k0y=Math.floor(c0y/CHUNK), k1y=Math.floor(c1y/CHUNK);
-    const ext=1;
+/* Die Maske haelt fest, was aufgedeckt ist. Sie aendert sich nur, wenn man
+   sich bewegt oder etwas Neues aufdeckt – die Wolken darueber ziehen aber
+   staendig weiter. Deshalb wird sie zwischengespeichert statt in jedem
+   Bild neu aus tausenden Zellen zusammengesetzt. */
+let maskDirty=true, maskKey="";
+const scratchCv=document.createElement("canvas");
+const sctx=scratchCv.getContext("2d");
+function fogDirty(){ maskDirty=true; }
+const MASK_DOWN=4;        // Maske grob rechnen und weich hochziehen
+function buildMask(w,h,cX,cY,pxPerMerc){
+  const lw=Math.max(1,Math.ceil(w/MASK_DOWN)), lh=Math.max(1,Math.ceil(h/MASK_DOWN));
+  if(maskCv.width!==lw||maskCv.height!==lh){ maskCv.width=lw; maskCv.height=lh; }
+  mctx.setTransform(1,0,0,1,0,0);
+  mctx.clearRect(0,0,lw,lh);
+  if(!S.cellCount) return;
+  mctx.save();
+  mctx.fillStyle="#fff";
+  const D=MASK_DOWN;
+  const toPx=(X,Y)=>[((X-cX)*pxPerMerc+w/2)/D,((cY-Y)*pxPerMerc+h/2)/D];
+  const cellPx=MERC_CELL*pxPerMerc/D;
+  const pad=MERC_CELL*2;
+  const minX=cX-(w/2)/pxPerMerc-pad, maxX=cX+(w/2)/pxPerMerc+pad;
+  const minY=cY-(h/2)/pxPerMerc-pad, maxY=cY+(h/2)/pxPerMerc+pad;
+  const c0x=Math.floor(minX/MERC_CELL), c1x=Math.floor(maxX/MERC_CELL);
+  const c0y=Math.floor(minY/MERC_CELL), c1y=Math.floor(maxY/MERC_CELL);
+  const k0x=Math.floor(c0x/CHUNK), k1x=Math.floor(c1x/CHUNK);
+  const k0y=Math.floor(c0y/CHUNK), k1y=Math.floor(c1y/CHUNK);
+  const ext=1/D;
+  // Wichtig: ctx.filter wirkt bei JEDEM Zeichenbefehl neu. Die Zellen
+  // einzeln weichzuzeichnen kostete ueber eine halbe Sekunde je Bild.
+  // Deshalb erst hart auf ein Hilfsblatt, dann dieses in EINEM Zug
+  // weichgezeichnet uebernehmen.
+  if(scratchCv.width!==lw||scratchCv.height!==lh){ scratchCv.width=lw; scratchCv.height=lh; }
+  sctx.setTransform(1,0,0,1,0,0);
+  sctx.clearRect(0,0,lw,lh);
+  sctx.fillStyle="#fff";
+  const zellen=()=>{
     for(let kx=k0x;kx<=k1x;kx++) for(let ky=k0y;ky<=k1y;ky++){
       const set=S.cells.get(kx+":"+ky); if(!set) continue;
       set.forEach(key=>{
         const i=key.indexOf(","); const gx=+key.slice(0,i), gy=+key.slice(i+1);
         if(gx<c0x||gx>c1x||gy<c0y||gy>c1y) return;
         const p=toPx(gx*MERC_CELL,(gy+1)*MERC_CELL);
-        mctx.fillRect(p[0]-ext*0.5,p[1]-ext*0.5,cellPx+ext,cellPx+ext);
+        sctx.fillRect(p[0]-ext*0.5,p[1]-ext*0.5,cellPx+ext,cellPx+ext);
       });
     }
+  };
+  zellen();
+  // Zuerst stark weichgezeichnet: das ergibt den Saum, der ueber den Rand
+  // hinausreicht. Dann leicht weich darueber, damit das Innere wirklich frei
+  // wird – sonst laege ein schmaler Weg unter halbem Nebel und die erlaufene
+  // Karte saehe milchig aus –, ohne die Treppenkanten zurueckzuholen.
+  mctx.filter="blur(2.4px)"; mctx.drawImage(scratchCv,0,0);
+  mctx.filter="blur(1px)";   mctx.drawImage(scratchCv,0,0);
+  mctx.filter="none";
+  mctx.restore();
+}
+
+let fogT=0;
+function drawFog(){
+  if(!map._loaded) return;
+  const s=map.getSize(), w=s.x, h=s.y;
+  if(fogCv.width!==Math.round(w*FOG_DPR)||fogCv.height!==Math.round(h*FOG_DPR)) sizeFog();
+  fogPatterns();
+
+  const z=map.getZoom();
+  const pxPerMerc=(256*Math.pow(2,z))/(2*Math.PI*R_EARTH);
+  const c=map.getCenter();
+  const cX=mx(c.lng), cY=my(c.lat);
+
+  const key=z+"|"+cX.toFixed(1)+"|"+cY.toFixed(1)+"|"+S.cellCount+"|"+w+"x"+h;
+  if(maskDirty||key!==maskKey){ buildMask(w,h,cX,cY,pxPerMerc); maskKey=key; maskDirty=false; }
+
+  fctx.setTransform(FOG_DPR,0,0,FOG_DPR,0,0);
+  fctx.clearRect(0,0,w,h);
+  fctx.fillStyle="#14121f";
+  fctx.fillRect(0,0,w,h);
+
+  // Wolken: zwei Lagen, verschieden schnell und in verschiedene Richtungen
+  fctx.imageSmoothingEnabled=false;
+  const t=fogT;
+  const lage=(pat,cv,ax,ay,alpha)=>{
+    const ox=((t*ax)%cv.width+cv.width)%cv.width;
+    const oy=((t*ay)%cv.height+cv.height)%cv.height;
+    fctx.save();
+    fctx.globalAlpha=alpha;
+    fctx.translate(-ox,-oy);            // nur eine Kachel Ueberhang, nicht zwei
+    fctx.fillStyle=pat;
+    fctx.fillRect(0,0,w+cv.width,h+cv.height);
+    fctx.restore();
+  };
+  lage(patA,noiseA, 0.22, 0.09, 0.50);
+  lage(patB,noiseB,-0.13, 0.05, 0.45);
+
+  if(S.cellCount>0){
     fctx.save();
     fctx.globalCompositeOperation="destination-out";
+    fctx.imageSmoothingEnabled=true;      // weicher Saum beim Hochziehen
     fctx.drawImage(maskCv,0,0,w,h);
     fctx.restore();
   }
 }
+
+/* Der Nebel zieht weiter, solange man hinschaut. Beim Zoomen pausiert er,
+   dort bewegt ihn die Karte selbst; bei ausgeschaltetem Bildschirm ebenso,
+   sonst liefe er ohne Zuschauer auf Kosten des Akkus. */
+let fogAnimTimer=null;
+const FOG_MS=70;                          // rund 14 Bilder je Sekunde
+function fogAnimTick(){
+  fogAnimTimer=null;
+  if(!S.fogAnim||document.hidden) return;
+  if(!zooming){ fogT++; drawFog(); }
+  fogAnimStart();
+}
+function fogAnimStart(){
+  if(fogAnimTimer||!S.fogAnim||document.hidden) return;
+  fogAnimTimer=setTimeout(()=>requestAnimationFrame(fogAnimTick),FOG_MS);
+}
+function fogAnimStop(){ clearTimeout(fogAnimTimer); fogAnimTimer=null; }
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden) fogAnimStop(); else fogAnimStart();
+});
 let fogRaf=null;
-function fogRedraw(){ if(fogRaf) return; fogRaf=requestAnimationFrame(()=>{ fogRaf=null; drawFog(); }); }
+function fogRedraw(){
+  if(zooming||fogRaf) return;
+  fogRaf=requestAnimationFrame(()=>{ fogRaf=null; drawFog(); });
+}
 map.on("move zoomend resize viewreset",()=>{ fogRedraw(); pixRedraw(); });
-map.on("zoomstart",()=>fogCv.classList.add("dim"));
-map.on("zoomend",()=>{ fogCv.classList.remove("dim"); fogRedraw(); });
+map.on("resize",fogPadSize);
+
+/* ═══════════ Zoom ═══════════ */
+/* Nebel und Pixelwelt liegen als eigene Ebenen ueber der Karte und sind in
+   Bildschirmpunkten gezeichnet. Waehrend Leaflet den Zoom animiert, passen
+   sie also kurz nicht mehr zur Karte darunter.
+   Vorher wurden sie deshalb ausgeblendet – wodurch fuer einen Moment die
+   ganze Karte offen dalag, samt allem, was man nie aufgedeckt hat. Statt
+   dessen laufen sie jetzt mit: dieselbe Verschiebung und Streckung, die
+   Leaflet auf seine eigenen Ebenen legt. Der Nebel bleibt dicht, wandert
+   mit und wird am Ende der Bewegung sauber neu gezeichnet. */
+let zooming=false, fogPad=null;
+/* Beim Herauszoomen schrumpft die mitbewegte Ebene – aussen herum entstuende
+   ein offener Rand auf nie betretenes Gebiet. Dort liegt waehrend der
+   Bewegung ein Rahmen in Nebelfarbe.
+   Bewusst nur ein Rahmen und keine volle Flaeche: sonst wuerde er auch das
+   schon Aufgedeckte zudecken, und die erlaufene Karte flackerte bei jedem
+   Zoom kurz weg. Gezeichnet wird gleich die Endlage – anfangs liegt der
+   Rahmen damit unter der noch grossen Nebelebene und faellt nicht auf. */
+/* Der Rahmen ist dauerhaft da. In Ruhe deckt sich sein Loch genau mit dem
+   Bildschirm, der Schatten liegt also vollstaendig ausserhalb und ist
+   unsichtbar. Wichtig ist das, weil ein Element, das gerade erst auf
+   display:block springt, keinen Uebergang mitmacht – es waere sofort in
+   der Endlage, waehrend die Nebelebene noch laeuft, und wuerde ihr genau
+   das Stueck verdecken, das man sehen will. */
+function fogPadSize(){
+  if(!fogPad) return;
+  const s2=map.getSize();
+  fogPad.style.width=s2.x+"px"; fogPad.style.height=s2.y+"px";
+}
+function fogPadInit(){
+  if(fogPad) return;
+  fogPad=document.createElement("div");
+  fogPad.id="fogpad";
+  document.body.insertBefore(fogPad,fogCv);
+  fogPadSize();
+}
+function fogPadShow(on,off,scale){
+  fogPadInit();
+  // Derselbe Lauf wie die Nebelebene: dann deckt sich das Loch im Rahmen
+  // jederzeit mit ihr, statt nur am Ende der Bewegung zu passen.
+  if(on) zoomTransform(fogPad,off,scale);
+  else zoomTransform(fogPad,null,1);
+}
+function zoomTransform(el,off,scale){
+  el.style.transformOrigin="0 0";
+  if(off){
+    // Dieselbe Dauer und Kurve, die Leaflet fuer seine eigenen Ebenen nimmt –
+    // sonst springt der Nebel sofort ans Ziel, waehrend die Karte noch laeuft,
+    // und genau dazwischen klafft der Blick auf die ganze Karte.
+    el.classList.add("zoomanim");
+    el.style.transform="translate("+off.x+"px,"+off.y+"px) scale("+scale+")";
+  } else {
+    el.classList.remove("zoomanim");
+    el.style.transform="";
+  }
+}
+map.on("zoomstart",()=>{ zooming=true; fogPadInit(); });
+map.on("zoomanim",e=>{
+  zooming=true;
+  try{
+    const scale=map.getZoomScale(e.zoom,map.getZoom());
+    // Wo landet die linke obere Ecke der jetzigen Ansicht nach dem Zoom?
+    const nw=map.containerPointToLatLng([0,0]);
+    const origin=map._getNewPixelOrigin(e.center,e.zoom);
+    const off=map.project(nw,e.zoom).subtract(origin);
+    zoomTransform(fogCv,off,scale);
+    if(pixCv) zoomTransform(pixCv,off,scale);
+    fogPadShow(scale<1,off,scale);      // beim Hineinzoomen wird nichts frei
+  }catch(err){
+    // Sollte Leaflet seine Innereien einmal umbauen: lieber unverschoben
+    // stehen lassen als durchsichtig werden.
+  }
+});
+map.on("zoomend",()=>{
+  zooming=false; fogPadShow(false);
+  zoomTransform(fogCv,null,1);
+  if(pixCv) zoomTransform(pixCv,null,1);
+  fogRedraw(); pixRedraw();
+});
 window.addEventListener("resize",()=>{ dpr=Math.min(2,window.devicePixelRatio||1); sizeFog(); fogRedraw(); });
 
 function reveal(lat,lng){
@@ -2086,6 +2381,116 @@ function refreshPoiMarkers(){
   });
 }
 
+/* ═══════════ Besuchte Orte ═══════════ */
+/* Einen schon entdeckten Ort wieder auf der Karte finden – samt Datum,
+   wann man dort war. */
+let flashRing=null;
+function gotoPlace(id){
+  const f=S.poisFound[id];
+  const q=POIS.find(x=>x.id===id);
+  const la=(f&&f.la!=null)?f.la:(q&&q.lat), ln=(f&&f.ln!=null)?f.ln:(q&&q.lng);
+  if(la==null||ln==null){ setStatus("Zu diesem Ort fehlen die Koordinaten."); return; }
+  follow=false;                       // sonst zieht die nächste Ortung zurück
+  map.setView([la,ln],18,{animate:true});
+  $("more").classList.remove("open");
+  document.body.classList.remove("panel-open");
+  $("btnMore").classList.remove("flip");
+  if(flashRing){ map.removeLayer(flashRing); flashRing=null; }
+  // Als Marker mit eigenem Element statt als Vektorkreis: Leaflet legt die
+  // SVG-Ebene sonst erst verzoegert an, und der Ring bliebe unsichtbar.
+  flashRing=L.marker([la,ln],{icon:L.divIcon({className:"",
+    html:'<div class="flash"></div>',iconSize:[64,64],iconAnchor:[32,32]}),
+    keyboard:false, interactive:false, zIndexOffset:1200}).addTo(map);
+  setTimeout(()=>{ if(flashRing){ map.removeLayer(flashRing); flashRing=null; } },2600);
+  setStatus("<b>"+((f&&f.n)||(q&&q.name)||"Ort")+"</b>"+(f&&f.t?" · besucht "+fmtDate(f.t):""));
+}
+function fmtDate(t){
+  if(!t) return "";
+  const d=new Date(t), p2=n=>(n<10?"0":"")+n;
+  return p2(d.getDate())+"."+p2(d.getMonth()+1)+"."+d.getFullYear();
+}
+function fmtAgo(t){
+  if(!t) return "vor dem Update";
+  const tage=Math.floor((Date.now()-t)/86400000);
+  if(tage<=0) return "heute";
+  if(tage===1) return "gestern";
+  if(tage<7) return "vor "+tage+" Tagen";
+  if(tage<62){ const w=Math.round(tage/7); return "vor "+w+(w===1?" Woche":" Wochen"); }
+  const m=Math.round(tage/30.4);
+  if(m<24) return "vor "+m+(m===1?" Monat":" Monaten");
+  const j=Math.round(m/12);
+  return "vor "+j+(j===1?" Jahr":" Jahren");
+}
+
+/* ═══════════ Dateien herausgeben ═══════════ */
+/* Im Browser genuegt ein Verweis mit download-Attribut. In der App aus dem
+   APK laeuft dieselbe Seite in einer WebView, und die hat keinen
+   Download-Manager: der Klick passiert, es geschieht nichts – genau der
+   Fall, der beim Spielstand aufgefallen ist.
+   Deshalb dort der Umweg ueber das Dateisystem und das Teilen-Menue, und
+   wenn auch das fehlt, bleibt der Text zum Kopieren im Fenster stehen. */
+function capPlugin(n){
+  const C=window.Capacitor;
+  return (C && C.Plugins && C.Plugins[n]) || null;
+}
+function blobToB64(b){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(String(r.result).split(",")[1]||"");
+    r.onerror=rej;
+    r.readAsDataURL(b);
+  });
+}
+async function saveFile(name, data, mime, text){
+  const blob=(data instanceof Blob)?data:new Blob([data],{type:mime});
+  const FS=capPlugin("Filesystem"), SH=capPlugin("Share");
+  if(FS && FS.writeFile){
+    let uri=null;
+    try{
+      const b64=await blobToB64(blob);
+      const w=await FS.writeFile({path:name,data:b64,directory:"CACHE"});
+      uri=(w&&w.uri)||null;
+    }catch(e){ uri=null; }
+    if(uri){
+      // Das Teilen-Menü darf scheitern oder abgebrochen werden – die Datei
+      // liegt dann trotzdem, und das ist die Hauptsache.
+      if(SH && SH.share){
+        try{
+          await SH.share({title:name, files:[uri]});
+          setStatus("<b>"+name+"</b> weitergegeben.");
+          return true;
+        }catch(e){}
+      }
+      setStatus("Gespeichert: <b>"+name+"</b>");
+      return true;
+    }
+  }
+  // Browser: der gewohnte Weg
+  if(!capPlugin("Filesystem")){
+    try{
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download=name;
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+      return true;
+    }catch(e){}
+  }
+  // Notausgang: Text zum Kopieren anzeigen
+  if(text!=null){ showCopy(name,text); return true; }
+  setStatus("Konnte <b>"+name+"</b> nicht ablegen.");
+  return false;
+}
+/* Notausgang fuer Textdateien: anzeigen, markieren, kopieren. */
+function showCopy(name,text){
+  const box=$("copyBox"), ta=$("copyText");
+  if(!box||!ta){ setStatus("Konnte <b>"+name+"</b> nicht ablegen."); return; }
+  $("copyName").textContent=name;
+  ta.value=text;
+  $("copyInfo").textContent=Math.round(text.length/1024)+" KB";
+  box.classList.remove("hide");
+}
+
 /* ═══════════ Bewegungssensor ═══════════ */
 /* Ein Beschleunigungssensor unterscheidet Gehen und Fahren zuverlaessiger
    als jedes Tempo: beim Gehen schwankt die Beschleunigung im Takt der
@@ -2102,21 +2507,37 @@ function refreshPoiMarkers(){
    Wichtig: faellt der Sensor aus (im Browser bei ausgeschaltetem Bildschirm,
    oder wenn das Geraet keinen hat), wird NICHT blockiert. Eine fehlende
    Messung darf die Aufzeichnung nicht stilllegen. */
-const MOT_WIN   = 3000;   // Fenster fuer die Unruhe
-const MOT_CARRY = 0.8;    // m/s² Streuung – darueber wird getragen
-const MOT_HOLD  = 8000;   // so lange gilt "wird getragen" nach
-const MOT_DEAD  = 5000;   // ohne Messwert gilt der Sensor als nicht vorhanden
+const MOT_WIN    = 3000;   // Fenster fuer die Unruhe
+const MOT_SPAN   = 1200;   // so weit muss das Fenster mindestens reichen
+const MOT_FLOOR  = 0.30;   // m/s² – darunter liegt das Geraet in jedem Fall ruhig
+const MOT_FRAC   = 0.30;   // Anteil des gelernten Gehwerts, der als "getragen" gilt
+const MOT_PROVEN = 0.80;   // so viel Unruhe muss einmal dagewesen sein,
+                           // bevor ueberhaupt blockiert wird
+const MOT_DECAY  = 0.9985; // wie schnell der gelernte Gehwert wieder faellt
+const MOT_HOLD   = 8000;   // so lange gilt "wird getragen" nach
+const MOT_DEAD   = 5000;   // ohne Messwert gilt der Sensor als nicht vorhanden
 const STEP_TH   = 1.4;    // Ausschlag, der als Schritt zaehlt
 const STEP_GAP  = 260;    // Mindestabstand zwischen zwei Schritten (ms)
 
 const motion={
-  on:false, samples:[], last:0, base:null, energy:0,
-  steps:0, lastStep:0, carryUntil:0, peak:false,
-  handler:null,
+  on:false, samples:[], last:0, first:0, n:0, base:null, energy:0,
+  steps:0, lastStep:0, carryUntil:0, peak:false, handler:null,
+  walkRef:0, proven:false, lo:99, hi:0, sum:0, cnt:0,
 
   alive(t){ return this.last>0 && (t||Date.now())-this.last<MOT_DEAD; },
+  /* Die Schwelle lernt das Gerät selbst an: sie ist ein Bruchteil dessen,
+     was beim Gehen tatsächlich gemessen wurde. Ein fester Wert kann nicht
+     stimmen – je nach Gerät, Tasche und Gangart liegt die Unruhe beim Gehen
+     zwischen 0,5 und 5 m/s². */
+  level(){ return Math.max(MOT_FLOOR, this.walkRef*MOT_FRAC); },
+  /* Messrate aus dem laufenden Fenster – zeigt, wie oft das Gerät gerade
+     liefert, nicht den Schnitt seit dem Start. */
+  rate(){ const s=this.samples; if(s.length<2) return 0;
+    const d=s[s.length-1].t-s[0].t;
+    return d>0 ? (s.length-1)/(d/1000) : 0; },
   carried(t){ t=t||Date.now();
-    if(!this.alive(t)) return true;          // kein Sensor: nicht blockieren
+    if(!this.alive(t)) return true;    // kein Sensor: niemals blockieren
+    if(!this.proven)   return true;    // noch nie echtes Gehen gesehen: auch nicht
     return t<this.carryUntil;
   },
   sample(e,ts){
@@ -2124,17 +2545,27 @@ const motion={
     if(!a||a.x==null) return;
     const t=(ts!=null)?ts:Date.now();
     const m=Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
-    this.last=t;
+    if(!this.first) this.first=t;
+    this.last=t; this.n++;
     this.samples.push({t,m});
     const cut=t-MOT_WIN;
-    while(this.samples.length && this.samples[0].t<cut) this.samples.shift();
-    // Streuung ueber das Fenster
-    let sum=0; for(const s of this.samples) sum+=s.m;
+    while(this.samples.length>1 && this.samples[0].t<cut) this.samples.shift();
+    // Das Fenster muss eine Weile abdecken – wie viele Messwerte darin
+    // liegen, hängt vom Gerät ab und darf nicht die Bedingung sein.
+    const spanne=t-this.samples[0].t;
+    let sum=0; for(const x of this.samples) sum+=x.m;
     const mean=sum/this.samples.length;
-    let v=0; for(const s of this.samples) v+=(s.m-mean)*(s.m-mean);
+    let v=0; for(const x of this.samples) v+=(x.m-mean)*(x.m-mean);
     this.energy=Math.sqrt(v/this.samples.length);
-    if(this.samples.length>8 && this.energy>=MOT_CARRY) this.carryUntil=t+MOT_HOLD;
-    // Schritte: ein Ausschlag ueber die Ruhelage, dann wieder darunter
+    if(spanne>=MOT_SPAN && this.samples.length>=3){
+      this.lo=Math.min(this.lo,this.energy); this.hi=Math.max(this.hi,this.energy);
+      this.sum+=this.energy; this.cnt++;
+      // Bezugswert fürs Gehen: langsam fallender Höchstwert
+      this.walkRef=Math.max(this.walkRef*MOT_DECAY, this.energy);
+      if(this.walkRef>=MOT_PROVEN) this.proven=true;
+      if(this.energy>=this.level()) this.carryUntil=t+MOT_HOLD;
+    }
+    // Schritte nur zur Anzeige
     if(this.base==null){ this.base=m; return; }
     const dev=m-this.base;
     this.base=this.base*0.92+m*0.08;
@@ -2146,7 +2577,7 @@ const motion={
     if(on===this.on) return;
     if(on){
       if(typeof DeviceMotionEvent==="undefined") return;
-      this.samples=[]; this.base=null; this.energy=0; this.last=0;
+      this.samples=[]; this.base=null; this.energy=0; this.last=0; this.first=0; this.n=0;
       if(!this.handler) this.handler=e=>this.sample(e);
       window.addEventListener("devicemotion",this.handler);
     } else if(this.handler) window.removeEventListener("devicemotion",this.handler);
@@ -2163,7 +2594,9 @@ const motion={
     }catch(e){}
     return true;
   },
-  reset(){ this.steps=0; this.carryUntil=0; this.samples=[]; this.base=null; }
+  reset(){ this.steps=0; this.carryUntil=0; this.samples=[]; this.base=null;
+           this.walkRef=0; this.proven=false;
+           this.lo=99; this.hi=0; this.sum=0; this.cnt=0; this.n=0; this.first=0; }
 };
 
 /* ═══════════ Sparmodus ═══════════ */
@@ -3309,11 +3742,7 @@ function exportMapImage(){
 
   cv.toBlob(bl => {
     if (!bl){ toast("Bild fehlgeschlagen", "Bitte nochmal versuchen."); return; }
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(bl);
-    a.download = "fogwalk-karte-" + dayKey() + ".png";
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    saveFile("fogwalk-karte-" + dayKey() + ".png", bl, "image/png");
     toast("Kartenbild gespeichert", cw + "×" + ch + " Pixel");
   }, "image/png");
 }
@@ -3332,11 +3761,7 @@ function exportGPX(){
     g += "</trkseg>\n";
   });
   g += "</trk></gpx>\n";
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([g], {type:"application/gpx+xml"}));
-  a.download = "fogwalk-" + dayKey() + ".gpx";
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  saveFile("fogwalk-" + dayKey() + ".gpx", g, "application/gpx+xml", g);
   const pts = segs.reduce((a2, s) => a2 + s.length, 0);
   toast("GPX gespeichert", segs.length + " Teilstücke · " + pts + " Punkte");
 }
@@ -3427,6 +3852,75 @@ function renderStats(){
       + (S.lat != null ? habName(habAt(S.lat, S.lng)) : "noch unbekannt") + "</b></div>";
 }
 
+/* ═══════════ Besuchte Orte ═══════════ */
+const PLACE_SORT=[
+  {id:"neu",  name:"Neueste"},
+  {id:"nah",  name:"Nächste"},
+  {id:"wert", name:"Größte"}
+];
+function placeList(){
+  const out=[];
+  Object.keys(S.poisFound).forEach(id=>{
+    const f=S.poisFound[id];
+    const q=(typeof POIS!=="undefined") ? POIS.find(x=>x.id===id) : null;
+    const la=(f&&f.la!=null)?f.la:(q&&q.lat);
+    const ln=(f&&f.ln!=null)?f.ln:(q&&q.lng);
+    if(la==null||ln==null) return;                 // ohne Koordinaten nutzlos
+    const ty=(f&&f.ty)||(q&&q.type)||"attraction";
+    const d=poiDef(ty);
+    out.push({id, n:(f&&f.n)||(q&&q.name)||d.label, t:(f&&f.t)||0,
+              la, ln, ty, d,
+              dist:(S.lat!=null)?haversine(S.lat,S.lng,la,ln):null});
+  });
+  return out;
+}
+function renderPlaces(){
+  const box=$("places"); if(!box) return;
+  const wrap=$("placeSort");
+  if(wrap && !wrap.children.length){
+    PLACE_SORT.forEach(o=>{
+      const b=document.createElement("button");
+      b.textContent=o.name; b.dataset.s=o.id;
+      b.onclick=()=>{ S.placeSort=o.id; save(); renderPlaces(); };
+      wrap.appendChild(b);
+    });
+  }
+  const sortId=S.placeSort||"neu";
+  if(wrap) wrap.querySelectorAll("button").forEach(b=>
+    b.classList.toggle("on", b.dataset.s===sortId));
+
+  const q=(($("placeQ")||{}).value||"").trim().toLowerCase();
+  let list=placeList();
+  const gesamt=list.length;
+  if(q) list=list.filter(x=>x.n.toLowerCase().indexOf(q)>=0
+                          || x.d.label.toLowerCase().indexOf(q)>=0);
+  if(sortId==="nah" && S.lat!=null) list.sort((a,b)=>a.dist-b.dist);
+  else if(sortId==="wert") list.sort((a,b)=>b.d.xp-a.d.xp || b.t-a.t);
+  else list.sort((a,b)=>b.t-a.t || a.n.localeCompare(b.n,"de"));
+
+  if(!gesamt){
+    box.innerHTML='<div class="subline">Noch keine Orte entdeckt. '
+      + 'Sehenswürdigkeiten tauchen auf, sobald du nah genug herangehst.</div>';
+    return;
+  }
+  if(!list.length){ box.innerHTML='<div class="subline">Nichts gefunden.</div>'; return; }
+
+  const zeige=list.slice(0,120);
+  box.innerHTML=zeige.map(x=>
+    '<button class="prow" data-p="'+x.id+'">'
+    + '<span class="pg '+x.d.cls+'">'+x.d.g+"</span>"
+    + '<span class="pn"><b>'+escP(x.n)+"</b>"
+    + '<em>'+x.d.label+" · "+fmtAgo(x.t)+(x.t?" ("+fmtDate(x.t)+")":"")+"</em></span>"
+    + (x.dist!=null?'<span class="pd">'+fmtD(x.dist)+"</span>":"")
+    + "</button>").join("")
+    + (list.length>zeige.length
+        ? '<div class="subline">… und '+(list.length-zeige.length)+" weitere. Nutze die Suche.</div>"
+        : "");
+  box.querySelectorAll("button[data-p]").forEach(b=>
+    b.onclick=()=>gotoPlace(b.dataset.p));
+}
+function escP(s){ return String(s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+
 /* Reiter im Bedienfeld */
 function setTab(id){
   S.tab = id;
@@ -3435,6 +3929,8 @@ function setTab(id){
   document.querySelectorAll(".tabp").forEach(p =>
     p.style.display = (p.dataset.t === id ? "block" : "none"));
   if (id === "ziele") renderQuests();
+  if (id === "beute"){ renderGear(); renderInv(); renderCollection(); }
+  if (id === "karte") renderPlaces();
   if (id === "beute"){ renderGear(); renderInv(); renderCollection(); }
   if (id === "mehr"){ renderStats(); renderNoti(); saverHint(); stepHint(); }
   stepLive(id === "mehr");
@@ -3616,7 +4112,10 @@ function onMove(lat,lng,acc,credit,ghost){
     if(S.poisFound[p.id]) return;
     if(haversine(lat,lng,p.lat,p.lng)<=poiM()){
       const d=poiDef(p.type);
-      S.poisFound[p.id]=true;
+      // Ab jetzt mit Zeitpunkt und Eckdaten: dadurch bleibt der Ort in der
+      // Liste auffindbar, auch wenn die geladenen OSM-Daten später einmal
+      // ausgedünnt werden.
+      S.poisFound[p.id]={t:Date.now(), n:p.name, la:p.lat, ln:p.lng, ty:p.type};
       grantXP(d.xp);
       toast(p.name,"Entdeckt · +"+d.xp+" XP");
       notify("orte",p.name,"Neuer Ort entdeckt · +"+d.xp+" XP");
@@ -3672,6 +4171,11 @@ const RIDE_OFF_MS  = 2.6;    // 9 km/h – darunter ist man wieder zu Fuss
 const RIDE_ON_FOR  = 6000;   // so lange muss es schnell bleiben
 const RIDE_OFF_FOR = 12000;  // und so lange wieder langsam
 let riding=false, fastSince=0, slowSince=0, rideDist=0, rideStart=0;
+const BLOCK_KEEP=20000;   // so lange darf die Schrittpruefung aussetzen,
+                          // ohne dass die Messung neu aufsetzt
+const BLOCK_MOVED=30;     // so weit muss man sich waehrend der Sperre bewegt
+                          // haben, damit der Vorlauf zurueckgenommen wird
+let blockFrom=0, blockPos=null, blockUndone=false;
 /* Die ersten Sekunden einer Fahrt sehen noch aus wie schnelles Gehen –
    erst nach RIDE_ON_FOR steht fest, dass es eine Fahrt ist. Damit dabei
    kein Streifen Nebel offen bleibt, merkt sich die App kurz, was sie
@@ -3764,9 +4268,30 @@ function handleFix(lat,lng,acc,speed,ts){
   // vor allem anderen, sonst deckt schon der Aufbau des Ankers Karte auf.
   if(S.stepGate && !motion.carried(now)){
     standing=false;
-    anchor=null;              // nach der Freigabe sauber neu ansetzen
+    if(!blockFrom){ blockFrom=now; blockPos={lat:M.lat,lng:M.lng}; blockUndone=false; }
+    // Bis die Prüfung anschlägt, vergehen das Messfenster und die
+    // Nachhaltezeit – in denen wurde schon aufgedeckt. Zurückgenommen wird
+    // das aber nur, wenn man sich seither auch wirklich fortbewegt hat.
+    // Sonst würde ein ruhig abgelegtes Handy beim Stehen die letzten
+    // gegangenen Meter löschen.
+    if(!blockUndone && blockPos
+       && haversine(blockPos.lat,blockPos.lng,M.lat,M.lng)>BLOCK_MOVED){
+      blockUndone=true;
+      undoSince(blockFrom-MOT_HOLD-MOT_WIN);
+    }
+    // Der Anker bleibt zunächst stehen. Kurze Aussetzer – das Handy liegt
+    // einen Moment ruhig in der Hand – sollen die Messung nicht neu
+    // aufsetzen lassen: der Neuaufbau braucht sechs Ortungen, in denen
+    // zwar Karte aufgedeckt, aber keine Strecke gutgeschrieben wird.
+    // Genau daraus wurden verstreute Nebelinseln ohne Strecke.
+    if(now-blockFrom>BLOCK_KEEP) anchor=null;
     onMove(M.lat,M.lng,acc,0,true);
     return;
+  }
+  if(blockFrom){
+    // Kurze Unterbrechung: der Weg dazwischen wurde wirklich gegangen.
+    if(now-blockFrom>BLOCK_KEEP){ resetDrift(); trailBreak(); }
+    blockFrom=0; blockPos=null; blockUndone=false;
   }
 
   if(!anchor){
@@ -3894,6 +4419,7 @@ function startWalk(){
   }
   walking=true; follow=true; resetDrift();
   riding=false; fastSince=0; slowSince=0; rideDist=0;
+  blockFrom=0; blockPos=null; blockUndone=false;
   dozing=false; stillSince=0; dozeAnchor=null;
   if(!S.since) S.since=Date.now();
   session={t:Date.now(), xp:S.xp, dist:S.dist, cells:S.cellCount,
@@ -3938,8 +4464,13 @@ function showSummary(){
   ];
   if(sess.gaps) rows.push(["Pausen", sess.gaps+" · "+fmtDur(sess.gapMs)+" nicht gezählt"]);
   if(sess.rides) rows.push(["Fahrten", sess.rides+" · "+fmtD(sess.rideM)+" nicht gezählt"]);
-  if(S.stepGate && sess.motAll>5) rows.push(["Bewegungssensor",
-    Math.round(sess.motOk/sess.motAll*100)+" % der Zeit verfügbar"]);
+  if(S.stepGate && sess.motAll>5){
+    rows.push(["Bewegungssensor",
+      Math.round(sess.motOk/sess.motAll*100)+" % der Zeit verfügbar"]);
+    if(motion.cnt>10) rows.push(["Unruhe gemessen",
+      motion.lo.toFixed(2)+" – "+motion.hi.toFixed(2)+" m/s² · Schnitt "
+      +(motion.sum/motion.cnt).toFixed(2)+" · "+motion.rate().toFixed(0)+" Hz"]);
+  }
   $("sumRows").innerHTML=rows.map(r=>
     '<div class="srow"><span>'+r[0]+"</span><b>"+r[1]+"</b></div>").join("");
   $("summary").classList.remove("hide");
@@ -4069,6 +4600,14 @@ function buildFontButtons(){
   });
 }
 
+function wireFogAnim(){
+  const c=$("fogAnim"); if(!c) return;
+  c.checked=!!S.fogAnim;
+  c.onchange=()=>{
+    S.fogAnim=c.checked; save();
+    if(S.fogAnim) fogAnimStart(); else { fogAnimStop(); fogRedraw(); }
+  };
+}
 function stepHint(){
   const el=$("stepHint"); if(!el) return;
   el.textContent = S.stepGate
@@ -4088,10 +4627,12 @@ function stepLive(on){
     const t=Date.now();
     if(!motion.alive(t)){ el.innerHTML='<span class="warn">Kein Sensor – Prüfung ruht</span>'; return; }
     const e=motion.energy;
-    el.innerHTML="Unruhe <b>"+e.toFixed(2)+"</b> m/s² (Schwelle "+MOT_CARRY.toFixed(2)+")"
-      + " · Schritte <b>"+motion.steps+"</b> · "
-      + (motion.carried(t) ? '<span class="ok">wird getragen</span>'
-                           : '<span class="bad">liegt ruhig</span>');
+    el.innerHTML="Unruhe <b>"+e.toFixed(2)+"</b> · Schwelle <b>"+motion.level().toFixed(2)+"</b>"
+      + " m/s² · <b>"+motion.rate().toFixed(0)+"</b> Hz · Schritte <b>"+motion.steps+"</b><br>"
+      + (!motion.proven
+          ? '<span class="warn">Lernt noch – blockiert nichts. Geh ein paar Schritte.</span>'
+          : motion.carried(t) ? '<span class="ok">wird getragen – zählt</span>'
+                              : '<span class="bad">liegt ruhig – zählt nicht</span>');
   };
   zeig(); stepTimer=setInterval(zeig,600);
 }
@@ -4192,28 +4733,51 @@ document.addEventListener("visibilitychange",()=>{
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{ setTab(b.dataset.t); save(); });
 $("btnMapImg").onclick=exportMapImage;
 $("btnGpx").onclick=exportGPX;
-$("btnExport").onclick=()=>{
-  const blob=new Blob([JSON.stringify(serialize())],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="fogwalk-spielstand.json";
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
+$("btnExport").onclick=async()=>{
+  const txt=JSON.stringify(serialize());
+  setStatus("Spielstand wird gesichert …");
+  await saveFile("fogwalk-spielstand-"+dayKey()+".json", txt, "application/json", txt);
 };
+$("copyClose").onclick=()=>$("copyBox").classList.add("hide");
+$("copyGo").onclick=async()=>{
+  const ta=$("copyText");
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(ta.value);
+    } else { ta.select(); document.execCommand("copy"); }
+    $("copyInfo").textContent="Kopiert.";
+  }catch(e){
+    ta.select();
+    $("copyInfo").textContent="Bitte von Hand kopieren (alles markiert).";
+  }
+};
+/* Einfügen statt Datei auswählen – in der App der verlässlichere Weg. */
+$("btnPaste").onclick=async()=>{
+  let txt="";
+  try{
+    if(navigator.clipboard && navigator.clipboard.readText) txt=await navigator.clipboard.readText();
+  }catch(e){}
+  if(!txt) txt=prompt("Spielstand hier einfügen:")||"";
+  if(!txt.trim()) return;
+  loadSave(txt);
+};
+function loadSave(txt){
+  try{
+    hydrate(JSON.parse(txt));
+    trailLine.setLatLngs(S.trail); refreshPoiMarkers(); renderInv(); renderGear(); renderLog();
+    renderQuests(); renderCollection(); renderStats();
+    updateHUD(); fogRedraw(); save();
+    setStatus("Spielstand geladen.");
+    return true;
+  }catch(e){ setStatus("Das war kein gültiger Spielstand."); return false; }
+}
 $("btnImport").onclick=()=>{
   const inp=document.createElement("input");
   inp.type="file"; inp.accept="application/json,.json";
   inp.onchange=()=>{
     const f=inp.files[0]; if(!f) return;
     const rd=new FileReader();
-    rd.onload=()=>{
-      try{
-        hydrate(JSON.parse(rd.result));
-        trailLine.setLatLngs(S.trail); refreshPoiMarkers(); renderInv(); renderGear(); renderLog();
-        updateHUD(); fogRedraw(); save();
-        setStatus("Spielstand geladen.");
-      }catch(e){ setStatus("Datei konnte nicht gelesen werden."); }
-    };
+    rd.onload=()=>loadSave(rd.result);
     rd.readAsText(f);
   };
   inp.click();
@@ -4245,12 +4809,20 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   if(db){
     const p=await kvGet("pois");
     if(p&&p.list){ POIS=p.list; poiAreas=p.areas||{}; }
+    // Früher wurde nur "gefunden: ja" vermerkt. Was sich aus den geladenen
+    // Orten noch ergänzen lässt, wird jetzt nachgetragen – der Zeitpunkt
+    // fehlt für diese Funde allerdings für immer.
+    Object.keys(S.poisFound).forEach(id=>{
+      if(typeof S.poisFound[id]==="object") return;
+      const q=POIS.find(x=>x.id===id);
+      S.poisFound[id]=q?{t:0,n:q.name,la:q.lat,ln:q.lng,ty:q.type}:{t:0};
+    });
     const px=await kvGet("pixel");
     if(px&&px.ways){ pixState.ways=px.ways; pixState.areas=px.areas||{}; }
     const hb=await kvGet("habitat");
     if(hb&&hb.list){ HAB=hb.list; habAreas=hb.areas||{}; }
   }
-  sizeFog();
+  sizeFog(); fogPadInit();
   buildStyleButtons();
   buildGpsButtons();
   buildFontButtons();
@@ -4265,9 +4837,11 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   buildQuests();
   refreshPoiMarkers(); renderInv(); renderGear(); renderLog(); updateHUD(); fogRedraw();
   renderQuests(); renderCollection(); renderStats();
-  renderNoti(); wireNoti(); wireSaver(); wireStep(); setTab(S.tab);
+  renderNoti(); wireNoti(); wireSaver(); wireStep();
+  $("placeQ").addEventListener("input",renderPlaces);
+  wireFogAnim(); renderPlaces(); setTab(S.tab);
   if(!S.seen) $("intro").classList.remove("hide");
-  setTimeout(()=>{ map.invalidateSize(); sizeFog(); fogRedraw(); },200);
+  setTimeout(()=>{ map.invalidateSize(); sizeFog(); fogRedraw(); fogAnimStart(); },200);
   window.__nb={S,map,onMove,reveal,loadPOIs,applyStyle,STYLES,tileUrlFor,styleById,handleFix,
              get standing(){return standing;}, get anchor(){return anchor;},
              get driftRejects(){return driftRejects;}, resetDrift,
@@ -4284,7 +4858,17 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              claimQuest,questPreview,pickIds,periodKey,periodIndex,periodLeft,
              weekKey,monthKey,migrateQuests,
              FONTS,applyFont,buildFontButtons,updateHUD,
-             motion,MOT_CARRY,MOT_HOLD,MOT_DEAD,stepHint,wireStep,stepLive,
+             motion,MOT_FLOOR,MOT_FRAC,MOT_PROVEN,MOT_HOLD,MOT_DEAD,
+             stepHint,wireStep,stepLive,BLOCK_KEEP,BLOCK_MOVED,
+             saveFile,showCopy,loadSave,capPlugin,serialize,
+             gotoPlace,fmtDate,fmtAgo,renderPlaces,placeList,
+             get zooming(){return zooming;}, get fogCv(){return fogCv;},
+             fogAnimStart,fogAnimStop,fogDirty,buildMask,makeNoise,wireFogAnim,
+             get fogT(){return fogT;}, set fogT(v){fogT=v;},
+             get maskCv(){return maskCv;},
+             get fogPad(){return fogPad;}, fogPadInit,fogPadSize,
+             get pixCv(){return pixCv;}, fogRedraw,drawFog,
+             get blockFrom(){return blockFrom;},
              habAt,habClear,loadHabitat,habClass,habPrepare,poolFor,itemsNear,
              doze,wake,saverTick,saverStop,startFine,creditGap,probeOnce,
              get dozing(){return dozing;}, get stillSince(){return stillSince;},

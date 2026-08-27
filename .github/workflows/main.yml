@@ -1,36 +1,48 @@
 name: APK bauen
+
 on:
   push:
   workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
   android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+
+      # Capacitor erwartet die Web-Dateien in einem eigenen Ordner.
+      # Den legen wir hier an, damit im Repo alles flach bleiben kann.
       - name: Web-Ordner vorbereiten
         run: |
           mkdir -p www
           cp index.html www/
           cp sw.js www/ 2>/dev/null || true
+
       - name: Abhaengigkeiten holen
         run: npm install
+
       - name: Android-Projekt erzeugen
         run: |
           npx cap add android
           npx cap sync android
+
       - name: APK bauen
         run: |
           chmod +x android/gradlew
           cd android && ./gradlew assembleDebug --no-daemon
+
       - name: Als Release veroeffentlichen
         env:
           GH_TOKEN: ${{ github.token }}
@@ -38,3 +50,8 @@ jobs:
           cp android/app/build/outputs/apk/debug/app-debug.apk fogwalk.apk
           gh release create latest --title "Fogwalk" --notes "Neueste APK" 2>/dev/null || true
           gh release upload latest fogwalk.apk --clobber
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fogwalk-apk
+          path: fogwalk.apk

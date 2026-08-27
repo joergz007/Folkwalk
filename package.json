@@ -5,7 +5,8 @@
   "dependencies": {
     "@capacitor/core": "7.6.8",
     "@capacitor/android": "7.6.8",
-    "@capacitor-community/background-geolocation": "1.2.26"
+    "@capacitor-community/background-geolocation": "1.2.26",
+    "@capacitor/local-notifications": "7.0.7"
   },
   "devDependencies": {
     "@capacitor/cli": "7.6.8"

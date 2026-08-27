@@ -679,9 +679,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   --px:3px;
   --night:#14121f; --deep:#1b1729; --panel:#2a2340; --panel2:#38304f;
   --edge:#6b5a9c; --dark:#0a0812;
-  --paper:#f4f0e4; --dim:#a99ec9; --mist:#7d6fa8;
+  --paper:#f4f0e4; --dim:#c2b8de; --mist:#9c8ccc;
   --ember:#ffb13b; --ember-dk:#b8741a; --ember-lt:#ffd489;
-  --moss:#6ee0a0; --sky:#63c8f0; --rose:#f07898; --violet:#b98ef0;
+  --moss:#6ee0a0; --sky:#63c8f0; --rose:#f07898; --violet:#cbaaf6;
   --f-disp:'Press Start 2P','Courier New',monospace;
   --f-lbl:'Silkscreen','Courier New',monospace;
   --f-body:'Pixelify Sans','Trebuchet MS',sans-serif;
@@ -706,7 +706,7 @@ html,body{
    Die Ecken bleiben frei – genau die abgetreppte Kante von 2D-Spielen.
    var(--brd) wird erst am Element aufgeloest, der Ausdruck ist also
    einmal definiert und faerbt sich trotzdem ueberall passend ein. */
-#lvl,#xptrack,.iconbtn,#dpad .pad,#go,.cell,.btn,#styles button,#gpsf button,.chip,.toast,.sheet,
+#lvl,#xptrack,.iconbtn,#go,.cell,.btn,#styles button,#gpsf button,.chip,.toast,.sheet,
 #diag,.searchrow input,.searchrow button,.primary{
   border:0;border-radius:0;
   box-shadow:var(--frame);
@@ -812,17 +812,6 @@ html,body{
 #side .iconbtn{width:42px;height:42px;font-size:12px;}
 body.panel-open #side{top:22%;transform:none;}
 
-/* Steuerkreuz zum Testen – klassisches Dreier-Raster */
-#dpad{
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);z-index:1000;
-  display:none;grid-template-columns:repeat(3,42px);grid-auto-rows:42px;gap:5px;
-}
-body.panel-open #dpad{top:22%;transform:none;}
-#dpad .pad{width:42px;height:42px;touch-action:none;}
-#dpad .r90 svg{transform:rotate(90deg);}
-#dpad .r180 svg{transform:rotate(180deg);}
-#dpad .r270 svg{transform:rotate(270deg);}
-#padStay{font-family:var(--f-disp);font-size:15px;}
 .iconbtn svg{display:block;}
 #btnMore.flip svg{transform:scaleY(-1);}
 
@@ -833,7 +822,7 @@ body.panel-open #dpad{top:22%;transform:none;}
   box-shadow:0 -3px 0 0 var(--dark), inset 0 3px 0 0 rgba(255,255,255,.10);
   padding:9px 13px calc(12px + env(safe-area-inset-bottom,0px));
 }
-#grip{width:38px;height:5px;background:var(--edge);margin:0 auto 10px;}
+#grip{width:38px;height:5px;background:var(--mist);margin:0 auto 10px;}
 #row{display:flex;align-items:center;gap:10px;}
 #go{
   --brd:var(--ember-dk); --hl:rgba(255,255,255,.34); --sh:rgba(0,0,0,.26);
@@ -909,8 +898,9 @@ h3.sec{
   overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
 .colc em{font-family:var(--f-lbl);font-weight:700;font-size:8px;
   letter-spacing:.05em;text-transform:uppercase;color:var(--sky);font-style:normal;}
-.colc.miss{opacity:.45;}
+.colc.miss{background:#161226;}
 .colc.miss span{color:var(--mist);}
+.colc.miss em{color:var(--mist);}
 .colq{width:30px;height:30px;display:flex;align-items:center;justify-content:center;
   font-family:var(--f-disp);font-size:13px;color:var(--mist);}
 
@@ -931,25 +921,64 @@ h3.sec{
 #styles button:active,#gpsf button:active{transform:translateY(3px);}
 #styles button.on,#gpsf button.on{background:var(--ember);color:#2a1802;--brd:var(--ember-dk);font-weight:700;}
 
-.sliderrow{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
-.sliderrow input{flex:1;min-width:0;accent-color:var(--ember);height:26px;}
-.sliderrow span{font-family:var(--f-disp);font-size:9px;color:var(--dim);width:52px;text-align:right;}
-
-#devBox{display:none;}
-/* eigener Name: .ghost gehoert schon den Knoepfen (.btn.ghost) */
-.rawdot{width:14px;height:14px;background:transparent;
-  box-shadow:0 -2px 0 0 var(--rose),0 2px 0 0 var(--rose),
-             -2px 0 0 0 var(--rose),2px 0 0 0 var(--rose);opacity:.85;}
-.sliderrow .sl{font-family:var(--f-lbl);font-weight:700;font-size:9px;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--mist);
-  width:64px;text-align:left;}
 .chk{display:flex;align-items:center;gap:9px;font-family:var(--f-body);
   font-size:13px;color:var(--dim);margin:2px 1px 10px;}
 .chk input{width:18px;height:18px;accent-color:var(--ember);}
-#devOut{--brd:var(--dark);background:var(--night);color:var(--moss);
-  font-family:var(--f-body);font-size:12.5px;line-height:1.6;
-  padding:10px;margin:0 0 6px;white-space:pre;overflow-x:auto;
+
+#log{font-family:var(--f-body);font-size:13px;color:var(--dim);line-height:1.55;
+  max-height:118px;overflow-y:auto;}
+#log div{padding:4px 0;border-bottom:3px solid var(--deep);}
+#log b{color:var(--ember-lt);font-weight:700;}
+#mats{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:12px;}
+.gearrow{--brd:var(--dark);background:var(--deep);padding:12px;margin-bottom:12px;
   box-shadow:var(--frame);}
+.gearrow.done{opacity:.62;}
+.gh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;}
+.gn{font-family:var(--f-disp);font-size:9px;color:var(--ember);}
+.gp{display:flex;gap:3px;}
+.gp i{width:8px;height:8px;background:var(--panel2);box-shadow:0 -2px 0 0 var(--dark),
+  0 2px 0 0 var(--dark),-2px 0 0 0 var(--dark),2px 0 0 0 var(--dark);}
+.gp i.on{background:var(--ember);}
+.glab{font-family:var(--f-lbl);font-weight:700;font-size:9px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
+.ge{font-family:var(--f-body);font-size:15px;color:var(--dim);margin-bottom:12px;}
+.ge b{color:var(--paper);font-weight:700;}
+.ge .arw{color:var(--moss);}
+
+/* Kostenanzeige: eigene Ueberschrift, je Position ein Kaestchen */
+.clab{font-family:var(--f-lbl);font-weight:700;font-size:9px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--violet);margin-bottom:8px;}
+.clab.done{color:var(--mist);margin-bottom:0;}
+.gcost{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.cc{--brd:var(--dark);background:var(--night);padding:7px 9px;box-shadow:var(--frame);
+  font-family:var(--f-body);font-size:12.5px;color:var(--paper);
+  display:flex;align-items:baseline;gap:5px;}
+.cc b{font-family:var(--f-disp);font-size:10px;color:var(--paper);}
+.cc em{font-style:normal;font-size:11px;color:var(--mist);}
+.cc.lack{--brd:var(--rose);}
+.cc.lack b{color:var(--rose)!important;}
+.ghint{font-family:var(--f-body);font-size:12.5px;color:var(--rose);margin:-4px 0 11px;}
+.gbtn{--brd:var(--ember-dk);width:100%;border:0;cursor:pointer;
+  background:var(--ember);color:#2a1802;padding:12px;
+  font-family:var(--f-body);font-weight:700;font-size:14px;box-shadow:var(--frame);}
+.gbtn:active{transform:translateY(3px);}
+.gbtn.off,.gbtn[disabled]{background:var(--panel2);color:var(--dim);--brd:var(--dark);cursor:default;}
+
+#styles,#gpsf{display:flex;flex-wrap:wrap;gap:11px;margin-bottom:6px;}
+#gpsHint{font-family:var(--f-body);font-size:12.5px;line-height:1.5;
+  color:var(--mist);margin:8px 1px 0;}
+#styles button,#gpsf button{
+  --brd:var(--edge);
+  background:var(--panel2);color:var(--dim);padding:9px 11px;
+  font-family:var(--f-body);font-size:13px;cursor:pointer;
+}
+#styles button:active,#gpsf button:active{transform:translateY(3px);}
+#styles button.on,#gpsf button.on{background:var(--ember);color:#2a1802;--brd:var(--ember-dk);font-weight:700;}
+
+.chk{display:flex;align-items:center;gap:9px;font-family:var(--f-body);
+  font-size:13px;color:var(--dim);margin:2px 1px 10px;}
+.chk input{width:18px;height:18px;accent-color:var(--ember);}
+
 #log{font-family:var(--f-body);font-size:13px;color:var(--dim);line-height:1.55;
   max-height:118px;overflow-y:auto;}
 #log div{padding:4px 0;border-bottom:3px solid var(--deep);}
@@ -974,7 +1003,7 @@ h3.sec{
   background:var(--ember);color:#2a1802;padding:9px 12px;
   font-family:var(--f-body);font-weight:700;font-size:13px;box-shadow:var(--frame);}
 .gbtn:active{transform:translateY(3px);}
-.gbtn[disabled]{background:var(--panel2);color:var(--mist);--brd:var(--dark);cursor:default;}
+.gbtn[disabled]{background:var(--panel2);color:var(--dim);--brd:var(--dark);cursor:default;}
 #inv{display:block;}
 .chip.coin{color:var(--ember);}
 .invrow{--brd:var(--dark);display:flex;align-items:center;gap:9px;
@@ -1069,6 +1098,37 @@ h3.sec{
 #results div:active{color:var(--paper);}
 button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-offset:3px;}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important;}}
+
+/* ---- Benachrichtigungen ---- */
+#notiBox .chk{margin:5px 0;}
+.chk .nh{font-style:normal;color:var(--mist);font-size:11.5px;margin-left:auto;
+  text-align:right;padding-left:10px;}
+#notiBox .btn{margin-top:8px;}
+#notiBox .srow{margin-bottom:4px;}
+#notiBox .nfoot{margin:10px 1px 2px;}
+
+/* ---- Auftragsgruppen (Tag / Woche / Monat) ---- */
+.qgrp{margin:0 0 16px;}
+.qgh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  margin:0 1px 8px;}
+.qgn{font-family:var(--f-disp);font-size:10px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--violet);}
+.qgl{font-family:var(--f-body);font-size:11.5px;color:var(--mist);text-align:right;}
+.qgl.has{color:var(--ember-lt);}
+/* Der Abholen-Knopf sitzt in einer Zeile neben dem Fortschritt und darf
+   sie nicht auf eine Spalte zusammendruecken. */
+.qf>span{flex:1 1 auto;}
+.qf .gbtn{width:auto;flex:0 0 auto;padding-left:22px;padding-right:22px;}
+#quests{margin-top:14px;}
+
+/* ---- Lebensräume ---- */
+.colc em{display:block;font-style:normal;font-family:var(--f-body);
+  font-size:9.5px;line-height:1.3;letter-spacing:0;text-transform:none;
+  color:var(--mist);}
+.colc.now{--brd:var(--moss);}
+.colc.now em{color:var(--moss);}
+
+#colHead .hnow{color:var(--ember-lt);}
 </style>
 </head>
 <body>
@@ -1087,10 +1147,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
 
 <div id="side">
   <button class="iconbtn" id="btnCenter" aria-label="Auf Position zentrieren"><svg viewBox="0 0 9 9" width="19" height="19" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="4" y="0" width="1" height="2"/><rect x="4" y="7" width="1" height="2"/><rect x="0" y="4" width="2" height="1"/><rect x="7" y="4" width="2" height="1"/><rect x="2" y="2" width="5" height="1"/><rect x="2" y="6" width="5" height="1"/><rect x="2" y="3" width="1" height="3"/><rect x="6" y="3" width="1" height="3"/><rect x="4" y="4" width="1" height="1"/></svg></button>
-  <button class="iconbtn" id="btnSim" aria-label="Simulationsmodus"><svg viewBox="0 0 9 9" width="19" height="19" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="0" y="4" width="5" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/></svg></button>
+  
 </div>
 
-<div id="dpad"><span></span><button class="iconbtn pad" data-dx="0" data-dy="1"  aria-label="Nach Norden"><svg viewBox="0 0 9 9" width="17" height="17" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/></svg></button><span></span><button class="iconbtn pad r270" data-dx="-1" data-dy="0" aria-label="Nach Westen"><svg viewBox="0 0 9 9" width="17" height="17" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/></svg></button><button class="iconbtn pad" id="padStay" aria-label="Stehen bleiben">·</button><button class="iconbtn pad r90" data-dx="1" data-dy="0" aria-label="Nach Osten"><svg viewBox="0 0 9 9" width="17" height="17" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/></svg></button><span></span><button class="iconbtn pad r180" data-dx="0" data-dy="-1" aria-label="Nach Süden"><svg viewBox="0 0 9 9" width="17" height="17" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/></svg></button><span></span></div>
 <div id="pixHint"></div>
 <div id="toasts"></div>
 
@@ -1118,7 +1177,6 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
       </div>
 
       <div class="tabp" data-t="ziele">
-        <h3 class="sec">Aufträge des Tages</h3>
         <div id="quests"></div>
       </div>
 
@@ -1136,11 +1194,6 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
       <div class="tabp" data-t="karte">
         <h3 class="sec">Kartenstil</h3>
         <div id="styles"></div>
-        <h3 class="sec">Nebeldichte</h3>
-        <div class="sliderrow">
-          <input type="range" id="fogSlider" min="70" max="100" value="100" aria-label="Nebeldichte">
-          <span id="fogVal" class="mono">100 %</span>
-        </div>
         <h3 class="sec">Karte offline sichern</h3>
         <button class="btn" id="btnPrefetch">Sichtbaren Bereich herunterladen</button>
         <button class="btn" id="btnPoi">Sehenswürdigkeiten laden</button>
@@ -1153,20 +1206,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
         <h3 class="sec">GPS-Filter</h3>
         <div id="gpsf"></div>
         <div id="gpsHint"></div>
-        <div id="devBox">
-          <h3 class="sec">Testmodus</h3>
-          <div class="sliderrow"><span class="sl">Tempo</span>
-            <input type="range" id="devSpeed" min="1" max="15" step="1" value="4">
-            <span id="devSpeedV" class="mono">4 km/h</span></div>
-          <div class="sliderrow"><span class="sl">Rauschen</span>
-            <input type="range" id="devNoise" min="0" max="20" step="1" value="3">
-            <span id="devNoiseV" class="mono">3 m</span></div>
-          <button class="btn" id="devStand">Stehenbleiben simulieren</button>
-          <button class="btn ghost" id="devHalt">Anhalten</button>
-          <label class="chk"><input type="checkbox" id="devUseSpeed" checked>
-            Tempo vom Gerät mitliefern</label>
-          <pre id="devOut"></pre>
-        </div>
+        <h3 class="sec">Akku</h3>
+        <label class="chk"><input type="checkbox" id="saver"> Sparmodus
+          <em class="nh">Ortung ruht beim Stehen</em></label>
+        <div id="saverHint" class="subline"></div>
+        <h3 class="sec">Benachrichtigungen</h3>
+        <div id="notiBox"></div>
         <h3 class="sec">Verlauf</h3>
         <div id="log"><div>Noch keine Einträge.</div></div>
         <h3 class="sec">Mitnehmen</h3>
@@ -1205,15 +1250,20 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
 
 <div class="modal hide" id="help">
   <div class="sheet">
-    <div class="eyebrow">Diagnose</div>
-    <h1>Läuft alles?</h1>
-    <div id="diag">…</div>
-    <button class="btn" id="btnConnTest">Verbindungswege testen</button>
-    <div id="connRes" style="font-size:12.5px;line-height:1.7;margin-bottom:12px;white-space:pre-wrap;"></div>
-    <button class="btn" id="btnGeoTest">Standortfreigabe jetzt testen</button>
-    <div id="geoRes" class="mono" style="font-size:11.5px;line-height:1.6;margin-bottom:12px;"></div>
-    <h3 class="sec">Ohne GPS starten</h3>
-    <p>Such dir einen Ort und leg dort los – im Simulationsmodus (⇢) bewegst du dich per Tippen auf die Karte.</p>
+    <div class="eyebrow">Kurz erklärt</div>
+    <h1>So läuft das Spiel</h1>
+    <p>Tippe auf <b>Spaziergang starten</b> und geh los. Der Nebel reißt genau dort auf,
+       wo du wirklich warst – und bleibt offen.</p>
+    <p>XP gibt es für Strecke und neu aufgedeckte Fläche. <b>Sehenswürdigkeiten</b> aus
+       OpenStreetMap bringen den großen Bonus, du musst nur nah genug heran.
+       <b>Fundstücke</b> am Weg sind Material für deine Ausrüstung: eine hellere Laterne
+       deckt mehr auf, der Kompass meldet Orte schon von weitem.</p>
+    <p>Unter <b>Ziele</b> warten Aufträge für den Tag, die Woche und den Monat.
+       Unter <b>Karte</b> kannst du den Ausschnitt vorab herunterladen – danach läuft
+       alles ohne Internet.</p>
+    <h3 class="sec">Ort suchen</h3>
+    <p>Springt mit der Karte dorthin – praktisch, um den Bereich vor einer Reise
+       offline zu sichern.</p>
     <div class="searchrow">
       <input id="q" placeholder="Ort suchen, z. B. Regensburg" autocomplete="off">
       <button id="qGo">Suchen</button>
@@ -1276,20 +1326,8 @@ const OSM_ATTR = '© <a href="https://www.openstreetmap.org/copyright" target="_
 const STYLES = [
   {id:"osm",  name:"Standard",   url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
    sub:"",     max:19, filter:"saturate(.85) contrast(1.03)", attr:OSM_ATTR},
-  {id:"hot",  name:"Humanitär",  url:"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-   sub:"abc",  max:19, filter:"saturate(.92)", attr:OSM_ATTR+" · HOT"},
-  {id:"cycl", name:"Wege & Pfade", url:"https://{s}.tile.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
-   sub:"abc",  max:19, filter:"saturate(.88)", attr:OSM_ATTR+" · CyclOSM"},
-  {id:"topo", name:"Topografisch", url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-   sub:"abc",  max:17, filter:"saturate(.9)", attr:OSM_ATTR+" · OpenTopoMap (CC-BY-SA)"},
-  {id:"light",name:"Reduziert",  url:"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-   sub:"abcd", max:19, filter:"contrast(1.06)", attr:OSM_ATTR+" · © CARTO"},
   {id:"pixel",name:"Pixelwelt", vector:true, url:"", sub:"", max:19, filter:"none",
-   attr:OSM_ATTR+" · eigene Darstellung"},
-  {id:"dark", name:"Nachtkarte", url:"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-   // dunkle Kacheln unter dunklem Nebel: aufhellen, sonst ist Aufgedecktes
-   // nicht vom Nebel zu unterscheiden
-   sub:"abcd", max:19, filter:"brightness(1.5) saturate(1.15)", attr:OSM_ATTR+" · © CARTO"}
+   attr:OSM_ATTR+" · eigene Darstellung"}
 ];
 function styleById(id){ return STYLES.find(s=>s.id===id)||STYLES[0]; }
 /* Eigener URL-Bauer: Leaflets getTileUrl() setzt immer den AKTUELLEN Kartenzoom
@@ -1371,10 +1409,11 @@ const S = {
   xp:0, dist:0, cells:new Map(),   // chunkKey -> Set("cx,cy")
   cellCount:0, trail:[], poisFound:{}, items:{}, itemsTaken:{},
   log:[], since:null, seen:false, lat:null, lng:null,
-  styleId:"osm", fogAlpha:1, gpsFilter:"normal",
+  styleId:"osm", gpsFilter:"normal", saver:false,
   gear:{lantern:0,boots:0,compass:0,glass:0}, itemsTotal:0, coins:0,
   rareTotal:0, found:{}, setDone:{}, quests:{}, streak:{n:0,last:""},
-  days:{}, tab:"ziele"
+  days:{}, tab:"ziele",
+  notify:{on:false, level:true, orte:true, ziele:true, funde:true}
 };
 function cellsToArray(){
   const out=[]; S.cells.forEach(set=>set.forEach(k=>out.push(k))); return out;
@@ -1411,10 +1450,10 @@ function serialize(){
   return { v:3, xp:S.xp, dist:S.dist, cells:cellsToArray(), trail:S.trail,
     poisFound:S.poisFound, items:S.items, itemsTaken:S.itemsTaken, log:S.log.slice(-40),
     since:S.since, seen:S.seen, lat:S.lat, lng:S.lng,
-    styleId:S.styleId, fogAlpha:S.fogAlpha, gpsFilter:S.gpsFilter,
+    styleId:S.styleId, gpsFilter:S.gpsFilter, saver:S.saver,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
-    streak:S.streak, days:S.days, tab:S.tab };
+    streak:S.streak, days:S.days, tab:S.tab, notify:S.notify };
 }
 function hydrate(o){
   if(!o) return;
@@ -1422,15 +1461,17 @@ function hydrate(o){
   S.poisFound=o.poisFound||{}; S.items=o.items||{}; S.itemsTaken=o.itemsTaken||{};
   S.log=o.log||[]; S.since=o.since||null; S.seen=!!o.seen; S.lat=o.lat; S.lng=o.lng;
   S.styleId=o.styleId||"osm";
-  S.fogAlpha=typeof o.fogAlpha==="number"?o.fogAlpha:1;
   S.gpsFilter=o.gpsFilter||"normal";
+  S.saver=!!o.saver;
   S.gear=Object.assign({lantern:0,boots:0,compass:0,glass:0},o.gear||{});
   S.itemsTotal=o.itemsTotal||Object.values(S.items).reduce((a,b)=>a+b,0);
   S.coins=o.coins||0;
   S.rareTotal=o.rareTotal||0;
   S.found=o.found||{}; S.setDone=o.setDone||{};
-  S.quests=o.quests||{}; S.streak=o.streak||{n:0,last:""};
+  S.quests=migrateQuests(o.quests);
+  S.streak=o.streak||{n:0,last:""};
   S.days=o.days||{}; S.tab=o.tab||"ziele";
+  S.notify=Object.assign({on:false,level:true,orte:true,ziele:true,funde:true},o.notify||{});
   S.cells=new Map(); S.cellCount=0;
   (o.cells||[]).forEach(k=>addCellKey(k));
 }
@@ -1796,13 +1837,6 @@ function drawFog(){
   }
 }
 let fogRaf=null;
-function applyFogAlpha(){
-  // Der Nebel ist eine eigene Ebene ueber der Karte – die Deckkraft der
-  // Ebene regelt direkt, wie schemenhaft Unerkundetes durchscheint.
-  fogCv.style.opacity=S.fogAlpha;
-  const el=$("fogVal"); if(el) el.textContent=Math.round(S.fogAlpha*100)+" %";
-  const sl=$("fogSlider"); if(sl) sl.value=Math.round(S.fogAlpha*100);
-}
 function fogRedraw(){ if(fogRaf) return; fogRaf=requestAnimationFrame(()=>{ fogRaf=null; drawFog(); }); }
 map.on("move zoomend resize viewreset",()=>{ fogRedraw(); pixRedraw(); });
 map.on("zoomstart",()=>fogCv.classList.add("dim"));
@@ -1949,6 +1983,7 @@ async function fetchPOIs(lat,lng,key,silent){
     n++;
   });
   poiAreas[key]=1;
+  habClear();
   await kvPut("pois",{list:POIS,areas:poiAreas});
   refreshPoiMarkers();
   if(!silent) setStatus("<b>"+n+"</b> Orte in der Umgebung geladen.");
@@ -1976,6 +2011,330 @@ function refreshPoiMarkers(){
   });
 }
 
+/* ═══════════ Sparmodus ═══════════ */
+/* Dauerortung ist der größte Stromfresser der App. Steht man länger still,
+   schaltet der Sparmodus auf grobe Ortung herunter und weckt sich selbst,
+   sobald es weitergeht.
+
+   Der Haken an "GPS ganz aus": ohne Ortung gibt es kein Signal, das das
+   Aufwachen auslöst. Deshalb bleibt immer ein sparsamer Weckdienst laufen –
+   im Browser ein grober Einzelabruf alle paar Sekunden (Netz statt Satellit),
+   in der App ein Watcher mit weitem Mindestabstand, damit der
+   Vordergrunddienst am Leben bleibt und Android die App nicht abräumt.
+   Dazu horcht der Bewegungssensor mit: der kostet fast nichts und meldet
+   den ersten Schritt schneller als jede Ortung. */
+const DOZE_AFTER   = 90000;  // so lange stillstehen, dann herunterschalten
+const PROBE_MS     = 25000;  // Weckabruf im Browser
+const COARSE_M     = 30;     // Mindestabstand des groben Watchers (App)
+const WAKE_M       = 25;     // ab dieser Verschiebung ist man wieder unterwegs
+const MOTION_TH    = 1.1;    // m/s² Ausschlag, der als Schritt zählt
+const MOTION_N     = 4;      // so viele Ausschläge hintereinander
+
+let dozing=false, stillSince=0, probeTimer=null, dozeAnchor=null;
+let coarseWatcher=null, motionOn=false, motionHits=0, motionBase=null;
+
+function saverOn(){ return !!S.saver; }
+function dozeState(){ return dozing; }
+
+function motionSample(e){
+  const a=e.accelerationIncludingGravity||e.acceleration;
+  if(!a||a.x==null) return;
+  const m=Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
+  if(motionBase==null){ motionBase=m; return; }
+  const dev=Math.abs(m-motionBase);
+  motionBase=motionBase*0.9+m*0.1;
+  if(dev>MOTION_TH){ if(++motionHits>=MOTION_N) wake("Bewegung gespürt"); }
+  else motionHits=Math.max(0,motionHits-1);
+}
+function motionListen(on){
+  if(on===motionOn) return;
+  if(on){
+    if(typeof DeviceMotionEvent==="undefined") return;
+    motionHits=0; motionBase=null;
+    window.addEventListener("devicemotion",motionSample);
+  } else window.removeEventListener("devicemotion",motionSample);
+  motionOn=on;
+}
+
+/* Der Weg zwischen Einschlafpunkt und Aufwachpunkt wurde wirklich gegangen –
+   also Nebel darüber aufreißen und die Strecke gutschreiben, statt ein Loch
+   in der Karte und eine Lücke in der Bilanz zu hinterlassen. */
+function creditGap(lat,lng,acc){
+  if(!dozeAnchor) return;
+  const d=haversine(dozeAnchor.lat,dozeAnchor.lng,lat,lng);
+  const dt=Math.max(1,(Date.now()-dozeAnchor.t)/1000);
+  if(d<WAKE_M || d/dt>MAX_SPEED){ dozeAnchor=null; return; }
+  const steps=Math.max(1,Math.round(d/8));
+  for(let i=1;i<steps;i++){
+    reveal(dozeAnchor.lat+(lat-dozeAnchor.lat)*i/steps,
+           dozeAnchor.lng+(lng-dozeAnchor.lng)*i/steps);
+  }
+  onMove(lat,lng,acc,d);
+  dozeAnchor=null;
+}
+
+function probeOnce(){
+  if(!dozing||!walking) return;
+  if(!("geolocation" in navigator)) return;
+  navigator.geolocation.getCurrentPosition(
+    p=>{ const c=p.coords;
+      if(!dozing) return;
+      if(dozeAnchor && haversine(dozeAnchor.lat,dozeAnchor.lng,c.latitude,c.longitude)>=WAKE_M)
+        wake("wieder unterwegs",c.latitude,c.longitude,c.accuracy);
+    },
+    ()=>{},
+    {enableHighAccuracy:false,maximumAge:PROBE_MS,timeout:20000}   // Netzortung: billig
+  );
+}
+
+async function doze(){
+  if(dozing||!walking||!saverOn()) return;
+  dozing=true;
+  dozeAnchor={lat:S.lat,lng:S.lng,t:Date.now()};
+  const BG=bgPlugin();
+  if(BG){
+    // Erst den groben Watcher setzen, dann den feinen entfernen – sonst
+    // steht der Vordergrunddienst kurz ohne Auftrag da und Android beendet ihn.
+    try{
+      const id=await BG.addWatcher({
+        backgroundMessage:"Fogwalk wartet, bis du weitergehst.",
+        backgroundTitle:"Pause – Sparmodus",
+        requestPermissions:false, stale:false, distanceFilter:COARSE_M
+      },(loc,err)=>{
+        if(err||!loc) return;
+        if(!dozing){ onFix(loc.latitude,loc.longitude,loc.accuracy,loc.speed,loc.time||Date.now()); return; }
+        if(dozeAnchor && haversine(dozeAnchor.lat,dozeAnchor.lng,loc.latitude,loc.longitude)>=WAKE_M)
+          wake("wieder unterwegs",loc.latitude,loc.longitude,loc.accuracy);
+      });
+      coarseWatcher=id;
+      if(bgWatcher!=null){ const old=bgWatcher; bgWatcher=null;
+        BG.removeWatcher({id:old}).catch(()=>{}); }
+    }catch(e){ dozing=false; return; }
+  } else {
+    if(watchId!=null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
+    // Der Bildschirmwächter bleibt bewusst an: schläft der Bildschirm im
+    // Browser ein, hält auch der Weckabruf an – dann liefe die Aufzeichnung
+    // still ins Leere. Gespart wird hier über die Ortung, nicht den Bildschirm.
+    clearInterval(probeTimer);
+    probeTimer=setInterval(probeOnce,PROBE_MS);
+  }
+  motionListen(true);
+  setStatus("Sparmodus · <b>"+fmtD(S.dist)+"</b> · wacht auf, sobald du losgehst");
+}
+
+function wake(why,lat,lng,acc){
+  if(!dozing) return;
+  dozing=false;
+  motionListen(false);
+  clearInterval(probeTimer); probeTimer=null;
+  stillSince=0;
+  if(lat!=null) creditGap(lat,lng,acc);
+  else dozeAnchor=null;
+  resetDrift();
+  const BG=bgPlugin();
+  if(BG){
+    if(walking){
+      startFine().then(()=>{
+        if(coarseWatcher!=null){ const old=coarseWatcher; coarseWatcher=null;
+          BG.removeWatcher({id:old}).catch(()=>{}); }
+      });
+    } else if(coarseWatcher!=null){
+      const old=coarseWatcher; coarseWatcher=null;
+      BG.removeWatcher({id:old}).catch(()=>{});
+    }
+  } else if(walking){
+    startFine();
+  }
+  if(walking) setStatus("Weiter geht's – "+why+" · <b>"+fmtD(S.dist)+"</b>");
+}
+
+/* Feine Ortung starten – von startWalk und vom Aufwachen benutzt. */
+function startFine(){
+  const BG=bgPlugin();
+  if(BG){
+    posSource="Hintergrunddienst";
+    return BG.addWatcher({
+      backgroundMessage:"Fogwalk zeichnet deinen Weg auf.",
+      backgroundTitle:"Unterwegs",
+      requestPermissions:true, stale:false, distanceFilter:4
+    },(loc,err)=>{
+      if(err){ onFixError(err.code==="NOT_AUTHORIZED"?1:2); return; }
+      if(!loc||dozing) return;
+      onFix(loc.latitude,loc.longitude,loc.accuracy,loc.speed,loc.time||Date.now());
+    }).then(id=>{ bgWatcher=id; }).catch(()=>{ posSource=""; });
+  }
+  posSource="Browser (nur im Vordergrund)";
+  if("wakeLock" in navigator && !wakeLock)
+    navigator.wakeLock.request("screen").then(l=>wakeLock=l).catch(()=>{});
+  watchId=navigator.geolocation.watchPosition(
+    p=>{ const c=p.coords; if(dozing) return;
+         onFix(c.latitude,c.longitude,c.accuracy,c.speed,p.timestamp); },
+    err=>onFixError(err.code),
+    {enableHighAccuracy:true,maximumAge:2000,timeout:25000}
+  );
+  return Promise.resolve();
+}
+
+/* Nach jeder Ortung prüfen, ob es Zeit zum Herunterschalten ist. */
+function saverTick(){
+  if(!walking||!saverOn()||dozing) return;
+  if(!standing){ stillSince=0; return; }
+  if(!stillSince){ stillSince=Date.now(); return; }
+  if(Date.now()-stillSince>=DOZE_AFTER) doze();
+}
+function saverStop(){
+  dozing=false; stillSince=0; dozeAnchor=null;
+  motionListen(false);
+  clearInterval(probeTimer); probeTimer=null;
+  const BG=bgPlugin();
+  if(BG && coarseWatcher!=null){ BG.removeWatcher({id:coarseWatcher}).catch(()=>{}); }
+  coarseWatcher=null;
+}
+// Schaut man selbst auf den Bildschirm, soll es sofort wieder genau sein.
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && dozing) wake("Bildschirm an");
+});
+
+/* ═══════════ Lebensräume ═══════════ */
+/* Damit ein Angelhaken wirklich am Wasser liegt und ein Kronkorken am
+   Straßenrand, holt sich das Spiel die Flächennutzung aus OpenStreetMap –
+   Wald, Wiese, Wasser, Park – und merkt sie sich wie die Kacheln offline.
+   Geprüft wird dann Punkt-in-Fläche, in Mercatormetern wie überall sonst. */
+/* habAreas merkt sich die Mittelpunkte der bereits geholten Abfragen.
+   Ob ein Punkt abgedeckt ist, entscheidet der Abstand dazu – ein festes
+   Gradraster wäre gröber als der Abfrageradius und würde Flächen am Rand
+   fälschlich als "unbekannte Gegend" behandeln. */
+let HAB=[], habAreas={}, habLoading=false;
+const HAB_R=1200, HAB_COVER=950;
+function habCovered(lat,lng){
+  for(const k in habAreas){
+    const c=habAreas[k];
+    if(Array.isArray(c) && haversine(lat,lng,c[0],c[1])<=HAB_COVER) return true;
+  }
+  return false;
+}
+const HAB_PRIO=["alt","wasser","wald","park","wiese","stadt"];
+const HIST_TYPES={castle:1,memorial:1,historic:1,faith:1,museum:1};
+const HIST_M=70;                 // so nah zählt ein alter Ort als Gemäuer
+
+function habClass(t){
+  if(t.natural==="water"||t.waterway||t.natural==="wetland"
+     ||t.natural==="beach"||t.natural==="sand") return "wasser";
+  if(t.landuse==="forest"||t.natural==="wood"||t.natural==="scrub") return "wald";
+  if(t.leisure==="park"||t.leisure==="garden"||t.leisure==="nature_reserve"
+     ||t.leisure==="golf_course"||t.leisure==="recreation_ground"
+     ||t.landuse==="village_green"||t.landuse==="cemetery"
+     ||t.landuse==="recreation_ground") return "park";
+  if(t.landuse==="meadow"||t.landuse==="farmland"||t.landuse==="grass"
+     ||t.landuse==="orchard"||t.landuse==="vineyard"||t.landuse==="allotments"
+     ||t.landuse==="greenfield"||t.natural==="heath"||t.natural==="grassland"
+     ||t.leisure==="pitch"||t.leisure==="playground") return "wiese";
+  if(t.landuse) return "stadt";
+  return null;
+}
+/* Umriss auf Mercatormeter umrechnen und auf höchstens 48 Punkte eindampfen –
+   für die Frage „liegt das Fundstück drin?" reicht das bei weitem. */
+function habPrepare(h,geo,line){
+  const step=Math.max(1,Math.ceil(geo.length/48));
+  const pts=[];
+  for(let i=0;i<geo.length;i+=step) pts.push([mx(geo[i][1]),my(geo[i][0])]);
+  const last=geo[geo.length-1];
+  const lx=mx(last[1]), ly=my(last[0]);
+  const end=pts[pts.length-1];
+  if(!end||end[0]!==lx||end[1]!==ly) pts.push([lx,ly]);
+  if(pts.length<2) return null;
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  pts.forEach(q=>{ if(q[0]<x0)x0=q[0]; if(q[0]>x1)x1=q[0];
+                   if(q[1]<y0)y0=q[1]; if(q[1]>y1)y1=q[1]; });
+  const buf=line?22:0;
+  return {h,l:line?1:0,bb:[x0-buf,y0-buf,x1+buf,y1+buf],p:pts};
+}
+async function loadHabitat(lat,lng,silent){
+  const key="h"+areaKey(lat,lng);
+  if(habAreas[key]||habLoading||poiLoading) return;
+  habLoading=true;
+  try{
+    const R=HAB_R;
+    const q=`[out:json][timeout:30];(`
+      +`way(around:${R},${lat},${lng})["natural"~"^(water|wood|scrub|heath|wetland|grassland|beach|sand)$"];`
+      +`way(around:${R},${lat},${lng})["landuse"];`
+      +`way(around:${R},${lat},${lng})["leisure"~"^(park|garden|nature_reserve|golf_course|recreation_ground|pitch|playground)$"];`
+      +`way(around:${R},${lat},${lng})["waterway"~"^(river|stream|canal)$"];`
+      +`);out geom 2500;`;
+    if(!silent) setStatus("Erkunde die Umgebung …");
+    const r=await overpassQuery(q);
+    if(!r.ok){ if(!silent) setStatus("Umgebung nicht geladen (offline?)."); return; }
+    let n=0;
+    for(const el of (r.data.elements||[])){
+      if(el.type!=="way"||!el.geometry||el.geometry.length<2) continue;
+      const t=el.tags||{};
+      const h=habClass(t); if(!h) continue;
+      const line=!!t.waterway && t.natural!=="water";
+      const o=habPrepare(h,el.geometry.map(pt=>[pt.lat,pt.lon]),line);
+      if(o){ HAB.push(o); n++; }
+    }
+    // Bei sehr vielen Flächen die ältesten fallen lassen: sonst wächst der
+    // Speicher mit jedem Ausflug, und geprüft wird ohnehin nur die Umgebung.
+    if(HAB.length>1800) HAB=HAB.slice(HAB.length-1800);
+    habAreas[key]=[lat,lng];
+    // Nur die zuletzt besuchten Gegenden behalten
+    const ks=Object.keys(habAreas);
+    while(ks.length>400) delete habAreas[ks.shift()];
+    habClear();
+    await kvPut("habitat",{list:HAB,areas:habAreas});
+    if(!silent) setStatus("Umgebung erkundet: <b>"+n+"</b> Flächen.");
+  } finally{ habLoading=false; }
+}
+function inPoly(x,y,p){
+  let inside=false;
+  for(let i=0,j=p.length-1;i<p.length;j=i++){
+    const xi=p[i][0],yi=p[i][1],xj=p[j][0],yj=p[j][1];
+    if((yi>y)!==(yj>y) && x < (xj-xi)*(y-yi)/(yj-yi)+xi) inside=!inside;
+  }
+  return inside;
+}
+function nearLine(x,y,p,r){
+  const r2=r*r;
+  for(let i=1;i<p.length;i++){
+    const ax=p[i-1][0],ay=p[i-1][1],bx=p[i][0],by=p[i][1];
+    const dx=bx-ax,dy=by-ay, L=dx*dx+dy*dy;
+    let t=L?((x-ax)*dx+(y-ay)*dy)/L:0;
+    t=t<0?0:t>1?1:t;
+    const ex=x-(ax+t*dx), ey=y-(ay+t*dy);
+    if(ex*ex+ey*ey<=r2) return true;
+  }
+  return false;
+}
+/* Welcher Lebensraum ist hier? "" heißt: für diese Gegend liegen noch keine
+   Daten vor – dann bleibt alles wie vorher und jedes Stück kann auftauchen. */
+let habCache=new Map();
+function habClear(){ habCache.clear(); }
+function habAt(lat,lng){
+  const ck=Math.round(lat*3e4)+","+Math.round(lng*3e4);
+  const hit=habCache.get(ck);
+  if(hit!==undefined) return hit;
+  const v=habCalc(lat,lng);
+  if(habCache.size>4000) habCache.clear();
+  habCache.set(ck,v);
+  return v;
+}
+function habCalc(lat,lng){
+  for(const p of POIS){
+    if(!HIST_TYPES[p.type]) continue;
+    if(haversine(lat,lng,p.lat,p.lng)<=HIST_M) return "alt";
+  }
+  if(!habCovered(lat,lng)) return "";
+  const X=mx(lng), Y=my(lat), k=mercScale(lat);
+  let best="";
+  for(const o of HAB){
+    if(X<o.bb[0]||X>o.bb[2]||Y<o.bb[1]||Y>o.bb[3]) continue;
+    if(best && HAB_PRIO.indexOf(o.h)>=HAB_PRIO.indexOf(best)) continue;
+    const hit=o.l ? nearLine(X,Y,o.p,22*k) : inPoly(X,Y,o.p);
+    if(hit) best=o.h;
+  }
+  return best||"stadt";
+}
+
 /* ═══════════ Fundstücke ═══════════ */
 /* ═══════════ Fundstücke ═══════════
    Jedes Stück trägt seine eigene Pixelgrafik: ein 8×8-Raster, in dem jede
@@ -1985,50 +2344,123 @@ function refreshPoiMarkers(){
 const TIER_NAME = ["", "häufig", "selten", "besonders", "legendär"];
 const TIER_COL  = ["", "#c9c0e4", "#6ee0a0", "#ffb13b", "#f07898"];
 
+/* Lebensräume. Jedes Stück gehört dorthin, wo man es wirklich finden
+   würde – ein Angelhaken liegt am Wasser, ein Kronkorken am Straßenrand.
+   Stücke ohne Eintrag gibt es überall. */
+const HABITATS = [
+  {id:"alt",    name:"Altes Gemäuer", short:"Gemäuer", col:"#d8b06a"},
+  {id:"wasser", name:"Am Wasser",     short:"Wasser",  col:"#63c8f0"},
+  {id:"wald",   name:"Wald",          short:"Wald",    col:"#5fa85f"},
+  {id:"park",   name:"Park & Garten", short:"Park",    col:"#8ed07a"},
+  {id:"wiese",  name:"Wiese & Feld",  short:"Wiese",   col:"#d8c060"},
+  {id:"stadt",  name:"Stadt & Straße",short:"Stadt",   col:"#b98ef0"}
+];
+function habDef(id){ return HABITATS.find(h => h.id === id) || null; }
+function habName(id){ const h = habDef(id); return h ? h.name : "Unterwegs"; }
+/* Wo taucht dieses Stück auf? */
+function itemHabText(it){
+  if (!it.hb || !it.hb.length) return "überall";
+  return it.hb.map(h => (habDef(h) || {short:h}).short).join(" · ");
+}
+
 const ITEMS = [
   /* ---- Stufe 1: häufig ---- */
   {n:"Kieselstein", r:1, xp:10, val:1, p:["#8f92a1","#c3c6d2","#5f6270"],
    s:"........|..2211..|.222113.|2221133.|2211333.|.113333.|..1133..|........"},
-  {n:"Eichel", r:1, xp:11, val:1, p:["#8a5a2b","#c98d4f","#5c3a17","#e0b070"],
+  {n:"Eichel", r:1, hb:["wald","park"], xp:11, val:1, p:["#8a5a2b","#c98d4f","#5c3a17","#e0b070"],
    s:"..333...|.31113..|3111113.|.222222.|.244442.|.244442.|..2442..|...22..."},
   {n:"Vogelfeder", r:1, tb:"morgen", xp:12, val:1, p:["#e6e2d6","#a9a496","#6f6b60"],
    s:"......11|.....121|....1221|...12231|..122310|.1223100|.122100.|31000..."},
-  {n:"Kastanie", r:1, tb:"abend", xp:11, val:1, p:["#7a4520","#a9682f","#4a2810","#d8a566"],
+  {n:"Kastanie", r:1, hb:["park","stadt"], tb:"abend", xp:11, val:1, p:["#7a4520","#a9682f","#4a2810","#d8a566"],
    s:"..2222..|.244442.|24444412|24444112|24441112|.2411112|..3113..|...33..."},
-  {n:"Buchenblatt", r:1, tb:"tag", xp:10, val:1, p:["#5c8f3a","#7fb552","#3d6326"],
+  {n:"Buchenblatt", r:1, hb:["wald","park"], tb:"tag", xp:10, val:1, p:["#5c8f3a","#7fb552","#3d6326"],
    s:"....11..|...1221.|..122221|.1222213|.1222133|..12133.|...133..|..33...."},
-  {n:"Kiefernzapfen", r:1, xp:12, val:1, p:["#6b4526","#93643a","#4a2f18"],
+  {n:"Kiefernzapfen", r:1, hb:["wald"], xp:12, val:1, p:["#6b4526","#93643a","#4a2f18"],
    s:"...11...|..1221..|.122221.|.213312.|.122221.|.213312.|..1221..|...33..."},
 
+  {n:"Pilz", r:1, hb:["wald"], xp:11, val:1, p:["#c8402e","#f2e6d8","#8a2a1c"],
+   s:"........|..1111..|.112211.|11111111|.133331.|..2222..|..2222..|...33..."},
+  {n:"Rindenstück", r:1, hb:["wald"], xp:10, val:1, p:["#8a6038","#a8794a","#4a3018"],
+   s:"...111..|..21311.|.2131131|21311311|21311311|21311311|.2311311|..21331."},
+  {n:"Weizenähre", r:1, hb:["wiese"], tb:"tag", xp:12, val:1, p:["#d8b24a","#f0d585","#8a6a1e"],
+   s:"...11...|..1221..|.122221.|..1221..|.122221.|..1221..|...33...|...33..."},
+  {n:"Löwenzahnschirm", r:1, hb:["wiese"], xp:10, val:1, p:["#e8e4d8","#a8a496","#7a6a3a"],
+   s:"1.1.1.1.|.11211..|1122211.|.112211.|..1211..|...33...|...33...|...33..."},
+  {n:"Schwemmholz", r:1, hb:["wasser"], xp:11, val:1, p:["#9a8a72","#c0b09a","#6a5a44"],
+   s:"........|.....221|...22113|.2211133|22111333|.11133..|..33....|........"},
+  {n:"Muschelschale", r:1, hb:["wasser"], xp:12, val:1, p:["#e8d8c0","#c0a888","#8a6f52"],
+   s:"...11...|..1211..|.121121.|12112112|12112112|.211211.|..22122.|...222.."},
+  {n:"Rosenblüte", r:1, hb:["park"], tb:"tag", xp:12, val:1, p:["#d8446a","#f27a9a","#8a2340","#5c8f3a"],
+   s:"..2222..|.212212.|21122112|21211212|21122112|.213312.|..3443..|...44..."},
+  {n:"Kronkorken", r:1, hb:["stadt"], xp:10, val:1, p:["#c83a3a","#8a2020","#e8907a"],
+   s:"..1111..|.122221.|12211221|12122121|12122121|12211221|.122221.|..1111.."},
+
   /* ---- Stufe 2: selten ---- */
-  {n:"Tonscherbe", r:2, xp:26, val:4, p:["#b8663c","#d98f5c","#7d3f22"],
+  {n:"Tonscherbe", r:2, hb:["alt","wiese"], xp:26, val:4, p:["#b8663c","#d98f5c","#7d3f22"],
    s:"..2222..|.222113.|2211133.|221133..|21133...|2133....|13......|........"},
-  {n:"Alte Münze", r:2, xp:30, val:5, p:["#8a6428","#b98f42","#5c4214","#d8b878"],
+  {n:"Alte Münze", r:2, hb:["alt","stadt"], xp:30, val:5, p:["#8a6428","#b98f42","#5c4214","#d8b878"],
    s:"..1111..|.122221.|12233221|12322321|1223222.|.122221.|..111...|........"},
   {n:"Messingknopf", r:2, xp:24, val:4, p:["#b8912e","#e0c05c","#7a5c16"],
    s:"..2222..|.211112.|21133112|21313132|21313132|21133112|.211112.|..3333.."},
-  {n:"Glasscherbe", r:2, tb:"tag", xp:28, val:5, p:["#5fa8c4","#9fd8ec","#3a7089"],
+  {n:"Glasscherbe", r:2, hb:["stadt","wasser"], tb:"tag", xp:28, val:5, p:["#5fa8c4","#9fd8ec","#3a7089"],
    s:"...22...|..1221..|.122211.|.122113.|1221133.|.21133..|..133...|...3...."},
-  {n:"Pfeilspitze", r:2, tb:"morgen", xp:32, val:6, p:["#6e7280","#9aa0ae","#3f434e"],
+  {n:"Pfeilspitze", r:2, hb:["wald","wiese"], tb:"morgen", xp:32, val:6, p:["#6e7280","#9aa0ae","#3f434e"],
    s:"...22...|...22...|..1221..|..1221..|.122221.|.122221.|.133331.|..3..3.."},
 
+  {n:"Eulenfeder", r:2, hb:["wald"], tb:"nacht", xp:30, val:5, p:["#c8b898","#7a6248","#4a3a28"],
+   s:"......12|.....121|....1221|...12213|..122133|.1221333|.122133.|31133..."},
+  {n:"Schneckenhaus", r:2, hb:["wiese"], xp:26, val:4, p:["#c8a878","#8a6a44","#e8d8b8"],
+   s:"..1111..|.122221.|12211121|12122121|12121221|12111221|.122221.|..1111.."},
+  {n:"Hufeisen", r:2, hb:["wiese"], xp:28, val:5, p:["#8a8a94","#b8b8c4","#5a5a64"],
+   s:".12..21.|12....21|12....21|12....21|12....21|.12..21.|..1221..|...33..."},
+  {n:"Angelhaken", r:2, hb:["wasser"], xp:25, val:4, p:["#b8bcc8","#7a7e8a","#e8e8f0"],
+   s:"...11...|...12...|...12...|...12...|2..12...|21112...|.122....|..2....."},
+  {n:"Spielmarke", r:2, hb:["park"], xp:24, val:4, p:["#4a7ac8","#8ab0e8","#26406e","#f0f0f8"],
+   s:"..1111..|.122221.|12241221|12422421|12422421|12241221|.122221.|..3333.."},
+  {n:"Verlorener Schlüssel", r:2, hb:["stadt"], xp:29, val:5, p:["#8a7a5a","#c0ac82","#5a4c34"],
+   s:"..11....|.1221...|12..21..|12..2111|.1221.1.|..11..1.|......13|........"},
+  {n:"Neonscherbe", r:2, hb:["stadt"], tb:"nacht", xp:32, val:6, p:["#e050c0","#ff9ae0","#8a2070"],
+   s:"....22..|...1221.|..12211.|.122113.|12211133|.1211333|..11333.|...33..."},
+  {n:"Wappenscherbe", r:2, hb:["alt"], xp:31, val:6, p:["#e8dcc0","#8a7a52","#c84a4a"],
+   s:"22222222|21133112|21133112|21333312|21133112|.211112.|..2112..|...22..."},
+
   /* ---- Stufe 3: besonders ---- */
-  {n:"Bernsteinsplitter", r:3, tb:"morgen", xp:60, val:14, p:["#d8892a","#f6c060","#a35c14","#ffe9a8"],
+  {n:"Bernsteinsplitter", r:3, hb:["wasser","wald"], tb:"morgen", xp:60, val:14, p:["#d8892a","#f6c060","#a35c14","#ffe9a8"],
    s:"...44...|..14421.|.1442241|.1442241|.1442231|..142241|...1221.|....11.."},
-  {n:"Fossil", r:3, xp:66, val:15, p:["#cbbf9c","#8d8262","#efe6c8"],
+  {n:"Fossil", r:3, hb:["wiese","wasser"], xp:66, val:15, p:["#cbbf9c","#8d8262","#efe6c8"],
    s:"..2222..|.211112.|21322213|21232123|21223213|21133112|.211112.|..2222.."},
   {n:"Wegmarke", r:3, xp:58, val:12, p:["#9a9daa","#c7cad6","#b8402e"],
    s:".111111.|.122221.|.133331.|.133331.|.122221.|.122221.|.111111.|..1..1.."},
-  {n:"Silberring", r:3, tb:"nacht", xp:70, val:16, p:["#aab0c2","#e2e6f0","#70768a"],
+  {n:"Silberring", r:3, hb:["alt","park"], tb:"nacht", xp:70, val:16, p:["#aab0c2","#e2e6f0","#70768a"],
    s:"..1221..|.122221.|12233221|12300321|12300321|12233221|.122221.|..1331.."},
+
+  {n:"Harzklumpen", r:3, hb:["wald"], xp:60, val:13, p:["#d8922a","#f0bc60","#a35c14","#6b4a2a"],
+   s:"...44...|..4114..|.411224.|41122214|41222114|.4122114|..41124.|...44..."},
+  {n:"Vierblättriger Klee", r:3, hb:["wiese"], xp:64, val:14, p:["#4a8f3a","#6ec052","#2e6320"],
+   s:".11..11.|12211221|12211221|.113311.|.113311.|12211221|12211221|...33..."},
+  {n:"Süßwasserperle", r:3, hb:["wasser"], xp:68, val:16, p:["#f0f0f8","#b8bcd0","#8a8ea8","#ffffff"],
+   s:"..1111..|.141111.|14111112|11111122|11111222|11112223|.1222333|..2233.."},
+  {n:"Sonnenuhr-Zeiger", r:3, hb:["park"], xp:58, val:12, p:["#b8892a","#e0b45c","#7a5a14"],
+   s:"......11|.....121|....1221|...12221|..122221|.1222221|12222221|33333333"},
+  {n:"Emailleschild", r:3, hb:["stadt"], xp:62, val:13, p:["#2a5aa8","#e8ecf4","#173a72","#c83a3a"],
+   s:"11111112|12222212|12244212|12222212|11111112|1111112.|311112..|33312..."},
+  {n:"Feuerstein-Faustkeil", r:3, hb:["alt"], xp:70, val:17, p:["#8a8a94","#5a5a64","#3e3e46","#c8c8d0"],
+   s:"...11...|..1441..|.114411.|11144111|11144111|11114111|.111211.|..2222.."},
 
   /* ---- Stufe 4: legendär ---- */
   {n:"Meteoritensplitter", r:4, tb:"nacht", xp:150, val:45, p:["#4a3a6e","#8a6fd0","#241a3a","#d8c0ff"],
    s:"...44...|..1421..|.144221.|1442241.|14422413|.1422133|..112133|...11.3."},
-  {n:"Alte Karte", r:4, tb:"abend", xp:140, val:40, p:["#d8c48a","#f2e6bc","#8a6f3a","#b8402e"],
+  {n:"Alte Karte", r:4, hb:["alt","wald"], tb:"abend", xp:140, val:40, p:["#d8c48a","#f2e6bc","#8a6f3a","#b8402e"],
    s:"11111111|12222221|12324221|12233221|12232421|12222321|12222221|11111111"},
   {n:"Goldmünze", r:4, xp:165, val:55, p:["#c99a1e","#f2d155","#8a6410","#fff0b0"],
-   s:"..1111..|.122221.|12242221|12444421|12242221|.122221.|..1111..|........"}
+   s:"..1111..|.122221.|12242221|12444421|12242221|.122221.|..1111..|........"},
+
+  {n:"Versteinertes Holz", r:4, hb:["wald"], xp:150, val:45, p:["#6b4a2a","#c8a878","#4a3424","#d8b8f0"],
+   s:"..1111..|.122221.|12233221|12344321|12344321|12233221|.122221.|..1111.."},
+  {n:"Flaschenpost", r:4, hb:["wasser"], xp:145, val:42, p:["#5a9a7a","#8ecab0","#2e5a46","#e8dcb0"],
+   s:"...11...|...12...|..1221..|.122421.|12244221|12244221|12242221|.133331."},
+  {n:"Kirchensiegel", r:4, hb:["alt"], xp:160, val:52, p:["#b83a4a","#e07a86","#7a1e2a","#e8c860"],
+   s:"..1111..|.122221.|12144121|12144121|14444441|12144121|.122221.|..3333.."}
 ];
 
 /* Aus dem Raster ein SVG bauen. Ergebnis wird gemerkt, weil dieselben
@@ -2081,10 +2513,10 @@ function itemsNear(lat,lng){
     if(!hasCell(cellX,cellY)) continue;
     const roll=rnd(gx,gy,seed+29);
     const tier=roll>0.988?4:roll>0.90?3:roll>0.68?2:1;
-    const pool=poolFor(tier);
-    const it=pool[Math.floor(rnd(gx,gy,seed+41)*pool.length)%pool.length];
     const lat2=(2*Math.atan(Math.exp(py/R_EARTH))-Math.PI/2)/D2R;
     const lng2=px/(R_EARTH*D2R);
+    const pool=poolFor(tier,habAt(lat2,lng2));
+    const it=pool[Math.floor(rnd(gx,gy,seed+41)*pool.length)%pool.length];
     out.push({id,lat:lat2,lng:lng2,it});
   }
   return out;
@@ -2108,14 +2540,14 @@ function refreshItems(lat,lng){
 /* Fundstücke sind Material. Sie werden verbraucht und verbessern genau die
    Dinge, die den Spielkreislauf ausmachen – dadurch lohnt sich jeder Fund. */
 const GEAR=[
-  {id:"lantern",name:"Laterne",   max:8,
-   eff:l=>"Aufdeckradius "+(REVEAL_M+l*3)+" m"},
-  {id:"boots",  name:"Wanderstiefel",max:8,
-   eff:l=>"Streckenerfahrung +"+(l*12)+" %"},
-  {id:"compass",name:"Kompass",   max:8,
-   eff:l=>"Orte ab "+(POI_M+l*6)+" m Entfernung"},
-  {id:"glass",  name:"Fernglas",  max:8,
-   eff:l=>"Fundstücke ab "+(ITEM_M+l*3)+" m, häufiger"}
+  {id:"lantern",name:"Laterne",       max:8, label:"Aufdeckradius",
+   eff:l=>(REVEAL_M+l*3)+" m"},
+  {id:"boots",  name:"Wanderstiefel", max:8, label:"Streckenerfahrung",
+   eff:l=>"+"+(l*12)+" %"},
+  {id:"compass",name:"Kompass",       max:8, label:"Orte melden ab",
+   eff:l=>(POI_M+l*6)+" m"},
+  {id:"glass",  name:"Fernglas",      max:8, label:"Fundstücke ab",
+   eff:l=>(ITEM_M+l*3)+" m"}
 ];
 /* Kosten für den Sprung von Stufe l auf l+1.
    Die hinteren Stufen ziehen seltenere Stufen und Taler mit hinein –
@@ -2181,6 +2613,168 @@ function levelOf(xp){
 function fmtD(m){ return m<1000?Math.round(m)+" m":(m/1000).toLocaleString("de-DE",{maximumFractionDigits:2})+" km"; }
 function fmtA(m2){ return m2<10000?Math.round(m2)+" m²":(m2/10000).toLocaleString("de-DE",{maximumFractionDigits:2})+" ha"; }
 
+/* ═══════════ Benachrichtigungen ═══════════
+   Zwei Wege, ein Aufruf: in der Android-App über das Capacitor-Plugin,
+   im Browser über den Service Worker. Gemeldet wird nur, wenn die App
+   gerade *nicht* im Blick ist – sonst genügt die Einblendung im Spiel.
+   Genau dafür ist das gedacht: Bildschirm aus, Aufzeichnung läuft weiter. */
+
+const NOTI_KINDS = [
+  {id:"level", name:"Aufstieg",      hint:"neue Stufe erreicht"},
+  {id:"orte",  name:"Neue Orte",     hint:"Sehenswürdigkeit entdeckt"},
+  {id:"ziele", name:"Aufträge",      hint:"Tagesauftrag erfüllt"},
+  {id:"funde", name:"Seltene Funde", hint:"ab Stufe „besonders“"}
+];
+
+const escHtml = s => String(s).replace(/[<>&]/g, ch => ({"<":"&lt;", ">":"&gt;", "&":"&amp;"}[ch]));
+
+let swReg = null;          // wird bei der Service-Worker-Anmeldung gesetzt
+let notiQueue = [], notiTimer = null, notiId = 1, notiLastErr = "", notiChan = false;
+
+function notiPlugin(){
+  const C = window.Capacitor;
+  return (C && C.Plugins && C.Plugins.LocalNotifications) || null;
+}
+/* Kann dieses Gerät überhaupt melden? */
+function notiWay(){
+  if (notiPlugin()) return "app";
+  if (typeof Notification === "undefined") return "";
+  if (!("serviceWorker" in navigator)) return "";
+  return "web";
+}
+function notiPerm(){
+  if (notiPlugin()) return S.notify.on ? "granted" : "";
+  return (typeof Notification !== "undefined") ? Notification.permission : "";
+}
+
+/* ---- Melden ---- */
+/* Mehrere Ereignisse kurz hintereinander werden zu einer Meldung
+   zusammengefasst – niemand möchte fünf Töne auf zehn Metern. */
+function notify(kind, title, body){
+  if (!S.notify.on) return;
+  if (S.notify[kind] === false) return;
+  if (document.visibilityState === "visible") return;
+  notiQueue.push({kind, title, body});
+  clearTimeout(notiTimer);
+  notiTimer = setTimeout(notiFlush, 1500);
+}
+function notiFlush(){
+  const q = notiQueue; notiQueue = []; notiTimer = null;
+  if (!q.length) return;
+  if (q.length === 1) notiShow(q[0].title, q[0].body);
+  else notiShow(q.length + " Entdeckungen",
+                q.map(n => n.title + (n.body ? " – " + n.body : "")).join("\n"));
+}
+/* Der Kanal muss auf Android einmal angelegt sein, sonst kommt nichts an.
+   Ein früher angelegter überlebt zwar den Neustart, aber nicht jede
+   Neuinstallation – deshalb sicherheitshalber bei der ersten Meldung. */
+async function ensureChan(P){
+  if (notiChan || !P || !P.createChannel) return;
+  notiChan = true;
+  try{ await P.createChannel({id:"fogwalk", name:"Fogwalk",
+       description:"Entdeckungen unterwegs", importance:4, visibility:1}); }catch(e){}
+}
+async function notiShow(title, body){
+  const P = notiPlugin();
+  try{
+    if (P){
+      await ensureChan(P);
+      notiId = (notiId % 9000) + 1;
+      return await P.schedule({notifications:[
+        {id:notiId, title, body, channelId:"fogwalk"}
+      ]});
+    }
+    if (swReg && swReg.showNotification){
+      return await swReg.showNotification(title, {
+        body, tag:"fogwalk", renotify:true, silent:false, data:{url:location.href}
+      });
+    }
+    if (typeof Notification !== "undefined" && Notification.permission === "granted"){
+      new Notification(title, {body, tag:"fogwalk"});
+    }
+  }catch(e){ notiLastErr = String(e && e.message || e); }
+}
+
+/* ---- Einschalten ---- */
+/* Muss von einem Tippen ausgelöst werden, sonst lehnt der Browser ab. */
+async function notiEnable(){
+  notiLastErr = "";
+  const P = notiPlugin();
+  try{
+    if (P){
+      let r = await P.checkPermissions();
+      if (r.display !== "granted") r = await P.requestPermissions();
+      if (r.display !== "granted"){ notiLastErr = "abgelehnt"; renderNoti(); return false; }
+      await ensureChan(P);
+    } else {
+      if (typeof Notification === "undefined"){ notiLastErr = "nicht verfügbar"; renderNoti(); return false; }
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted"){ notiLastErr = "abgelehnt"; renderNoti(); return false; }
+      if ("serviceWorker" in navigator && !swReg){
+        try{ swReg = await navigator.serviceWorker.ready; }catch(e){}
+      }
+    }
+    S.notify.on = true;
+    renderNoti(); save();
+    return true;
+  }catch(e){
+    notiLastErr = String(e && e.message || e);
+    renderNoti();
+    return false;
+  }
+}
+
+/* ---- Bedienfeld ---- */
+function renderNoti(){
+  const box = $("notiBox"); if (!box) return;
+  const way = notiWay();
+  if (!way){
+    box.innerHTML = '<div class="subline">Dieses Gerät kann hier keine Meldungen anzeigen. '
+      + 'Im Browser klappt es nur auf einer gehosteten Seite (https), '
+      + 'in der App aus dem APK immer.</div>';
+    return;
+  }
+  const perm = notiPerm();
+  if (!S.notify.on){
+    box.innerHTML =
+      '<div class="subline">Fogwalk meldet sich, wenn der Bildschirm aus ist – '
+      + 'bei neuen Orten, erfüllten Aufträgen und Stufenaufstiegen.</div>'
+      + '<button class="btn" id="notiOn">Meldungen einschalten</button>'
+      + (notiLastErr === "abgelehnt"
+          ? '<div class="ghint">Abgelehnt. Du kannst es in den Einstellungen des Geräts '
+            + 'für Fogwalk wieder erlauben.</div>'
+          : notiLastErr ? '<div class="ghint">' + escHtml(notiLastErr) + "</div>" : "");
+    return;
+  }
+  box.innerHTML =
+    '<div class="srow"><span>Zustand</span><b>'
+      + (perm === "granted" || way === "app" ? "aktiv" : "vom Gerät blockiert") + "</b></div>"
+    + NOTI_KINDS.map(k =>
+        '<label class="chk"><input type="checkbox" data-n="' + k.id + '"'
+        + (S.notify[k.id] === false ? "" : " checked") + "> "
+        + k.name + ' <em class="nh">' + k.hint + "</em></label>").join("")
+    + '<button class="btn ghost" id="notiTest">Meldung ausprobieren</button>'
+    + '<button class="btn ghost" id="notiOff">Meldungen ausschalten</button>'
+    + '<div class="subline nfoot">Während die App offen vor dir liegt, bleibt es still – '
+    + "dort siehst du die Meldung ohnehin im Spiel.</div>";
+}
+function wireNoti(){
+  const box = $("notiBox"); if (!box) return;
+  box.addEventListener("click", e => {
+    const t = e.target;
+    if (t.id === "notiOn")   notiEnable();
+    if (t.id === "notiOff"){ S.notify.on = false; renderNoti(); save(); }
+    if (t.id === "notiTest") notiShow("Fogwalk", "So meldet sich das Spiel unterwegs.");
+  });
+  box.addEventListener("change", e => {
+    const k = e.target.dataset && e.target.dataset.n;
+    if (!k) return;
+    S.notify[k] = e.target.checked;
+    save();
+  });
+}
+
+
 /* ═══════════ Tag, Serie, Tagebuch ═══════════ */
 function dayKey(d){
   d = d || new Date();
@@ -2216,65 +2810,211 @@ function touchStreak(){
 }
 
 /* ═══════════ Aufträge ═══════════ */
-/* Drei Stück pro Tag, aus dem Datum abgeleitet – dadurch sind sie auf dem
-   Gerät stabil und lassen sich nicht durch Neuladen neu würfeln. */
-const QUEST_DEFS = [
-  {id:"dist", name:"Wegstrecke",  goals:[800, 1300, 2000, 3000],
-   text:g => fmtD(g) + " gehen",           val:() => S.dist,                       fmt:v => fmtD(v)},
-  {id:"area", name:"Neuland",     goals:[120, 200, 320, 480],
-   text:g => g + " neue Felder aufdecken", val:() => S.cellCount,                  fmt:v => String(Math.round(v))},
-  {id:"poi",  name:"Sehenswertes",goals:[1, 2, 3, 5],
-   text:g => g + (g === 1 ? " Ort entdecken" : " Orte entdecken"),
-   val:() => Object.keys(S.poisFound).length,                                      fmt:v => String(v)},
-  {id:"item", name:"Sammler",     goals:[3, 5, 8, 12],
-   text:g => g + " Fundstücke aufheben",   val:() => S.itemsTotal,                 fmt:v => String(v)},
-  {id:"rare", name:"Schatzsucher",goals:[1, 2, 3, 4],
-   text:g => g + (g === 1 ? " besseres Stück finden" : " bessere Stücke finden"),
-   val:() => S.rareTotal,                                                          fmt:v => String(v)}
-];
-function questSeed(){
-  const [y, m, d] = dayKey().split("-").map(Number);
-  return y * 10000 + m * 100 + d;
+/* Drei Zeiträume nebeneinander: Tag, Woche, Monat. Alle drei ziehen aus
+   demselben Vorrat an Auftragsarten, aber mit eigenen Zielmarken und
+   eigenen Belohnungen. Welche Arten drankommen, leitet sich aus dem
+   Datum ab – dadurch sind sie auf dem Gerät stabil und lassen sich nicht
+   durch Neuladen neu würfeln, wechseln aber von Woche zu Woche und von
+   Monat zu Monat zuverlässig durch. */
+
+function weekKey(d){
+  const x = new Date(d || new Date());
+  x.setHours(12, 0, 0, 0);
+  // Nach ISO bestimmt der Donnerstag derselben Woche das Jahr.
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7) + 3);
+  const jan4 = new Date(x.getFullYear(), 0, 4); jan4.setHours(12, 0, 0, 0);
+  const thu1 = new Date(jan4);
+  thu1.setDate(thu1.getDate() - ((jan4.getDay() + 6) % 7) + 3);
+  const n = 1 + Math.round((x - thu1) / 604800000);
+  return x.getFullYear() + "-W" + (n < 10 ? "0" : "") + n;
 }
-function buildQuests(){
-  const k = dayKey();
-  if (S.quests.day === k && S.quests.list && S.quests.list.length) return;
-  const seed = questSeed();
-  // Reihenfolge aus dem Datum mischen, dann die ersten drei nehmen
-  const order = QUEST_DEFS.map((q, i) => ({q, s:hash32(i, seed, 11)}))
-                          .sort((a, b) => a.s - b.s).slice(0, 3);
-  S.quests = {day:k, list:order.map(({q}, i) => {
-    const gi = hash32(i, seed, 29) % q.goals.length;
-    return {id:q.id, gi, goal:q.goals[gi], base:q.val(), done:false, paid:false};
+function monthKey(d){
+  d = d || new Date();
+  const p = n => (n < 10 ? "0" : "") + n;
+  return d.getFullYear() + "-" + p(d.getMonth() + 1);
+}
+function periodKey(pid, d){
+  d = d || new Date();
+  return pid === "woche" ? weekKey(d) : pid === "monat" ? monthKey(d) : dayKey(d);
+}
+/* Fortlaufende Nummer des Zeitraums, gezählt ab einem festen Anfang –
+   daraus wandert die Auswahl weiter, damit zwei Wochen hintereinander
+   nie dieselben Aufträge zeigen. */
+const QEPOCH = new Date(2020, 0, 1, 12, 0, 0);
+function rawIndex(pid, d){
+  if (pid === "monat") return d.getFullYear() * 12 + d.getMonth();
+  const x = new Date(d); x.setHours(12, 0, 0, 0);
+  if (pid === "woche"){
+    x.setDate(x.getDate() - ((x.getDay() + 6) % 7));    // auf den Montag
+    return Math.round(x / 604800000);
+  }
+  return Math.round(x / 86400000);
+}
+function periodIndex(pid, d){
+  return rawIndex(pid, d || new Date()) - rawIndex(pid, QEPOCH);
+}
+
+const PERIODS = [
+  {id:"tag",   name:"Tag",   head:"Aufträge des Tages", n:3,
+   reward:gi => ({coin:12  + gi * 14,  xp:50   + gi * 45})},
+  {id:"woche", name:"Woche", head:"Diese Woche",        n:2,
+   reward:gi => ({coin:70  + gi * 60,  xp:300  + gi * 260})},
+  {id:"monat", name:"Monat", head:"Dieser Monat",       n:2,
+   reward:gi => ({coin:260 + gi * 200, xp:1200 + gi * 950})}
+];
+function periodDef(pid){ return PERIODS.find(p => p.id === pid); }
+
+/* Zielmarken je Zeitraum. Woche rechnet mit rund fünf Tagen unterwegs,
+   der Monat mit rund achtzehn – und bei den Orten deutlich flacher,
+   weil die Umgebung irgendwann abgegrast ist. */
+const QUEST_DEFS = [
+  {id:"dist", name:"Wegstrecke",
+   g:{tag:[800, 1300, 2000, 3000], woche:[5000, 8000, 12000, 18000],
+      monat:[18000, 30000, 45000, 70000]},
+   text:g => fmtD(g) + " gehen",           val:() => S.dist,       fmt:v => fmtD(v)},
+  {id:"area", name:"Neuland",
+   g:{tag:[120, 200, 320, 480], woche:[700, 1200, 1800, 2600],
+      monat:[2500, 4200, 6500, 9500]},
+   text:g => g + " neue Felder aufdecken", val:() => S.cellCount,  fmt:v => String(Math.round(v))},
+  {id:"poi",  name:"Sehenswertes",
+   g:{tag:[1, 2, 3, 5], woche:[4, 6, 9, 13], monat:[12, 18, 26, 38]},
+   text:g => g + (g === 1 ? " Ort entdecken" : " Orte entdecken"),
+   val:() => Object.keys(S.poisFound).length,          fmt:v => String(Math.round(v))},
+  {id:"item", name:"Sammler",
+   g:{tag:[3, 5, 8, 12], woche:[18, 28, 42, 60], monat:[70, 110, 160, 230]},
+   text:g => g + " Fundstücke aufheben",   val:() => S.itemsTotal, fmt:v => String(Math.round(v))},
+  {id:"rare", name:"Schatzsucher",
+   g:{tag:[1, 2, 3, 4], woche:[5, 8, 11, 15], monat:[18, 28, 40, 55]},
+   text:g => g + (g === 1 ? " besseres Stück finden" : " bessere Stücke finden"),
+   val:() => S.rareTotal,                              fmt:v => String(Math.round(v))}
+];
+function questDef(id){ return QUEST_DEFS.find(q => q.id === id); }
+
+function keySeed(k){
+  let h = 0;
+  for (let i = 0; i < k.length; i++) h = (Math.imul(h, 31) + k.charCodeAt(i)) | 0;
+  return h;
+}
+/* Welche Auftragsarten ein Zeitraum zieht.
+   Statt jedesmal neu zu würfeln – wobei zweimal hintereinander dieselbe
+   Zusammenstellung herauskommen kann – wird ein Kartenstapel aus *allen*
+   möglichen Zusammenstellungen gemischt und dann durchgegangen. So ist
+   jede Woche eine andere, und erst wenn der Stapel durch ist, wird neu
+   gemischt – dann in anderer Reihenfolge. */
+function combos(list, n){
+  if (n === 0) return [[]];
+  const out = [];
+  list.forEach((x, i) =>
+    combos(list.slice(i + 1), n - 1).forEach(rest => out.push([x].concat(rest))));
+  return out;
+}
+const _decks = {}, _ord = {};
+function deckFor(pid){
+  if (!_decks[pid]) _decks[pid] = combos(QUEST_DEFS.map(q => q.id), periodDef(pid).n);
+  return _decks[pid];
+}
+function sameSet(a, b){
+  return a.length === b.length && a.every(x => b.indexOf(x) >= 0);
+}
+/* Reihenfolge eines Stapeldurchgangs. Fällt die erste Karte mit der
+   letzten des vorherigen Durchgangs zusammen, werden die ersten beiden
+   getauscht – dann steht dieselbe Zusammenstellung nie zweimal
+   hintereinander, auch nicht am Stapelwechsel. */
+function cycleOrder(pid, cyc){
+  const hit = _ord[pid + "#" + cyc];
+  if (hit) return hit;
+  const deck = deckFor(pid), L = deck.length;
+  let prev = null;
+  const from = cyc <= 0 ? cyc : 0;
+  for (let c = from; c <= cyc; c++){
+    let ord = _ord[pid + "#" + c];
+    if (!ord){
+      ord = deck.map((x, i) => ({x, s:hash32(i, keySeed(pid) + c, 7)}))
+                .sort((a, b) => a.s - b.s).map(e => e.x);
+      if (prev && sameSet(ord[0], prev[L - 1])){
+        const t = ord[0]; ord[0] = ord[1]; ord[1] = t;
+      }
+      _ord[pid + "#" + c] = ord;
+    }
+    prev = ord;
+  }
+  return prev;
+}
+function pickIds(pid, idx){
+  const L = deckFor(pid).length;
+  const cyc = Math.floor(idx / L), pos = ((idx % L) + L) % L;
+  return cycleOrder(pid, cyc)[pos];
+}
+function pickFor(pid, idx){
+  return pickIds(pid, idx).map(id => questDef(id));
+}
+function questPreview(pid, d){ return pickIds(pid, periodIndex(pid, d)); }
+function buildPeriod(pid){
+  const k = periodKey(pid);
+  const cur = S.quests[pid];
+  if (cur && cur.key === k && cur.list && cur.list.length) return;
+  const seed = keySeed(k);
+  S.quests[pid] = {key:k, list:pickFor(pid, periodIndex(pid)).map((q, i) => {
+    const gi = hash32(i, seed, 29) % q.g[pid].length;
+    return {id:q.id, gi, goal:q.g[pid][gi], base:q.val(), done:false, paid:false};
   })};
 }
-function questDef(id){ return QUEST_DEFS.find(q => q.id === id); }
-function questReward(gi){ return {coin:12 + gi * 14, xp:50 + gi * 45}; }
-function questProgress(q){
-  const d = questDef(q.id);
-  return Math.max(0, d.val() - q.base);
+function buildQuests(){ PERIODS.forEach(P => buildPeriod(P.id)); }
+/* Ältere Spielstände kannten nur Tagesaufträge: {day, list}.
+   Die werden übernommen, damit der heutige Fortschritt nicht verfällt. */
+function migrateQuests(o){
+  if (!o) return {};
+  if (o.day && o.list) return {tag:{key:o.day, list:o.list}};
+  return o;
 }
+function questList(pid){ return (S.quests[pid] && S.quests[pid].list) || []; }
+function questReward(pid, gi){ return periodDef(pid).reward(gi); }
+function questProgress(q){ return Math.max(0, questDef(q.id).val() - q.base); }
+
+/* Wie lange läuft der Zeitraum noch? */
+function periodLeft(pid){
+  const now = new Date();
+  let end;
+  if (pid === "tag")   end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  else if (pid === "woche"){
+    const dow = (now.getDay() + 6) % 7;      // Mo = 0
+    end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dow));
+  }
+  else end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const days = Math.ceil((end - now) / 86400000);
+  if (days <= 1){
+    const h = Math.ceil((end - now) / 3600000);
+    return h <= 1 ? "letzte Stunde" : "noch " + h + " Std.";
+  }
+  return "noch " + days + " Tage";
+}
+
 function checkQuests(){
-  if (!S.quests.list) return;
   let changed = false;
-  S.quests.list.forEach(q => {
-    if (q.done) return;
-    if (questProgress(q) >= q.goal){
-      q.done = true; changed = true;
-      toast("Auftrag erfüllt", questDef(q.id).name + " – Belohnung abholen");
-    }
+  PERIODS.forEach(P => {
+    questList(P.id).forEach(q => {
+      if (q.done) return;
+      if (questProgress(q) >= q.goal){
+        q.done = true; changed = true;
+        const wo = P.id === "tag" ? "" : " (" + P.name + ")";
+        toast("Auftrag erfüllt", questDef(q.id).name + wo + " – Belohnung abholen");
+        notify("ziele", "Auftrag erfüllt" + wo,
+               questDef(q.id).name + " – die Belohnung wartet");
+      }
+    });
   });
   if (changed){ renderQuests(); save(); }
 }
-function claimQuest(i){
-  const q = S.quests.list[i];
+function claimQuest(pid, i){
+  const q = questList(pid)[i];
   if (!q || !q.done || q.paid) return;
-  const r = questReward(q.gi);
+  const r = questReward(pid, q.gi);
   q.paid = true;
   S.coins += r.coin;
   grantXP(r.xp);
   toast("+" + r.coin + " Taler", "+" + r.xp + " XP");
-  addLog("Auftrag <b>" + questDef(q.id).name + "</b> abgeschlossen");
+  addLog("Auftrag <b>" + questDef(q.id).name + "</b> ("
+         + periodDef(pid).name + ") abgeschlossen");
   renderQuests(); renderGear(); updateHUD(); save();
 }
 
@@ -2295,6 +3035,7 @@ function markSeen(name){
       const coin = t * 60, xp = t * 220;
       S.coins += coin; grantXP(xp);
       toast("Stufe „" + TIER_NAME[t] + "“ komplett", "+" + coin + " Taler · +" + xp + " XP");
+      notify("funde", "Sammlung vollständig", "Stufe „" + TIER_NAME[t] + "“ · +" + coin + " Taler");
       addLog("Sammlung <b>" + TIER_NAME[t] + "</b> vollständig");
     }
   });
@@ -2317,10 +3058,33 @@ function timeBand(){
 }
 function bandName(){ const b = timeBand(); return (BANDS.find(x => x.id === b) || {}).name || ""; }
 /* Pool für die aktuelle Zeit: Stücke ohne Zeitbindung plus die passenden. */
-function poolFor(tier){
+/* Auswahl für eine Rasterzelle: erst Lebensraum *und* Tageszeit, dann
+   schrittweise lockern. Stücke ohne Habitatbindung passen überallhin;
+   in einer Gegend ohne Umgebungsdaten (hab === "") zählt nur die Zeit,
+   dann verhält sich alles wie vorher. */
+function fitsHab(i, hab){
+  if (!hab) return true;                    // keine Umgebungsdaten: alles möglich
+  if (!i.hb || !i.hb.length) return true;   // Stücke ohne Bindung passen überallhin
+  return i.hb.indexOf(hab) >= 0;
+}
+function poolFor(tier, hab){
   const b = timeBand();
-  const pool = ITEMS.filter(i => i.r === tier && (!i.tb || i.tb === b));
-  return pool.length ? pool : ITEMS.filter(i => i.r === tier);
+  const tierItems = ITEMS.filter(i => i.r === tier);
+  if (!hab){
+    const any = tierItems.filter(i => !i.tb || i.tb === b);
+    return any.length ? any : tierItems;
+  }
+  const steps = [
+    i => fitsHab(i, hab) && (!i.tb || i.tb === b),
+    i => fitsHab(i, hab),
+    i => !i.hb && (!i.tb || i.tb === b),
+    i => !i.hb
+  ];
+  for (const f of steps){
+    const p = tierItems.filter(f);
+    if (p.length) return p;
+  }
+  return tierItems;
 }
 
 /* ═══════════ Kartenbild ═══════════ */
@@ -2426,42 +3190,58 @@ function exportGPX(){
 function renderQuests(){
   buildQuests();
   const box = $("quests"); if (!box) return;
-  box.innerHTML = S.quests.list.map((q, i) => {
-    const d = questDef(q.id), p = Math.min(q.goal, questProgress(q));
-    const pct = Math.min(100, p / q.goal * 100);
-    const r = questReward(q.gi);
-    return '<div class="qrow' + (q.paid ? " paid" : "") + '">'
-      + '<div class="qh"><span class="qn">' + d.name + "</span>"
-      + '<span class="qr">' + r.coin + " Taler · " + r.xp + " XP</span></div>"
-      + '<div class="qt">' + d.text(q.goal) + "</div>"
-      + '<div class="qbar"><i style="width:' + pct.toFixed(1) + '%"></i></div>'
-      + '<div class="qf"><span>' + d.fmt(p) + " / " + d.fmt(q.goal) + "</span>"
-      + (q.paid ? '<span class="qok">abgeholt</span>'
-                : q.done ? '<button class="gbtn" data-q="' + i + '">Abholen</button>'
-                         : "") + "</div></div>";
+  box.innerHTML = PERIODS.map(P => {
+    const list = questList(P.id);
+    const offen = list.filter(q => q.done && !q.paid).length;
+    return '<div class="qgrp"><div class="qgh"><span class="qgn">' + P.head + "</span>"
+      + '<span class="qgl' + (offen ? " has" : "") + '">'
+      + (offen ? offen + " abzuholen · " : "") + periodLeft(P.id) + "</span></div>"
+      + list.map((q, i) => {
+          const d = questDef(q.id), p = Math.min(q.goal, questProgress(q));
+          const pct = Math.min(100, p / q.goal * 100);
+          const r = questReward(P.id, q.gi);
+          return '<div class="qrow' + (q.paid ? " paid" : "") + '">'
+            + '<div class="qh"><span class="qn">' + d.name + "</span>"
+            + '<span class="qr">' + r.coin + " Taler · " + r.xp + " XP</span></div>"
+            + '<div class="qt">' + d.text(q.goal) + "</div>"
+            + '<div class="qbar"><i style="width:' + pct.toFixed(1) + '%"></i></div>'
+            + '<div class="qf"><span>' + d.fmt(p) + " / " + d.fmt(q.goal) + "</span>"
+            + (q.paid ? '<span class="qok">abgeholt</span>'
+                      : q.done ? '<button class="gbtn" data-p="' + P.id + '" data-q="' + i + '">Abholen</button>'
+                               : "") + "</div></div>";
+        }).join("")
+      + "</div>";
   }).join("")
   + '<div class="streak">Serie: <b>' + (S.streak.n || 0) + "</b> Tage"
   + (streakBonus() > 0 ? " · Erfahrungsbonus <b>+" + Math.round(streakBonus() * 100) + " %</b>" : "")
   + "</div>";
   box.querySelectorAll("button[data-q]").forEach(b =>
-    b.onclick = () => claimQuest(+b.dataset.q));
+    b.onclick = () => claimQuest(b.dataset.p, +b.dataset.q));
 }
 
 function renderCollection(){
   const box = $("collection"); if (!box) return;
   const head = $("colHead");
-  if (head) head.textContent = seenCount() + " von " + ITEMS.length + " gefunden";
+  if (head){
+    const h = S.lat != null ? habAt(S.lat, S.lng) : "";
+    head.innerHTML = seenCount() + " von " + ITEMS.length + " gefunden"
+      + ' · hier: <b class="hnow">' + habName(h) + "</b>, " + bandName();
+  }
+  const hier = typeof habAt === "function" && S.lat != null ? habAt(S.lat, S.lng) : "";
   box.innerHTML = [1,2,3,4].map(t =>
     '<div class="colgrp"><div class="colt" style="color:' + TIER_COL[t] + '">'
     + TIER_NAME[t] + (S.setDone[t] ? " ✓" : "") + "</div><div class=\"colg\">"
     + ITEMS.filter(i => i.r === t).map(i => {
         const have = !!S.found[i.n];
         const band = i.tb ? (BANDS.find(x => x.id === i.tb) || {}).name : "";
-        return '<div class="colc' + (have ? "" : " miss") + '" title="' + i.n
-          + (band ? " (nur " + band + ")" : "") + '">'
+        const wo = itemHabText(i);
+        // Was hier und jetzt auftauchen kann, wird hervorgehoben
+        const now = fitsHab(i, hier) && (!i.tb || i.tb === timeBand());
+        return '<div class="colc' + (have ? "" : " miss") + (now ? " now" : "")
+          + '" title="' + i.n + " – " + wo + (band ? ", nur " + band : "") + '">'
           + (have ? spriteSVG(i, 30) : '<div class="colq">?</div>')
           + '<span>' + (have ? i.n : "unbekannt") + "</span>"
-          + (band ? '<em>' + band + "</em>" : "") + "</div>";
+          + '<em>' + wo + (band ? " · " + band : "") + "</em></div>";
       }).join("")
     + "</div></div>").join("");
 }
@@ -2487,7 +3267,9 @@ function renderStats(){
     + '<div class="srow"><span>Bester Tag</span><b>' + fmtD(max) + "</b></div>"
     + '<div class="srow"><span>Insgesamt</span><b>' + fmtD(S.dist) + "</b></div>"
     + '<div class="srow"><span>Fundstücke</span><b>' + S.itemsTotal + "</b></div>"
-    + '<div class="srow"><span>Tageszeit</span><b>' + bandName() + "</b></div>";
+    + '<div class="srow"><span>Tageszeit</span><b>' + bandName() + "</b></div>"
+    + '<div class="srow"><span>Umgebung</span><b>'
+      + (S.lat != null ? habName(habAt(S.lat, S.lng)) : "noch unbekannt") + "</b></div>";
 }
 
 /* Reiter im Bedienfeld */
@@ -2499,7 +3281,7 @@ function setTab(id){
     p.style.display = (p.dataset.t === id ? "block" : "none"));
   if (id === "ziele") renderQuests();
   if (id === "beute"){ renderGear(); renderInv(); renderCollection(); }
-  if (id === "mehr") renderStats();
+  if (id === "mehr"){ renderStats(); renderNoti(); saverHint(); }
 }
 
 
@@ -2539,22 +3321,36 @@ function renderGear(){
     const l=S.gear[g.id]||0, done=l>=g.max, c=gearCost(l), ok=canAfford(c);
     const row=document.createElement("div");
     row.className="gearrow"+(done?" done":"");
-    const pips=Array.from({length:g.max},(_,i)=>
-      '<i class="'+(i<l?"on":"")+'"></i>').join("");
+    const pips=Array.from({length:g.max},(_,i)=>'<i class="'+(i<l?"on":"")+'"></i>').join("");
+
+    // Jede Kostenposition als eigenes Kästchen – dadurch bleibt sie auch
+    // auf schmalen Bildschirmen lesbar und bricht sauber um.
+    let cost="";
+    if(!done){
+      const parts=[];
+      [1,2,3,4].forEach(t=>{
+        if(c.t[t-1]>0) parts.push({n:c.t[t-1], txt:TIER_NAME[t],
+                                   have:tierCount(t), col:TIER_COL[t]});
+      });
+      if(c.coin) parts.push({n:c.coin, txt:"Taler", have:S.coins, col:"#ffb13b"});
+      cost='<div class="clab">Kosten</div><div class="gcost">'
+        +parts.map(p=>'<span class="cc'+(p.have>=p.n?"":" lack")+'">'
+          +'<b style="color:'+(p.have>=p.n?p.col:"")+'">'+p.n+"</b>"+p.txt
+          +'<em>'+p.have+" da</em></span>").join("")
+        +"</div>"
+        +(ok?"":'<div class="ghint">Dafür fehlt noch Material.</div>');
+    }
+
     row.innerHTML=
       '<div class="gh"><span class="gn">'+g.name+'</span><span class="gp">'+pips+"</span></div>"
-      +'<div class="ge">'+g.eff(l)+(done?"":' <span class="arw">→</span> '+g.eff(l+1))+"</div>"
-      +(done?'<div class="gc">voll ausgebaut</div>'
-            :'<div class="grow"><span class="gc">'
-              +[1,2,3,4].filter(t=>c.t[t-1]>0).map(t=>
-                 '<b class="'+(tierCount(t)>=c.t[t-1]?"":"lack")+'">'+c.t[t-1]+"</b> "+TIER_NAME[t]).join(" · ")
-              +(c.coin?' · <b class="'+(S.coins>=c.coin?"":"lack")+'">'+c.coin+"</b> Taler":"")
-              +'</span><button class="gbtn" data-g="'+g.id+'"'+(ok?"":" disabled")+">Ausbauen</button></div>");
+      +'<div class="glab">'+g.label+" · Stufe "+l+" von "+g.max+"</div>"
+      +'<div class="ge">'+g.eff(l)+(done?"":' <span class="arw">→</span> <b>'+g.eff(l+1)+"</b>")+"</div>"
+      +(done?'<div class="clab done">Voll ausgebaut</div>'
+            :cost+'<button class="gbtn'+(ok?"":" off")+'" data-g="'+g.id+'"'+(ok?"":" disabled")
+              +">Ausbauen</button>");
     box.appendChild(row);
   });
-  box.querySelectorAll("button[data-g]").forEach(b=>{
-    b.onclick=()=>upgradeGear(b.dataset.g);
-  });
+  box.querySelectorAll("button[data-g]").forEach(b=>{ b.onclick=()=>upgradeGear(b.dataset.g); });
 }
 function renderInv(){
   const el=$("inv");
@@ -2588,12 +3384,15 @@ function grantXP(n){
   const before=levelOf(S.xp).lv;
   S.xp+=n;
   const after=levelOf(S.xp).lv;
-  if(after>before) toast("Level "+after+" erreicht","Der Nebel weicht weiter zurück.");
+  if(after>before){
+    toast("Level "+after+" erreicht","Der Nebel weicht weiter zurück.");
+    notify("level","Stufe "+after+" erreicht","Der Nebel weicht weiter zurück.");
+  }
   lastLv=after;
 }
 
 /* ═══════════ Bewegung ═══════════ */
-let last=null, follow=true, walking=false, simMode=false, jumps=0;
+let last=null, follow=true, walking=false, jumps=0;
 function onMove(lat,lng,acc,credit){
   const now=Date.now();
   S.lat=lat; S.lng=lng;
@@ -2609,7 +3408,7 @@ function onMove(lat,lng,acc,credit){
   } else if(last){
     const d=haversine(last.lat,last.lng,lat,lng);
     const dt=Math.max(0.4,(now-last.t)/1000);
-    if(d/dt>MAX_SPEED && !simMode){
+    if(d/dt>MAX_SPEED){
       // Zu schnell für einen Spaziergang: erst als GPS-Ausreißer behandeln.
       // Hält es an, ist man wirklich woanders – dann dort neu ansetzen,
       // ohne die Strecke gutzuschreiben, statt für immer blockiert zu bleiben.
@@ -2647,6 +3446,7 @@ function onMove(lat,lng,acc,credit){
       S.poisFound[p.id]=true;
       grantXP(d.xp);
       toast(p.name,"Entdeckt · +"+d.xp+" XP");
+      notify("orte",p.name,"Neuer Ort entdeckt · +"+d.xp+" XP");
       addLog("<b>"+p.name+"</b> entdeckt (+"+d.xp+" XP)");
       today().pois++;
       checkQuests();
@@ -2665,6 +3465,7 @@ function onMove(lat,lng,acc,credit){
       markSeen(i.it.n);
       grantXP(i.it.xp);
       toast(spriteSVG(i.it,16)+" "+i.it.n,"+"+i.it.xp+" XP · "+TIER_NAME[i.it.r]);
+      if(i.it.r>=3) notify("funde",i.it.n+" gefunden",TIER_NAME[i.it.r]+" · +"+i.it.xp+" XP");
       addLog("<b>"+i.it.n+"</b> gefunden (+"+i.it.xp+" XP)");
       checkQuests();
       const m=itemMarkers.get(i.id); if(m){ map.removeLayer(m); itemMarkers.delete(i.id); }
@@ -2683,6 +3484,7 @@ function onMove(lat,lng,acc,credit){
    nicht mehr Meter für Meter aufsummieren. */
 const WIN=6;                 // Fenstergroesse der Mittelung
 let anchor=null, win=[], standing=false, lastAcc=null, driftRejects=0;
+let lastSpeed=null, lastD=0, lastNeed=0;
 
 function resetDrift(){ anchor=null; win=[]; standing=false; driftRejects=0; }
 
@@ -2714,11 +3516,18 @@ function handleFix(lat,lng,acc,speed,ts){
 
   const d=haversine(anchor.lat,anchor.lng,M.lat,M.lng);
   const dt=Math.max(0.5,(now-anchor.t)/1000);
-  const deviceStill=(speed!=null && speed>=0 && speed<F.still);
+  // Achtung: manche Geraete melden speed als exakt 0, wenn sie es gar nicht
+  // kennen. Wuerde man das als "steht still" werten, kaeme nie Strecke zustande.
+  // Deshalb zaehlt nur ein echt gemeldetes Tempo groesser null.
+  const speedKnown=(speed!=null && speed>0);
+  const deviceStill=speedKnown && speed<F.still;
   const need=Math.max(F.min,accMean*F.accF);
+  lastSpeed=speed; lastD=d; lastNeed=need;
 
   // Angezeigt wird immer der geglaettete Punkt – ruhig, aber nicht eingefroren.
-  if(win.length<WIN || deviceStill || d<need){
+  // Das Geraetetempo darf eine echte Verschiebung nicht mehr blockieren,
+  // sondern nur noch kleine Ausschlaege zusaetzlich daempfen.
+  if(win.length<WIN || d<need || (deviceStill && d<need*1.5)){
     if(!standing && d<need) standing=true;
     onMove(M.lat,M.lng,acc,0);
     return;
@@ -2774,13 +3583,14 @@ function bgPlugin(){
   return (C && C.Plugins && C.Plugins.BackgroundGeolocation) || null;
 }
 function onFix(lat,lng,acc,speed,ts){
-  if(dev.on) return;                 // Testmodus hat Vorrang
   plausFeed(lat,lng,acc,speed);
   handleFix(lat,lng,acc,speed,ts);
   setStatus(standing ? "Stehst still · <b>"+fmtD(S.dist)+"</b>"
                      : "Unterwegs · <b>"+fmtD(S.dist)+"</b>");
   loadPOIs(lat,lng,true);
+  loadHabitat(lat,lng,true);
   if(curStyle.vector) loadPixel(lat,lng,true);
+  saverTick();
 }
 function onFixError(code){
   if(code===1){
@@ -2798,42 +3608,21 @@ function startWalk(){
   if(!BG && !("geolocation" in navigator)){
     setStatus("Dieses Gerät bietet keine Standortermittlung."); return;
   }
-  if(dev.on) setSim(false);      // echte Ortung hat Vorrang
   walking=true; follow=true; resetDrift();
+  dozing=false; stillSince=0; dozeAnchor=null;
   if(!S.since) S.since=Date.now();
   session={t:Date.now(), xp:S.xp, dist:S.dist, cells:S.cellCount,
            pois:Object.keys(S.poisFound).length, items:S.itemsTotal,
            coins:S.coins, gaps:0, gapMs:0};
   $("go").textContent="Beenden"; $("go").classList.add("on");
-
-  if(BG){
-    posSource="Hintergrunddienst";
-    setStatus("Suche Standort … läuft auch im Hintergrund.");
-    BG.addWatcher({
-      backgroundMessage:"Fogwalk zeichnet deinen Weg auf.",
-      backgroundTitle:"Unterwegs",
-      requestPermissions:true,
-      stale:false,
-      distanceFilter:4
-    },(loc,err)=>{
-      if(err){ onFixError(err.code==="NOT_AUTHORIZED"?1:2); return; }
-      if(!loc) return;
-      onFix(loc.latitude,loc.longitude,loc.accuracy,loc.speed,loc.time||Date.now());
-    }).then(id=>{ bgWatcher=id; }).catch(()=>{ posSource=""; });
-    return;
-  }
-
-  posSource="Browser (nur im Vordergrund)";
-  setStatus("Suche Standort … Bildschirm anlassen.");
-  if("wakeLock" in navigator) navigator.wakeLock.request("screen").then(l=>wakeLock=l).catch(()=>{});
-  watchId=navigator.geolocation.watchPosition(
-    p=>{ const c=p.coords; onFix(c.latitude,c.longitude,c.accuracy,c.speed,p.timestamp); },
-    err=>onFixError(err.code),
-    {enableHighAccuracy:true,maximumAge:2000,timeout:25000}
-  );
+  setStatus(BG ? "Suche Standort … läuft auch im Hintergrund."
+               : "Suche Standort … Bildschirm anlassen.");
+  startFine();
 }
+
 function stopWalk(){
   walking=false; $("go").textContent="Spaziergang starten"; $("go").classList.remove("on");
+  saverStop();
   if(watchId!=null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
   if(bgWatcher!=null){
     const BG=bgPlugin();
@@ -2866,119 +3655,6 @@ function showSummary(){
     '<div class="srow"><span>'+r[0]+"</span><b>"+r[1]+"</b></div>").join("");
   $("summary").classList.remove("hide");
 }
-
-/* ═══════════ Entwicklermodus ═══════════ */
-/* Speist kuenstliche Fixes durch denselben handleFix() wie echtes GPS –
-   dadurch testet man den Driftfilter wirklich und nicht an ihm vorbei. */
-const dev={on:false,run:false,timer:null,pos:null,target:null,
-           kmh:4.5,noise:3,useSpeed:true,ghost:null,rejected:0,clock:0};
-
-let gseed=98765;
-function grand(){ gseed=(gseed*1103515245+12345)&0x7fffffff; return gseed/0x7fffffff; }
-function gauss(sd){ const u=Math.max(1e-9,grand()),v=grand();
-  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)*sd; }
-
-function setSim(on){
-  dev.on=on; simMode=false;
-  $("btnSim").classList.toggle("on",on);
-  const box=$("devBox"); if(box) box.style.display=on?"block":"none";
-  const pad=$("dpad"); if(pad) pad.style.display=on?"grid":"none";
-  if(on){
-    resetDrift();
-    if(walking) setStatus("Testmodus an – echte Ortung pausiert.");
-    if(!dev.pos){
-      const c=(S.lat!=null)?{lat:S.lat,lng:S.lng}:map.getCenter();
-      dev.pos={lat:c.lat,lng:c.lng};
-    }
-    resetDrift(); dev.rejected=0; dev.clock=Date.now();
-    setStatus("Testmodus: Steuerkreuz oder Ziel antippen.");
-    devEmit(false);
-  }else{
-    devStop();
-    if(dev.ghost){ map.removeLayer(dev.ghost); dev.ghost=null; }
-    resetDrift();                 // sauberer Neustart mit echten Fixes
-    setStatus(walking?"Echte Ortung wieder aktiv.":"Bereit.");
-  }
-  devReadout();
-}
-function devStop(){ dev.run=false; dev.target=null;
-  if(dev.timer){ clearInterval(dev.timer); dev.timer=null; } }
-
-function devStart(){
-  if(dev.timer) return;
-  dev.run=true;
-  dev.timer=setInterval(()=>devTick(false),1000);   // wie echtes GPS: 1 Fix/s
-}
-function devTick(){
-  if(!dev.on||!dev.pos) return;
-  let moving=false;
-  if(dev.target){
-    const d=haversine(dev.pos.lat,dev.pos.lng,dev.target.lat,dev.target.lng);
-    const step=dev.kmh/3.6;
-    if(d<=step){ dev.pos={lat:dev.target.lat,lng:dev.target.lng}; dev.target=null; devStop(); }
-    else{ const f=step/d;
-      dev.pos={lat:dev.pos.lat+(dev.target.lat-dev.pos.lat)*f,
-               lng:dev.pos.lng+(dev.target.lng-dev.pos.lng)*f}; }
-    moving=true;
-  }
-  devEmit(moving);
-}
-
-/* Ein Tastendruck am Steuerkreuz = eine simulierte Sekunde Gehen.
-   Dadurch bleibt die Zeitachse stimmig und der Filter sieht dieselbe
-   Taktung wie bei echtem GPS. */
-function devStep(dx,dy){
-  if(!dev.on) return;
-  if(!dev.pos){ const c=map.getCenter(); dev.pos={lat:c.lat,lng:c.lng}; }
-  dev.target=null; devStop();
-  const step=dev.kmh/3.6;
-  const m2lat=1/110540, m2lng=1/(111320*Math.cos(dev.pos.lat*D2R));
-  dev.pos={lat:dev.pos.lat+dy*step*m2lat, lng:dev.pos.lng+dx*step*m2lng};
-  devEmit(dx!==0||dy!==0);
-}
-
-function devEmit(moving){
-  if(!dev.pos) return;
-  const m2lat=1/110540, m2lng=1/(111320*Math.cos(dev.pos.lat*D2R));
-  const raw={lat:dev.pos.lat+gauss(dev.noise)*m2lat,
-             lng:dev.pos.lng+gauss(dev.noise)*m2lng};
-  const acc=Math.max(4,dev.noise*1.8);
-  const spd=dev.useSpeed?(moving?dev.kmh/3.6:Math.abs(gauss(0.15))):null;
-
-  dev.clock+=1000;
-  plausFeed(raw.lat,raw.lng,acc,spd);
-  handleFix(raw.lat,raw.lng,acc,spd,dev.clock);
-  dev.rejected=driftRejects;
-
-  if(!dev.ghost){
-    dev.ghost=L.marker([raw.lat,raw.lng],{icon:L.divIcon({className:"",
-      html:'<div class="rawdot"></div>',iconSize:[14,14],iconAnchor:[7,7]}),
-      keyboard:false,zIndexOffset:900}).addTo(map);
-  } else dev.ghost.setLatLng([raw.lat,raw.lng]);
-
-  devReadout(raw,acc,spd);
-}
-
-function devReadout(raw,acc,spd){
-  const el=$("devOut"); if(!el||!dev.on) return;
-  const F=gpsFilter();
-  const d=(raw&&anchor)?haversine(anchor.lat,anchor.lng,raw.lat,raw.lng):0;
-  const need=Math.max(F.min,(acc||0)*F.accF);
-  el.innerHTML=
-     "roh→Anker  "+d.toFixed(1)+" m\n"
-    +"Schwelle   "+need.toFixed(1)+" m  ("+F.name+")\n"
-    +"Genauig.   ±"+(acc!=null?Math.round(acc):"–")+" m\n"
-    +"Tempo      "+(spd!=null?spd.toFixed(2)+" m/s":"nicht gemeldet")+"\n"
-    +"Zustand    "+(standing?"steht":"in Bewegung")+"\n"
-    +"verworfen  "+dev.rejected+"  ·  Strecke "+fmtD(S.dist);
-}
-map.on("click",e=>{
-  if(!dev.on) return;
-  dev.target={lat:e.latlng.lat,lng:e.latlng.lng};
-  dev.rejected=0;
-  devStart();
-  setStatus("Testmodus: läuft mit <b>"+dev.kmh.toFixed(1)+" km/h</b>");
-});
 
 /* ═══════════ Offline-Vorrat ═══════════ */
 async function prefetch(){
@@ -3028,152 +3704,7 @@ async function prefetch(){
   addLog("Kartenausschnitt offline gesichert ("+(list.length-fail)+" Kacheln)");
 }
 
-/* ═══════════ Diagnose ═══════════ */
-function openHelp(){ $("help").classList.remove("hide"); runDiag(); }
-async function runDiag(){
-  const L3=[];
-  const inFrame=(()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
-  const mark=(ok,t)=>'<span class="'+(ok?"ok":"bad")+'">'+(ok?"✓":"✕")+"</span> "+t;
-  L3.push("Adresse: "+location.protocol+"//"+(location.host||"(lokale Datei)"));
-  L3.push(mark(window.isSecureContext,"Sicherer Kontext: "+window.isSecureContext));
-  L3.push(mark(!inFrame,"Eingebettet in iframe: "+(inFrame?"JA":"nein")));
-  L3.push(mark("geolocation" in navigator,"Geolocation-API vorhanden"));
-  let perm="unbekannt";
-  try{ if(navigator.permissions) perm=(await navigator.permissions.query({name:"geolocation"})).state; }catch(e){}
-  L3.push(mark(perm!=="denied","Standort-Berechtigung: "+perm));
-  L3.push(mark(!!db,"Datenbank (IndexedDB): "+(db?"aktiv":"nicht verfügbar – nutze Ersatzspeicher")));
-  L3.push(mark(navigator.onLine,"Netzverbindung: "+(navigator.onLine?"online":"offline")));
-  let tileCount=0;
-  try{ tileCount=await idb("tiles","readonly",s=>s.count()); }catch(e){}
-  L3.push("Gespeicherte Kartenkacheln: "+tileCount);
-  const ts=tileStats;
-  // Ueber einen Zweitweg gerettet ist kein Fehler, sondern hoechstens ein Hinweis
-  const tOk=ts.ok+ts.cache+ts.xhr+ts.img;
-  L3.push((ts.fail&&!tOk?'<span class="bad">✕ ':(ts.fail?'<span class="warn">▲ ':'<span class="ok">✓ '))
-    +"Kacheln: "+ts.ok+" geladen, "+ts.cache+" aus Cache"
-    +(ts.xhr?", "+ts.xhr+" über XHR":"")
-    +(ts.img?", "+ts.img+" über Bild-Ersatz":"")
-    +(ts.fail?", "+ts.fail+" fehlgeschlagen":"")+"</span>");
-  if(ts.fail&&ts.last) L3.push("  Grund: "+ts.last);
-  if(cspHits.length){
-    L3.push('<span class="bad">✕ Von einer Sicherheitsregel (CSP) blockiert: '
-      +[...new Set(cspHits.map(x=>x.d))].join(", ")+" blockiert "
-      +[...new Set(cspHits.map(x=>x.u))].slice(0,4).join(", ")+"</span>");
-    if(cspPolicy) L3.push("  Regel des Servers: "+cspPolicy.slice(0,220));
-    L3.push('<span class="warn">▲ Diese Regel kommt vom Webhoster, nicht vom Browser. '
-      +'Sie lässt sich aus der Seite heraus nicht lockern – dann braucht es einen anderen Hoster.</span>');
-  }
-  if(lastQueryError)
-    L3.push('<span class="bad">✕ Datenabruf (Orte/Pixelwelt): '+lastQueryError+"</span>");
-  else if(lastTransport)
-    L3.push('<span class="ok">✓ Datenabruf läuft über '+lastTransport+"</span>");
-  if((lastQueryBlocked&&!lastTransport)||(ts.img&&!ts.ok&&!ts.xhr))
-    L3.push('<span class="warn">▲ Der Browser lässt keine Datenabfragen an fremde Server durch. '
-      +'Die Karte kommt nur noch über einen Bild-Umweg, Sehenswürdigkeiten und Pixelwelt gehen so gar nicht. '
-      +'In Brave: Löwen-Symbol in der Adresszeile → Schutzschilde für diese Seite aus, dann neu laden.</span>');
-  if(ts.fail&&!ts.img&&!ts.cache)
-    L3.push('<span class="warn">▲ Es kommt keine einzige Kachel durch. In Brave: Löwen-Symbol in der Adresszeile → Schutzschilde für diese Seite herunterfahren. Danach neu laden.</span>');
-  const F=gpsFilter();
-  const pf=plausReport();
-  if(pf) L3.push(pf.length
-    ? '<span class="warn">▲ Auffällig: '+pf.join(", ")+"</span>"
-    : '<span class="ok">✓ Bewegungsmuster unauffällig</span>');
-  L3.push((bgPlugin()?'<span class="ok">✓ ':'<span class="warn">▲ ')
-    +"Ortung: "+(bgPlugin()?"Hintergrunddienst verfügbar (native Hülle)"
-                          :"nur im Vordergrund – Bildschirm muss an bleiben")+"</span>");
-  L3.push("GPS-Filter: "+F.name+" (ab "+F.min+" m Bewegung)"
-    +(lastAcc!=null?" · zuletzt ±"+Math.round(lastAcc)+" m":"")
-    +(walking?(standing?" · steht":" · in Bewegung"):""));
-  // Die Ursache hängt am Schema: eine Standortfreigabe wird immer an einen
-  // Origin geknüpft. Ohne Origin gibt es nichts freizugeben – und keine Nachfrage.
-  const scheme=location.protocol;
-  if(inFrame){
-    L3.push('<span class="warn">▲ Die Seite läuft in einem iframe, der die Standortabfrage sperrt. Öffne sie direkt in einem eigenen Tab.</span>');
-  } else if(scheme==="content:"){
-    L3.push('<span class="warn">▲ Android hat die Datei über einen content://-Pfad geöffnet (typisch für „Files“ oder den Download-Manager). So eine Adresse hat keine Website-Identität, an die eine Standortfreigabe gebunden werden könnte – der Browser lehnt sie deshalb ohne Nachfrage ab. Hier ist nichts einzustellen.\n\nAusweg 1: In der Adresszeile direkt file:///sdcard/Download/index.html eintippen.\nAusweg 2 (zuverlässig): Die Datei auf einen HTTPS-Host legen, z. B. GitHub Pages.</span>');
-  } else if(scheme==="file:"){
-    L3.push(perm==="denied"
-      ? '<span class="warn">▲ Dieser Browser gibt den Standort auf file://-Adressen nicht frei. Dann hilft nur ein HTTPS-Host, z. B. GitHub Pages.</span>'
-      : '<span class="warn">▲ Als lokale Datei geöffnet. Wenn beim Start keine Nachfrage kommt, erlaubt dieser Browser Standort auf file:// nicht – dann hilft nur ein HTTPS-Host.</span>');
-  } else if(scheme==="http:" && location.hostname!=="localhost" && location.hostname!=="127.0.0.1"){
-    L3.push('<span class="warn">▲ Unverschlüsseltes HTTP: Browser sperren hier den Standortzugriff grundsätzlich. Die Seite muss über HTTPS laufen.</span>');
-  } else if(perm==="denied"){
-    L3.push('<span class="warn">▲ Standort ist für diese Seite gesperrt. Tippe auf das Symbol links in der Adresszeile → Berechtigungen → Standort → Zulassen. Prüfe außerdem, ob der Standort in den Android-Einstellungen an ist. In Brave zusätzlich: Shields für diese Seite herunterfahren.</span>');
-  } else if(perm==="prompt"){
-    L3.push('<span class="ok">✓ Alles bereit – beim Start des Spaziergangs fragt der Browser nach dem Standort.</span>');
-  }
-  $("diag").innerHTML=L3.join("\n");
-}
-
-/* Prueft dieselbe Adresse ueber drei Wege. Wenn Bild geht und die anderen
-   nicht, blockiert etwas gezielt skriptgesteuerte Anfragen. */
-async function connTest(){
-  const out=$("connRes");
-  out.textContent="Teste …";
-  const t="https://tile.openstreetmap.org/0/0/0.png";
-  const n=Date.now();
-  const lines=[];
-  lines.push(await new Promise(r=>{
-    const i=new Image();
-    i.onload=()=>r('<span class="ok">✓</span> als Bild: geht');
-    i.onerror=()=>r('<span class="bad">✕</span> als Bild: blockiert');
-    i.src=t+"?a="+n;
-  }));
-  try{
-    const res=await fetch(t+"?b="+n,{mode:"cors",credentials:"omit"});
-    lines.push(res.ok?'<span class="ok">✓</span> per fetch: geht'
-                     :'<span class="bad">✕</span> per fetch: HTTP '+res.status);
-  }catch(e){ lines.push('<span class="bad">✕</span> per fetch: '+((e&&e.message)||"blockiert")); }
-  lines.push(await new Promise(r=>{
-    const x=new XMLHttpRequest();
-    try{ x.open("GET",t+"?c="+n); }catch(e){ return r('<span class="bad">✕</span> per XHR: abgelehnt'); }
-    x.responseType="blob"; x.timeout=12000;
-    x.onload=()=>r(x.status===200?'<span class="ok">✓</span> per XHR: geht'
-                                 :'<span class="bad">✕</span> per XHR: HTTP '+x.status);
-    x.onerror=()=>r('<span class="bad">✕</span> per XHR: blockiert');
-    x.ontimeout=()=>r('<span class="bad">✕</span> per XHR: Zeitüberschreitung');
-    x.send();
-  }));
-  // Gegenprobe auf die EIGENE Adresse: klappt die, ist fetch grundsaetzlich
-  // erlaubt und nur der Weg nach draussen gesperrt.
-  let okSelf=false;
-  try{
-    const r2=await fetch(location.pathname+"?self="+n,{cache:"no-store"});
-    okSelf=r2.ok;
-    lines.push(okSelf?'<span class="ok">✓</span> auf eigene Adresse: geht'
-                     :'<span class="bad">✕</span> auf eigene Adresse: HTTP '+r2.status);
-  }catch(e){ lines.push('<span class="bad">✕</span> auf eigene Adresse: '+((e&&e.message)||"blockiert")); }
-  const okImg=lines[0].includes("✓"), okOther=lines[1].includes("✓")||lines[2].includes("✓");
-  if(cspHits.length){
-    lines.push('<span class="bad">▲ Der Hoster verbietet Abfragen an fremde Server (CSP: '
-      +[...new Set(cspHits.map(x=>x.d))].join(", ")+"). Das ist keine Browsereinstellung – die Seite muss woanders liegen.</span>");
-  } else if(okImg&&!okOther&&okSelf){
-    lines.push('<span class="warn">▲ Bilder und die eigene Adresse gehen, fremde Server nicht. '
-      +"Sieht nach einer Sperre für Cross-Origin-Abfragen aus – Hoster oder Netzwerk.</span>");
-  } else if(okOther){
-    lines.push('<span class="ok">✓ Datenabfragen sind möglich.</span>');
-  } else if(!okImg&&!okSelf){
-    lines.push('<span class="bad">✕ Gar nichts kommt durch – keine Verbindung?</span>');
-  } else {
-    lines.push('<span class="warn">▲ Nur Bilder kommen durch.</span>');
-  }
-  out.innerHTML=lines.join("\n");
-}
-
-/* Direkter Test: zeigt den echten Fehlercode statt nur den Permission-State */
-function geoTest(){
-  const out=$("geoRes");
-  if(!("geolocation" in navigator)){ out.innerHTML='<span class="bad">Keine Geolocation-API vorhanden.</span>'; return; }
-  out.innerHTML="Frage Standort an …";
-  navigator.geolocation.getCurrentPosition(
-    p=>{ out.innerHTML='<span class="ok">✓ Standort erhalten: '
-        +p.coords.latitude.toFixed(5)+", "+p.coords.longitude.toFixed(5)
-        +" (±"+Math.round(p.coords.accuracy)+" m). Es kann losgehen.</span>"; runDiag(); },
-    e=>{ const why={1:"Zugriff verweigert (code 1)",2:"Position nicht ermittelbar (code 2)",3:"Zeitüberschreitung (code 3)"};
-         out.innerHTML='<span class="bad">✕ '+(why[e.code]||"Fehler")+(e.message?" – "+e.message:"")+"</span>"; runDiag(); },
-    {enableHighAccuracy:true,timeout:15000,maximumAge:0}
-  );
-}
+function openHelp(){ $("help").classList.remove("hide"); }
 
 /* ═══════════ Ortssuche ═══════════ */
 async function search(){
@@ -3189,9 +3720,8 @@ async function search(){
       d.textContent=p.display_name;
       d.onclick=()=>{
         map.setView([+p.lat,+p.lon],17);
-        S.lat=+p.lat; S.lng=+p.lon;
+        follow=false;                       // Karte bleibt, wo man hingesprungen ist
         $("help").classList.add("hide");
-        setSim(true);
         loadPOIs(+p.lat,+p.lon,true);
       };
       $("results").appendChild(d);
@@ -3210,12 +3740,9 @@ $("btnMore").onclick=()=>{
   $("btnMore").setAttribute("aria-label",open?"Details verbergen":"Details anzeigen");
 };
 $("btnCenter").onclick=()=>{ follow=true; if(S.lat) map.setView([S.lat,S.lng],Math.max(map.getZoom(),17)); };
-$("btnSim").onclick=()=>setSim(!simMode);
 $("btnHelp").onclick=openHelp;
 $("helpClose").onclick=()=>$("help").classList.add("hide");
 $("sumClose").onclick=()=>$("summary").classList.add("hide");
-$("btnGeoTest").onclick=geoTest;
-$("btnConnTest").onclick=connTest;
 $("qGo").onclick=search;
 $("q").addEventListener("keydown",e=>{ if(e.key==="Enter") search(); });
 $("introGo").onclick=()=>{ $("intro").classList.add("hide"); S.seen=true; save(); };
@@ -3224,6 +3751,25 @@ const GPS_HINTS={
   normal:"Ausgewogen. Kleine Sprünge beim Stehen werden verworfen.",
   strict:"Ignoriert alles unter etwa 15 m. Für Innenhöfe, enge Gassen und schlechten Empfang."
 };
+function saverHint(){
+  const el=$("saverHint"); if(!el) return;
+  el.textContent = S.saver
+    ? "Nach 1,5 Minuten Stillstand schaltet die Ortung auf grob herunter. "
+      + "Sie wacht auf, sobald der Bewegungssensor Schritte spürt oder du dich "
+      + "um " + WAKE_M + " m verschoben hast – der Weg dazwischen wird nachgetragen."
+    : "Die Ortung läuft durchgehend. Genauer, aber der Akku hält kürzer.";
+}
+function wireSaver(){
+  const c=$("saver"); if(!c) return;
+  c.checked=!!S.saver;
+  c.onchange=()=>{
+    S.saver=c.checked;
+    if(!S.saver && dozing) wake("Sparmodus aus");
+    if(!S.saver) saverStop();
+    saverHint(); save();
+  };
+  saverHint();
+}
 function buildGpsButtons(){
   const wrap=$("gpsf"); wrap.innerHTML="";
   Object.keys(GPS_FILTERS).forEach(id=>{
@@ -3250,44 +3796,12 @@ function buildStyleButtons(){
     wrap.appendChild(b);
   });
 }
-$("fogSlider").addEventListener("input",e=>{
-  S.fogAlpha=(+e.target.value)/100; applyFogAlpha();
-});
-$("fogSlider").addEventListener("change",save);
-(function wireDpad(){
-  let hold=null;
-  const stop=()=>{ if(hold){ clearInterval(hold); hold=null; } };
-  document.querySelectorAll("#dpad button[data-dx]").forEach(btn=>{
-    const dx=+btn.dataset.dx, dy=+btn.dataset.dy;
-    btn.addEventListener("pointerdown",e=>{
-      e.preventDefault(); e.stopPropagation();
-      devStep(dx,dy);
-      stop(); hold=setInterval(()=>devStep(dx,dy),340);   // gedrueckt halten = weitergehen
-    });
-    ["pointerup","pointerleave","pointercancel"].forEach(ev=>btn.addEventListener(ev,stop));
-  });
-  const stay=$("padStay");
-  stay.addEventListener("pointerdown",e=>{
-    e.preventDefault(); e.stopPropagation();
-    if(!dev.on) return;
-    devEmit(false);
-    stop(); hold=setInterval(()=>devEmit(false),340);     // stehen, nur Rauschen
-  });
-  ["pointerup","pointerleave","pointercancel"].forEach(ev=>stay.addEventListener(ev,stop));
-  $("dpad").addEventListener("pointerdown",e=>e.stopPropagation());
-})();
-$("devSpeed").addEventListener("input",e=>{
-  dev.kmh=+e.target.value; $("devSpeedV").textContent=dev.kmh+" km/h"; });
-$("devNoise").addEventListener("input",e=>{
-  dev.noise=+e.target.value; $("devNoiseV").textContent=dev.noise+" m"; });
-$("devUseSpeed").addEventListener("change",e=>{ dev.useSpeed=e.target.checked; });
-$("devStand").onclick=()=>{ if(!dev.on) setSim(true);
-  dev.target=null; dev.rejected=0; resetDrift(); devStart();
-  setStatus("Testmodus: stehe still, nur Rauschen."); };
-$("devHalt").onclick=()=>{ devStop(); setStatus("Testmodus angehalten."); };
 $("btnPrefetch").onclick=prefetch;
 $("btnPixel").onclick=()=>{ const c=map.getCenter(); pixState.areas={}; loadPixel(c.lat,c.lng,false); };
-$("btnPoi").onclick=()=>{ const c=map.getCenter(); poiAreas={}; loadPOIs(c.lat,c.lng,false); };
+$("btnPoi").onclick=async()=>{ const c=map.getCenter();
+  poiAreas={}; await loadPOIs(c.lat,c.lng,false);
+  habAreas={}; await loadHabitat(c.lat,c.lng,false);
+  renderGear(); };
 map.on("dragstart",()=>{ follow=false; });
 
 // Nach Bildschirmsperre oder Tab-Wechsel ist die Wake-Lock weg – neu anfordern.
@@ -3357,7 +3871,10 @@ $("btnReset").onclick=()=>{
 // Nur beim Hosten über http(s) sinnvoll – als lokale Datei liegt die App ohnehin
 // schon auf dem Gerät und braucht keinen Service Worker.
 if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js")
+    .then(r=>{ swReg=r; if(!swReg.showNotification) return;
+               return navigator.serviceWorker.ready.then(r2=>{ swReg=r2; }); })
+    .catch(()=>{}));
 }
 
 (async function init(){
@@ -3371,12 +3888,13 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
     if(p&&p.list){ POIS=p.list; poiAreas=p.areas||{}; }
     const px=await kvGet("pixel");
     if(px&&px.ways){ pixState.ways=px.ways; pixState.areas=px.areas||{}; }
+    const hb=await kvGet("habitat");
+    if(hb&&hb.list){ HAB=hb.list; habAreas=hb.areas||{}; }
   }
   sizeFog();
   buildStyleButtons();
   buildGpsButtons();
   applyStyle(S.styleId,false);
-  applyFogAlpha();
   if(S.lat!=null){
     map.setView([S.lat,S.lng],17);
     meMarker=L.marker([S.lat,S.lng],{icon:meIcon,keyboard:false,zIndexOffset:1000}).addTo(map);
@@ -3385,17 +3903,35 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   Object.keys(S.items).forEach(n=>{ if(!S.found[n]) S.found[n]=true; });
   buildQuests();
   refreshPoiMarkers(); renderInv(); renderGear(); renderLog(); updateHUD(); fogRedraw();
-  renderQuests(); renderCollection(); renderStats(); setTab(S.tab);
+  renderQuests(); renderCollection(); renderStats();
+  renderNoti(); wireNoti(); wireSaver(); setTab(S.tab);
   if(!S.seen) $("intro").classList.remove("hide");
   setTimeout(()=>{ map.invalidateSize(); sizeFog(); fogRedraw(); },200);
-  window.__nb={S,map,onMove,reveal,setSim,loadPOIs,applyStyle,STYLES,tileUrlFor,styleById,dev,handleFix,
+  window.__nb={S,map,onMove,reveal,loadPOIs,applyStyle,STYLES,tileUrlFor,styleById,handleFix,
              get standing(){return standing;}, get anchor(){return anchor;},
-             get driftRejects(){return driftRejects;}, resetDrift, devStep, devEmit,
+             get driftRejects(){return driftRejects;}, resetDrift,
              pixWays:()=>pixState.ways.length, loadPixel,
              revealM,poiM,itemM,itemChance,xpPerM,tierCount,renderGear,upgradeGear,gearCost,
              ITEMS,GEAR,renderInv,sellItem,spriteSVG,bandName,exportMapImage,exportGPX,setTab,
              renderQuests,renderCollection,renderStats,dayKey,
+             QUEST_DEFS,PERIODS,buildQuests,questList,questReward,questProgress,
+             claimQuest,questPreview,pickIds,periodKey,periodIndex,periodLeft,
+             weekKey,monthKey,migrateQuests,
+             habAt,habClear,loadHabitat,habClass,habPrepare,poolFor,itemsNear,
+             doze,wake,saverTick,saverStop,startFine,creditGap,probeOnce,
+             get dozing(){return dozing;}, get stillSince(){return stillSince;},
+             set stillSince(v){stillSince=v;}, get coarseWatcher(){return coarseWatcher;},
+             get dozeAnchor(){return dozeAnchor;}, set dozeAnchor(v){dozeAnchor=v;},
+             motionSample,
+             DOZE_AFTER,WAKE_M,COARSE_M,saverHint,wireSaver,
+             get POIS(){return POIS;},
+             get HAB(){return HAB;}, set HAB(v){HAB=v;},
+             get habAreas(){return habAreas;}, set habAreas(v){habAreas=v;},
+             HABITATS,habName,itemHabText,areaKey,habCovered,fitsHab,timeBand,
+             addLog,renderLog,toast,
              posSource:()=>posSource, bgPlugin,
+             notify,notiShow,notiEnable,notiWay,renderNoti,notiFlush,
+             get notiQueue(){return notiQueue;}, set swReg(r){swReg=r;},
              get tiles(){return tiles;}, get curStyle(){return curStyle;}};
 })();
 

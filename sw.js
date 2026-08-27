@@ -40,3 +40,17 @@ self.addEventListener("fetch", e => {
     })
   );
 });
+
+/* Tippt man auf eine Meldung, soll das Spiel nach vorne kommen –
+   und zwar der schon offene Tab, nicht ein zweiter. */
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+      for (const c of list){
+        if (c.url.indexOf(self.registration.scope) === 0 && "focus" in c) return c.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow("./");
+    })
+  );
+});

@@ -30,6 +30,15 @@ jobs:
           cp index.html www/
           cp sw.js www/ 2>/dev/null || true
 
+      # Ohne festen Schluessel erzeugt jeder Lauf einen neuen Signierschluessel.
+      # Android verweigert dann das Update ("Paket in Konflikt mit einem
+      # bestehenden Paket"). Darum liegt der Schluessel im Repo.
+      - name: Signierschluessel einsetzen
+        run: |
+          mkdir -p ~/.android
+          base64 -d debug.keystore.base64.txt > ~/.android/debug.keystore
+          keytool -list -keystore ~/.android/debug.keystore -storepass android
+
       - name: Abhaengigkeiten holen
         run: npm install
 

@@ -1272,12 +1272,21 @@ body.panel-open #komp{display:none;}
 
 /* ---- Werkstatt ---- */
 .crec{--brd:var(--dark);background:var(--deep);box-shadow:var(--frame);
-  padding:11px 12px;margin-bottom:11px;}
+  margin-bottom:8px;}
 .crec.on{--brd:var(--moss);}
-.crec .gh{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.crec .ch{display:flex;align-items:center;gap:9px;width:100%;
+  background:none;border:0;box-shadow:none;padding:10px 11px;
+  text-align:left;cursor:pointer;color:inherit;min-height:44px;}
+.crec.auf .ch{padding-bottom:4px;}
 .crec .gspr{flex:0 0 auto;display:flex;}
-.crec .gn{font-family:var(--f-disp);font-size:9px;color:var(--ember);}
-.crec .gt{margin-left:auto;font-family:var(--f-body);font-size:11.5px;color:var(--mist);}
+.crec .gn{font-family:var(--f-disp);font-size:9px;color:var(--ember);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.crec .gt{margin-left:auto;font-family:var(--f-body);font-size:11.5px;
+  color:var(--mist);white-space:nowrap;}
+.crec .carr{flex:0 0 auto;font-size:10px;color:var(--mist);}
+.cok{color:var(--moss);font-weight:700;}
+.cnum{color:var(--dim);}
+.cbody{padding:0 11px 11px;}
 .crec .qt{margin-bottom:9px;}
 
 /* ---- Tagesschatz ---- */
@@ -1291,6 +1300,37 @@ body.panel-open #komp{display:none;}
   color:var(--ember-lt);font-weight:700;}
 .trering{animation:trepuls 2.4s ease-in-out infinite;}
 @keyframes trepuls{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* ---- Unterseiten und Filter ---- */
+/* Zweite Ebene: bewusst KEINE Kacheln wie die Hauptreiter oben, sondern
+   ein flaches Register – der laufende Punkt steht auf einem Balken. */
+.subtabs{display:flex;gap:0;margin:2px 0 12px;
+  border-bottom:2px solid var(--panel);}
+.subtabs button{flex:1 1 0;min-width:0;background:none;color:var(--mist);
+  border:0;border-radius:0;box-shadow:none;cursor:pointer;
+  padding:12px 3px 10px;margin-bottom:-2px;
+  border-bottom:2px solid transparent;
+  font-family:var(--f-body);font-size:12.5px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.subtabs button:active{background:var(--deep);}
+.subtabs button.on{color:var(--ember);font-weight:700;
+  border-bottom-color:var(--ember);}
+
+/* Dritte Ebene: kleine Schalter, dezent gefüllt statt orange. */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;}
+.chips button{--brd:var(--dark);background:var(--deep);color:var(--mist);
+  border:0;border-radius:0;padding:9px 11px;cursor:pointer;
+  font-family:var(--f-body);font-size:12px;box-shadow:var(--frame);}
+.chips button:active{transform:translateY(3px);}
+.chips button.on{background:var(--panel2);color:var(--paper);
+  --brd:var(--edge);font-weight:700;}
+#colQ{width:100%;box-sizing:border-box;--brd:var(--dark);background:var(--night);
+  color:var(--paper);border:0;border-radius:0;box-shadow:var(--frame);
+  font-family:var(--f-body);font-size:13.5px;padding:10px 11px;margin:0 0 12px;}
+#colQ::placeholder{color:var(--mist);}
+.colgrp.hide{display:none;}
+.cdone{color:var(--moss);font-weight:700;}
+#craft{max-height:none;}
 </style>
 </head>
 <body>
@@ -1347,18 +1387,37 @@ body.panel-open #komp{display:none;}
       </div>
 
       <div class="tabp" data-t="beute">
-        <h3 class="sec">Ausrüstung</h3>
-        <div id="mats"></div>
-        <div id="gear"></div>
-        <h3 class="sec">Werkstatt</h3>
-        <div class="subline">Häufiges zu Seltenem verarbeiten. Drei Stücke gibt es
-          nur hier – und was du davon dabeihast, wirkt beim Gehen weiter.</div>
-        <div id="craft"></div>
-        <h3 class="sec">Fundbuch</h3>
-        <div id="inv"><span class="chip">Noch nichts gefunden</span></div>
-        <h3 class="sec">Sammlung</h3>
-        <div id="colHead" class="subline"></div>
-        <div id="collection"></div>
+        <!-- Vier Bereiche statt einer endlosen Rolle: mit 18 Rezepten und
+             69 Fundstücken war die Seite sonst nicht mehr zu überblicken. -->
+        <div id="btabs" class="subtabs">
+          <button data-b="gear">Ausrüstung</button>
+          <button data-b="craft">Werkstatt</button>
+          <button data-b="inv">Fundbuch</button>
+          <button data-b="col">Sammlung</button>
+        </div>
+
+        <div class="bpane" data-b="gear">
+          <div id="mats"></div>
+          <div id="gear"></div>
+        </div>
+
+        <div class="bpane" data-b="craft">
+          <div class="subline">Was man aus Fundstücken wirklich bauen kann.
+            Diese Stücke gibt es nur hier.</div>
+          <div id="craftFilter" class="chips"></div>
+          <div id="craft"></div>
+        </div>
+
+        <div class="bpane" data-b="inv">
+          <div id="inv"><span class="chip">Noch nichts gefunden</span></div>
+        </div>
+
+        <div class="bpane" data-b="col">
+          <div id="colHead" class="subline"></div>
+          <div id="colFilter" class="chips"></div>
+          <input id="colQ" placeholder="Fundstück suchen" autocomplete="off">
+          <div id="collection"></div>
+        </div>
       </div>
 
       <div class="tabp" data-t="karte">
@@ -1614,6 +1673,7 @@ const S = {
   log:[], since:null, seen:false, lat:null, lng:null,
   styleId:"osm", gpsFilter:"normal", saver:false, font:"pixel", stepGate:true,
   fogAnim:true, kompass:true, treasure:{},
+  btab:"gear", craftF:"alle", colF:"alle", colQ:"",
   placeSort:"neu",
   gear:{lantern:0,boots:0,compass:0,glass:0}, itemsTotal:0, coins:0,
   rareTotal:0, found:{}, setDone:{}, quests:{}, streak:{n:0,last:""},
@@ -1657,7 +1717,7 @@ function serialize(){
     since:S.since, seen:S.seen, lat:S.lat, lng:S.lng,
     styleId:S.styleId, gpsFilter:S.gpsFilter, saver:S.saver, font:S.font,
     stepGate:S.stepGate, placeSort:S.placeSort, fogAnim:S.fogAnim, kompass:S.kompass,
-    treasure:S.treasure,
+    treasure:S.treasure, btab:S.btab, craftF:S.craftF, colF:S.colF,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
     streak:S.streak, days:S.days, tab:S.tab, notify:S.notify };
@@ -1676,6 +1736,7 @@ function hydrate(o){
   S.fogAnim=(o.fogAnim!==false);
   S.kompass=(o.kompass!==false);
   S.treasure=o.treasure||{};
+  S.btab=o.btab||"gear"; S.craftF=o.craftF||"alle"; S.colF=o.colF||"alle"; S.colQ="";
   S.gear=Object.assign({lantern:0,boots:0,compass:0,glass:0},o.gear||{});
   S.itemsTotal=o.itemsTotal||Object.values(S.items).reduce((a,b)=>a+b,0);
   S.coins=o.coins||0;
@@ -3425,6 +3486,20 @@ const ITEMS = [
   {n:"Hagebutte", r:2, hb:["wiese","park"], sn:"herbst", xp:28, val:5, p:["#c8302a","#e86a58","#7a1a14","#5c8f3a"],
    s:"...44...|..2442..|.211112.|21133112|21133112|.211112.|..1331..|...33..."},
 
+  {n:"Federkiel", r:2, cr:true, xp:28, val:7, p:["#e6e2d6","#a9a496","#6f6b60","#3a3630"],
+   s:"......11|.....121|....1221|...12213|..122133|.122133.|.4433...|44......"},
+  {n:"Kastanienkette", r:2, cr:true, xp:32, val:9, p:["#a9682f","#7a4520","#4a2810","#d8a566"],
+   s:"33333333|.3..3..3|11.11.11|12.12.12|22.22.22|.4..4..4|........|........"},
+
+  {n:"Hagebuttentee", r:2, cr:true, xp:30, val:8, p:["#e8dcc0","#a89878","#c8302a","#d8d8e0"],
+   s:"........|..4..4..|.4..4...|11111111|13333312|13333312|.133331.|..1111.."},
+  {n:"Samentüte", r:2, cr:true, xp:27, val:7, p:["#c8b088","#e8dcc0","#8a6a3a"],
+   s:".111111.|11111111|12222221|12322321|12233221|12322321|12222221|.111111."},
+  {n:"Kronkorken-Rassel", r:2, cr:true, xp:26, val:7, p:["#c83a3a","#8a2020","#9a8a72"],
+   s:"...33...|...33...|.1.33.1.|11133111|.1.33.1.|...33...|...33...|...33..."},
+  {n:"Schneckenkette", r:2, cr:true, xp:31, val:9, p:["#e8d8c0","#a88a5c","#9a8a72"],
+   s:"33333333|..3..3..|.111.111|12211221|12211221|.111.111|..1...1.|........"},
+
   /* ---- Stufe 3: besonders ---- */
   {n:"Bernsteinsplitter", r:3, hb:["wasser","wald"], tb:"morgen", xp:60, val:14, p:["#d8892a","#f6c060","#a35c14","#ffe9a8"],
    s:"...44...|..14421.|.1442241|.1442241|.1442231|..142241|...1221.|....11.."},
@@ -3450,10 +3525,24 @@ const ITEMS = [
 
   {n:"Raureifkristall", r:3, hb:["wiese","wald"], tb:"morgen", sn:"winter", xp:66, val:15, p:["#d8f0ff","#ffffff","#8ab0c8","#5a7a90"],
    s:"...1....|1..1..1.|.1.1.1..|..1211..|1111211.|..12111.|.1.1.1..|1..1..13"},
-  {n:"Wanderstock", r:3, cr:true, xp:80, val:26, p:["#8a6038","#a8794a","#4a3018","#c8b888"],
-   s:"......14|.....142|....1421|...1421.|..1421..|.1421...|14213...|4213...."},
-  {n:"Glücksbringer", r:3, cr:true, xp:90, val:30, p:["#c8a828","#f0d868","#8a6a14","#4a8f3a"],
+    {n:"Glücksbringer", r:3, cr:true, xp:90, val:30, p:["#c8a828","#f0d868","#8a6a14","#4a8f3a"],
    s:"...44...|..4114..|.411114.|41133114|41133114|.411114.|..1221..|...22..."},
+
+  {n:"Mosaikstein", r:3, cr:true, xp:72, val:20, p:["#8a7a5a","#c8b898","#b8663c","#5fa8c4"],
+   s:"11111111|12222221|12344321|12433421|12433421|12344321|12222221|11111111"},
+  {n:"Windlicht", r:3, cr:true, xp:85, val:24, p:["#f0d878","#ffb13b","#b8912e","#8a6a20"],
+   s:"...44...|..4..4..|.333333.|.311113.|.312213.|.311113.|.333333.|..3..3.."},
+  {n:"Muschelwindspiel", r:3, cr:true, xp:78, val:22, p:["#e8d8c0","#c0a888","#9a8a72"],
+   s:"33333333|.3..3..3|.3..3..3|11.11.11|12.12.12|.1..1..1|........|........"},
+
+  {n:"Nistkasten", r:3, cr:true, xp:74, val:21, p:["#a9682f","#3a2810","#7a4520","#d8a566"],
+   s:"..3333..|.333333.|11111111|11222211|11222211|11144111|11111111|11111111"},
+  {n:"Angelrute", r:3, cr:true, xp:70, val:19, p:["#9a8a72","#b8bcc8","#6a6a72"],
+   s:"......11|.....113|....11.3|...11..3|..11...3|.11....3|11.....2|......22"},
+  {n:"Traumfänger", r:3, cr:true, xp:82, val:23, p:["#a9682f","#3a3020","#e8e2d6","#c8b898"],
+   s:"..1111..|.122221.|12322321|12233221|12322321|.122221.|..1441..|...44..."},
+  {n:"Wegweiser", r:3, cr:true, xp:88, val:25, p:["#c8b088","#a9682f","#7a5c38"],
+   s:"...33...|1111133.|1111133.|...33...|..332222|..332222|...33...|...33..."},
 
   /* ---- Stufe 4: legendär ---- */
   {n:"Meteoritensplitter", r:4, tb:"nacht", xp:150, val:45, p:["#4a3a6e","#8a6fd0","#241a3a","#d8c0ff"],
@@ -3471,7 +3560,15 @@ const ITEMS = [
    s:"..1111..|.122221.|12144121|12144121|14444441|12144121|.122221.|..3333.."},
 
   {n:"Herbarium", r:4, cr:true, xp:190, val:70, p:["#c8b088","#e8dcc0","#7a5c38","#5c8f3a"],
-   s:"11111111|12222221|12442221|12244221|12422421|12222441|12222221|11111111"}
+   s:"11111111|12222221|12442221|12244221|12422421|12222441|12222221|11111111"},
+
+  {n:"Bernsteinanhänger", r:4, cr:true, xp:200, val:78, p:["#d8892a","#f6c060","#c0c4d8","#ffe9a8"],
+   s:"..3333..|..3..3..|.311113.|31222213|31224213|31222213|.312213.|..3113.."},
+
+  {n:"Gartensonnenuhr", r:4, cr:true, xp:205, val:80, p:["#c8b898","#b8892a","#8a7a5a"],
+   s:"........|....2...|...22...|..222...|.111111.|11111111|.133331.|..3333.."},
+  {n:"Sternenglas", r:4, cr:true, xp:215, val:85, p:["#a8c8e0","#4a3a6e","#b8912e","#8a6fd0"],
+   s:"..3333..|...33...|..1111..|.111111.|.142241.|.124421.|.111111.|..1111.."}
 ];
 
 /* Aus dem Raster ein SVG bauen. Ergebnis wird gemerkt, weil dieselben
@@ -3608,11 +3705,11 @@ function upgradeGear(id){
 }
 
 /* Wirkung der Ausrüstung an den Stellen, die den Kreislauf steuern */
-function revealM(){ return REVEAL_M+(S.gear.lantern||0)*3; }
-function poiM(){ return POI_M+(S.gear.compass||0)*6; }
+function revealM(){ return REVEAL_M+(S.gear.lantern||0)*3+craftBonusReveal(); }
+function poiM(){ return POI_M+(S.gear.compass||0)*6+craftBonusPoi(); }
 function itemM(){ return ITEM_M+(S.gear.glass||0)*3; }
 function itemChance(){ return 0.30+(S.gear.glass||0)*0.02+craftBonusFind(); }
-function xpPerM(){ return 0.32*(1+(S.gear.boots||0)*0.12+craftBonusDist()); }
+function xpPerM(){ return 0.32*(1+(S.gear.boots||0)*0.12); }
 /* Erfahrung fuers Aufdecken.
    Zwei Dinge stecken hier drin. Erstens ist eine Zelle nur noch ein halbes
    XP wert: das Aufdecken war mit Abstand die groesste Einnahmequelle und
@@ -4070,36 +4167,69 @@ function markSeen(name){
    manche sogar aus verschiedenen Jahreszeiten. Drei Stücke gibt es
    ausschließlich hier; sie liegen nie am Weg. */
 const RECIPES = [
-  {id:"harz",  aus:"Harzklumpen",
-   zu:[["Rindenstück",3],["Pilz",2]], t:20,
-   txt:"Harz aus dem Wald einkochen"},
-  {id:"perle", aus:"Süßwasserperle",
-   zu:[["Muschelschale",3],["Schwemmholz",2]], t:20,
-   txt:"Muscheln am Ufer öffnen"},
-  {id:"email", aus:"Emailleschild",
-   zu:[["Kronkorken",4],["Glasscherbe",2]], t:25,
-   txt:"Scherben zu einem Schild brennen"},
-  {id:"keil",  aus:"Feuerstein-Faustkeil",
-   zu:[["Tonscherbe",2],["Wappenscherbe",1]], t:30,
-   txt:"Am alten Gemäuer nachschlagen"},
-  {id:"klee",  aus:"Vierblättriger Klee",
-   zu:[["Löwenzahnschirm",3],["Weizenähre",3]], t:20,
-   txt:"Die Wiese gründlich durchsuchen"},
-  {id:"stock", aus:"Wanderstock",
-   zu:[["Rindenstück",2],["Kiefernzapfen",2],["Buchenblatt",2]], t:40,
-   txt:"Ein Stock fürs nächste Mal"},
+  {id:"kiel",  aus:"Federkiel",
+   zu:[["Vogelfeder",2],["Eulenfeder",1]], t:15,
+   txt:"Eine Feder zum Schreiben zuschneiden"},
+  {id:"kette", aus:"Kastanienkette",
+   zu:[["Kastanie",5],["Eichel",3]], t:15,
+   txt:"Wie als Kind: aufgefädelt"},
+  {id:"mosaik",aus:"Mosaikstein",
+   zu:[["Tonscherbe",3],["Glasscherbe",2],["Kieselstein",6]], t:30,
+   txt:"Scherben zu einem Muster legen"},
+  {id:"licht", aus:"Windlicht",
+   zu:[["Glasscherbe",4],["Messingknopf",2]], t:35,
+   txt:"Glas in Messing fassen"},
+  {id:"spiel", aus:"Muschelwindspiel",
+   zu:[["Muschelschale",4],["Schwemmholz",2],["Vogelfeder",1]], t:30,
+   txt:"Muscheln an Treibholz hängen"},
   {id:"glueck",aus:"Glücksbringer",
    zu:[["Vierblättriger Klee",1],["Hufeisen",1],["Alte Münze",2]], t:60,
    txt:"Drei Glücksbringer werden einer"},
+  {id:"bern",  aus:"Bernsteinanhänger",
+   zu:[["Bernsteinsplitter",1],["Silberring",1]], t:90,
+   txt:"Bernstein in Silber fassen"},
   {id:"herb",  aus:"Herbarium",
    zu:[["Buchenblatt",3],["Ahornblatt",2],["Kirschblüte",1]], t:80,
-   txt:"Blätter aus zwei Jahreszeiten pressen"}
+   txt:"Blätter aus zwei Jahreszeiten pressen"},
+  {id:"tee",   aus:"Hagebuttentee",
+   zu:[["Hagebutte",4],["Rosenblüte",2]], t:20,
+   txt:"Hagebutten trocknen und aufbrühen"},
+  {id:"samen", aus:"Samentüte",
+   zu:[["Sonnenblumenkern",5],["Löwenzahnschirm",4],["Weizenähre",3]], t:20,
+   txt:"Samen sammeln für den nächsten Frühling"},
+  {id:"rassel",aus:"Kronkorken-Rassel",
+   zu:[["Kronkorken",8],["Schwemmholz",1]], t:20,
+   txt:"Kronkorken auf einen Stock nageln"},
+  {id:"schnec",aus:"Schneckenkette",
+   zu:[["Schneckenhaus",5],["Vogelfeder",2]], t:25,
+   txt:"Häuschen auffädeln"},
+  {id:"nist",  aus:"Nistkasten",
+   zu:[["Rindenstück",4],["Schwemmholz",3],["Messingknopf",2]], t:45,
+   txt:"Bretter zu einem Kasten zusammensetzen"},
+  {id:"angel", aus:"Angelrute",
+   zu:[["Schwemmholz",2],["Angelhaken",2]], t:40,
+   txt:"Haken an einen Stock binden"},
+  {id:"traum", aus:"Traumfänger",
+   zu:[["Vogelfeder",3],["Eulenfeder",2],["Rindenstück",2]], t:45,
+   txt:"Einen Reifen mit Fäden bespannen"},
+  {id:"weg",   aus:"Wegweiser",
+   zu:[["Wegmarke",2],["Rindenstück",3]], t:50,
+   txt:"Bretter beschriften und aufstellen"},
+  {id:"sonne", aus:"Gartensonnenuhr",
+   zu:[["Sonnenuhr-Zeiger",1],["Tonscherbe",4],["Kieselstein",8]], t:120,
+   txt:"Den Zeiger auf eine Platte setzen"},
+  {id:"stern", aus:"Sternenglas",
+   zu:[["Meteoritensplitter",1],["Glasscherbe",3],["Messingknopf",2]], t:150,
+   txt:"Den Splitter in Glas verschließen"}
 ];
-/* Was man dabeihat, wirkt weiter – sonst wäre Herstellen nur Sammeln. */
+/* Was man dabeihat, wirkt weiter – sonst wäre Herstellen nur Sammeln.
+   Nur die drei, bei denen die Wirkung auch zum Gegenstand passt; die
+   übrigen fünf sind Sammlerstücke mit hohem Verkaufswert. */
 function hasCraft(n){ return (S.items[n]||0)>0; }
-function craftBonusDist(){ return hasCraft("Wanderstock") ? 0.05 : 0; }
+function craftBonusReveal(){ return hasCraft("Windlicht") ? 2 : 0; }
 function craftBonusFind(){ return hasCraft("Glücksbringer") ? 0.03 : 0; }
 function craftBonusItem(){ return hasCraft("Herbarium") ? 0.10 : 0; }
+function craftBonusPoi(){ return hasCraft("Wegweiser") ? 5 : 0; }
 
 function canCraft(r){
   if (S.coins < r.t) return false;
@@ -4125,30 +4255,66 @@ function doCraft(id){
   checkQuests();
   renderCraft(); renderInv(); renderGear(); renderCollection(); updateHUD(); save();
 }
+/* Ein Rezept steht zusammengeklappt in einer Zeile. Erst ein Antippen
+   zeigt Zutaten und Knopf – sonst wird die Seite bei 18 Rezepten zu lang. */
+let craftOpen = null;
+function craftReady(r){
+  const fehlt = r.zu.filter(([n,k]) => (S.items[n]||0) < k).length;
+  return { da: r.zu.length - fehlt, alle: r.zu.length,
+           geld: S.coins >= r.t, fehlt };
+}
 function renderCraft(){
   const box = $("craft"); if (!box) return;
-  box.innerHTML = RECIPES.map(r => {
+  const f = S.craftF || "alle";
+  document.querySelectorAll("#craftFilter button").forEach(b =>
+    b.classList.toggle("on", b.dataset.f === f));
+  let liste = RECIPES.slice();
+  if (f === "ok")  liste = liste.filter(r => canCraft(r));
+  if (f === "neu") liste = liste.filter(r => !S.found[r.aus]);
+  // Machbares zuerst, danach das noch Unbekannte
+  liste.sort((a,b) => (canCraft(b)-canCraft(a)) || ((!S.found[a.aus])-(!S.found[b.aus])));
+  const zahl = RECIPES.filter(r => canCraft(r)).length;
+  const kopf = '<div class="subline">' + zahl + " von " + RECIPES.length
+    + " machbar · " + RECIPES.filter(r => S.found[r.aus]).length + " schon gebaut</div>";
+  if (!liste.length){ box.innerHTML = kopf + '<div class="subline">Hier ist gerade nichts.</div>'; return; }
+  box.innerHTML = kopf + liste.map(r => {
     const it = itemByName(r.aus);
     const geht = canCraft(r);
     const habe = S.found[r.aus];
-    return '<div class="crec' + (geht ? " on" : "") + '">'
-      + '<div class="gh"><span class="gspr">' + (it ? spriteSVG(it,20) : "") + "</span>"
+    const auf = craftOpen === r.id;
+    const st = craftReady(r);
+    // Kurzstand rechts in der Kopfzeile
+    const stand = geht ? '<b class="cok">machbar</b>'
+      : '<span class="cnum">' + st.da + "/" + st.alle + " Zutaten"
+        + (st.geld ? "" : " · Taler fehlen") + "</span>";
+    let h = '<div class="crec' + (geht ? " on" : "") + (auf ? " auf" : "") + '">'
+      + '<button class="ch" data-o="' + r.id + '" aria-expanded="' + auf + '">'
+      + '<span class="gspr">' + (it ? spriteSVG(it,20) : "") + "</span>"
       + '<span class="gn">' + r.aus + "</span>"
-      + '<span class="gt">' + (it ? TIER_NAME[it.r] : "") + (habe ? " · bekannt" : "") + "</span></div>"
-      + '<div class="qt">' + r.txt + "</div>"
-      + '<div class="clab">Zutaten</div>'
-      + '<div class="gcost">'
-      + r.zu.map(([n,k]) => {
-          const da = S.items[n]||0;
-          return '<span class="cc' + (da>=k ? "" : " lack") + '"><b>' + k + "</b> "
-            + n + ' <i>' + da + " da</i></span>";
-        }).join("")
-      + '<span class="cc' + (S.coins>=r.t ? "" : " lack") + '"><b>' + r.t
-      + "</b> Taler <i>" + S.coins + " da</i></span>"
-      + "</div>"
-      + '<button class="gbtn' + (geht ? "" : " off") + '" data-c="' + r.id + '"'
-      + (geht ? "" : " disabled") + ">Herstellen</button></div>";
+      + '<span class="gt">' + stand + (habe ? ' <b class="cdone">✓</b>' : "") + "</span>"
+      + '<span class="carr">' + (auf ? "▲" : "▼") + "</span></button>";
+    if (auf){
+      h += '<div class="cbody">'
+        + '<div class="qt">' + r.txt + " · " + (it ? TIER_NAME[it.r] : "")
+        + (habe ? " · schon gebaut" : "") + "</div>"
+        + '<div class="clab">Zutaten</div>'
+        + '<div class="gcost">'
+        + r.zu.map(([n,k]) => {
+            const da = S.items[n]||0;
+            return '<span class="cc' + (da>=k ? "" : " lack") + '"><b>' + k + "</b> "
+              + n + ' <i>' + da + " da</i></span>";
+          }).join("")
+        + '<span class="cc' + (S.coins>=r.t ? "" : " lack") + '"><b>' + r.t
+        + "</b> Taler <i>" + S.coins + " da</i></span>"
+        + "</div>"
+        + '<button class="gbtn' + (geht ? "" : " off") + '" data-c="' + r.id + '"'
+        + (geht ? "" : " disabled") + ">Herstellen</button></div>";
+    }
+    return h + "</div>";
   }).join("");
+  box.querySelectorAll("button[data-o]").forEach(b =>
+    b.onclick = () => { craftOpen = (craftOpen === b.dataset.o) ? null : b.dataset.o;
+                        renderCraft(); });
   box.querySelectorAll("button[data-c]").forEach(b =>
     b.onclick = () => doCraft(b.dataset.c));
 }
@@ -4336,10 +4502,29 @@ function renderCollection(){
       + ", " + seasonName(seasonOf());
   }
   const hier = typeof habAt === "function" && S.lat != null ? habAt(S.lat, S.lng) : "";
+  const f = S.colF || "alle";
+  const q = (S.colQ || "").trim().toLowerCase();
+  document.querySelectorAll("#colFilter button").forEach(b =>
+    b.classList.toggle("on", b.dataset.f === f));
+  const passt = i => {
+    if (q && i.n.toLowerCase().indexOf(q) < 0) return false;
+    if (f === "ja")   return !!S.found[i.n];
+    if (f === "nein") return !S.found[i.n];
+    if (f === "hier") return spawnable(i) && fitsHab(i, hier)
+                          && (!i.tb || i.tb === timeBand());
+    return true;
+  };
+  const treffer = ITEMS.filter(passt).length;
+  if (!treffer){
+    box.innerHTML = '<div class="subline">Nichts gefunden.</div>';
+    return;
+  }
   box.innerHTML = [1,2,3,4].map(t =>
-    '<div class="colgrp"><div class="colt" style="color:' + TIER_COL[t] + '">'
-    + TIER_NAME[t] + (S.setDone[t] ? " ✓" : "") + "</div><div class=\"colg\">"
-    + ITEMS.filter(i => i.r === t).map(i => {
+    (ITEMS.filter(i => i.r === t && passt(i)).length
+      ? '<div class="colgrp"><div class="colt" style="color:' + TIER_COL[t] + '">'
+        + TIER_NAME[t] + (S.setDone[t] ? " ✓" : "") + "</div><div class=\"colg\">"
+      : "<div class=\"colgrp hide\"><div><div>")
+    + ITEMS.filter(i => i.r === t && passt(i)).map(i => {
         const have = !!S.found[i.n];
         const band = i.tb ? (BANDS.find(x => x.id === i.tb) || {}).name : "";
         const wo = itemHabText(i);
@@ -4450,6 +4635,53 @@ function renderPlaces(){
 }
 function escP(s){ return String(s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
 
+/* Unterseiten der Beute. Vier getrennte Bereiche sind auf einem Handy
+   deutlich brauchbarer als eine Rolle von mehreren tausend Bildpunkten. */
+const BTABS=[
+  {id:"gear", name:"Ausrüstung"},
+  {id:"craft",name:"Werkstatt"},
+  {id:"inv",  name:"Fundbuch"},
+  {id:"col",  name:"Sammlung"}
+];
+function setBTab(id){
+  S.btab=id;
+  document.querySelectorAll("#btabs button").forEach(b=>
+    b.classList.toggle("on", b.dataset.b===id));
+  document.querySelectorAll(".bpane").forEach(p=>
+    p.style.display=(p.dataset.b===id?"block":"none"));
+  if(id==="gear"){ renderGear(); }
+  if(id==="craft"){ renderCraft(); }
+  if(id==="inv"){ renderInv(); }
+  if(id==="col"){ renderCollection(); }
+  save();
+}
+function wireBTabs(){
+  document.querySelectorAll("#btabs button").forEach(b=>
+    b.onclick=()=>setBTab(b.dataset.b));
+  // Filterleisten einmal aufbauen
+  const cf=$("craftFilter");
+  if(cf && !cf.children.length){
+    [["alle","Alle"],["ok","Machbar"],["neu","Noch nie gebaut"]].forEach(([id,n])=>{
+      const b=document.createElement("button");
+      b.textContent=n; b.dataset.f=id;
+      b.onclick=()=>{ S.craftF=id; renderCraft(); save(); };
+      cf.appendChild(b);
+    });
+  }
+  const kf=$("colFilter");
+  if(kf && !kf.children.length){
+    [["alle","Alle"],["ja","Gefunden"],["nein","Fehlt"],["hier","Hier findbar"]].forEach(([id,n])=>{
+      const b=document.createElement("button");
+      b.textContent=n; b.dataset.f=id;
+      b.onclick=()=>{ S.colF=id; renderCollection(); save(); };
+      kf.appendChild(b);
+    });
+  }
+  const q=$("colQ");
+  if(q) q.oninput=()=>{ S.colQ=q.value; renderCollection(); };
+  setBTab(S.btab||"gear");
+}
+
 /* Reiter im Bedienfeld */
 function setTab(id){
   S.tab = id;
@@ -4458,9 +4690,8 @@ function setTab(id){
   document.querySelectorAll(".tabp").forEach(p =>
     p.style.display = (p.dataset.t === id ? "block" : "none"));
   if (id === "ziele"){ renderTreasure(); renderQuests(); }
-  if (id === "beute"){ renderGear(); renderCraft(); renderInv(); renderCollection(); }
+  if (id === "beute") setBTab(S.btab||"gear");
   if (id === "karte"){ renderCover(); renderPlaces(); }
-  if (id === "beute"){ renderGear(); renderCraft(); renderInv(); renderCollection(); }
   if (id === "mehr"){ renderStats(); renderNoti(); saverHint(); stepHint(); }
   stepLive(id === "mehr");
 }
@@ -5439,7 +5670,7 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   renderQuests(); renderCollection(); renderStats(); renderCraft();
   renderNoti(); wireNoti(); wireSaver(); wireStep();
   $("placeQ").addEventListener("input",renderPlaces);
-  wireFogAnim(); wireKompass(); renderPlaces(); updateKompass(true);
+  wireFogAnim(); wireKompass(); wireBTabs(); renderPlaces(); updateKompass(true);
   renderTreasure(); drawTreasure(); setTab(S.tab);
   window.addEventListener("resize",kompPlatz);
   if(!S.seen) $("intro").classList.remove("hide");
@@ -5456,8 +5687,8 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              revealM,poiM,itemM,itemChance,xpPerM,areaXP,CELL_XP,levelOf,grantXP,tierCount,renderGear,upgradeGear,gearCost,
              ITEMS,GEAR,renderInv,sellItem,spriteSVG,bandName,exportMapImage,exportGPX,setTab,
              RECIPES,canCraft,doCraft,renderCraft,SEASONS,seasonOf,seasonName,
-             spawnable,fitsSeason,craftBonusDist,craftBonusFind,craftBonusItem,
-             renderQuests,renderCollection,renderStats,dayKey,
+             spawnable,fitsSeason,craftBonusReveal,craftBonusFind,craftBonusItem,craftBonusPoi,
+             renderQuests,renderCollection,renderStats,dayKey,BTABS,setBTab,wireBTabs,
              QUEST_DEFS,PERIODS,buildQuests,questList,questReward,questProgress,
              claimQuest,questPreview,pickIds,periodKey,periodIndex,periodLeft,
              weekKey,monthKey,migrateQuests,

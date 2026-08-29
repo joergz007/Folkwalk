@@ -1331,6 +1331,40 @@ body.panel-open #komp{display:none;}
 .colgrp.hide{display:none;}
 .cdone{color:var(--moss);font-weight:700;}
 #craft{max-height:none;}
+
+/* ---- Bezirk 7: die Posttasche ---- */
+.zpane{display:none;}
+.pgang{--brd:var(--dark);background:var(--night);box-shadow:var(--frame);
+  padding:9px 11px;margin:0 0 10px;display:flex;align-items:baseline;gap:9px;
+  flex-wrap:wrap;font-family:var(--f-disp);font-size:9px;color:var(--ember);}
+.pgang span{margin-left:auto;font-family:var(--f-body);font-size:11.5px;
+  color:var(--mist);}
+.prec{--brd:var(--dark);background:var(--deep);box-shadow:var(--frame);
+  padding:12px 13px;margin-bottom:10px;}
+.prec.done{background:var(--night);}
+.pnr{font-family:var(--f-lbl);font-weight:700;font-size:9px;letter-spacing:.09em;
+  color:var(--mist);text-transform:uppercase;margin-bottom:7px;
+  display:flex;gap:9px;align-items:baseline;}
+.pwo{margin-left:auto;font-weight:400;letter-spacing:.02em;text-transform:none;
+  font-family:var(--f-body);font-size:11.5px;color:var(--mist);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* Die Adresse ist der Kern jeder Sendung und bekommt am meisten Platz. */
+.padr{font-family:var(--f-body);font-size:15px;line-height:1.5;color:var(--paper);
+  margin-bottom:9px;}
+.prec.done .padr{font-size:13.5px;color:var(--dim);}
+.pziel{font-family:var(--f-body);font-size:13.5px;color:var(--ember);
+  margin-bottom:5px;}
+.pziel::before{content:"→ ";color:var(--mist);}
+.pzus{font-family:var(--f-body);font-size:12.5px;color:var(--sky);margin-bottom:4px;}
+.pok{color:var(--moss);}
+.pkand{font-family:var(--f-body);font-size:12.5px;color:var(--mist);
+  border-top:1px solid var(--panel);margin-top:9px;padding-top:8px;}
+.pinh{font-family:var(--f-body);font-size:13px;color:var(--dim);}
+.pinh::before{content:"Inhalt: ";color:var(--mist);}
+.ppers{font-family:var(--f-body);font-size:12.5px;color:var(--moss);margin-top:5px;}
+.ppers::before{content:"Begegnung: ";color:var(--mist);}
+.pbeat{font-family:var(--f-body);font-size:13px;color:var(--dim);font-style:italic;
+  border-left:2px solid var(--panel2);padding-left:10px;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -1381,9 +1415,25 @@ body.panel-open #komp{display:none;}
       </div>
 
       <div class="tabp" data-t="ziele">
-        <h3 class="sec">Tagesschatz</h3>
-        <div id="treasure"></div>
-        <div id="quests"></div>
+        <!-- Drei Bereiche: laufende Aufgaben, Tagesschatz und die Posttasche. -->
+        <div id="ztabs" class="subtabs">
+          <button data-z="aufg">Aufgaben</button>
+          <button data-z="schatz">Schatz</button>
+          <button data-z="post">Tasche</button>
+        </div>
+        <div class="zpane" data-z="aufg">
+          <div id="quests"></div>
+        </div>
+        <div class="zpane" data-z="schatz">
+          <h3 class="sec">Tagesschatz</h3>
+          <div id="treasure"></div>
+        </div>
+        <div class="zpane" data-z="post">
+          <p class="subline">Eine Posttasche der Landzustellung Bezirk 7,
+          stillgelegt 1979. 55 Sendungen, alle an Orte adressiert, an denen du
+          noch nie warst.</p>
+          <div id="post"></div>
+        </div>
       </div>
 
       <div class="tabp" data-t="beute">
@@ -1673,7 +1723,8 @@ const S = {
   log:[], since:null, seen:false, lat:null, lng:null,
   styleId:"osm", gpsFilter:"normal", saver:false, font:"pixel", stepGate:true,
   fogAnim:true, kompass:true, treasure:{},
-  btab:"gear", craftF:"alle", colF:"alle", colQ:"",
+  btab:"gear", craftF:"alle", colF:"alle", colQ:"", ztab:"aufg",
+  post:{schuppen:null, nr:1, done:{}, inh:{}},
   placeSort:"neu",
   gear:{lantern:0,boots:0,compass:0,glass:0}, itemsTotal:0, coins:0,
   rareTotal:0, found:{}, setDone:{}, quests:{}, streak:{n:0,last:""},
@@ -1717,7 +1768,8 @@ function serialize(){
     since:S.since, seen:S.seen, lat:S.lat, lng:S.lng,
     styleId:S.styleId, gpsFilter:S.gpsFilter, saver:S.saver, font:S.font,
     stepGate:S.stepGate, placeSort:S.placeSort, fogAnim:S.fogAnim, kompass:S.kompass,
-    treasure:S.treasure, btab:S.btab, craftF:S.craftF, colF:S.colF,
+    treasure:S.treasure, btab:S.btab, craftF:S.craftF, colF:S.colF, ztab:S.ztab,
+    post:S.post,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
     streak:S.streak, days:S.days, tab:S.tab, notify:S.notify };
@@ -1737,6 +1789,10 @@ function hydrate(o){
   S.kompass=(o.kompass!==false);
   S.treasure=o.treasure||{};
   S.btab=o.btab||"gear"; S.craftF=o.craftF||"alle"; S.colF=o.colF||"alle"; S.colQ="";
+  S.ztab=o.ztab||"aufg";
+  S.post=Object.assign({schuppen:null,nr:1,done:{},inh:{}},o.post||{});
+  if(!S.post.done) S.post.done={};
+  if(!S.post.inh)  S.post.inh={};
   S.gear=Object.assign({lantern:0,boots:0,compass:0,glass:0},o.gear||{});
   S.itemsTotal=o.itemsTotal||Object.values(S.items).reduce((a,b)=>a+b,0);
   S.coins=o.coins||0;
@@ -3600,6 +3656,78 @@ function spriteSVG(it, size){
 }
 function itemByName(n){ return ITEMS.find(i => i.n === n); }
 
+/* ═══════════ Bezirk 7 ═══════════
+   55 Sendungen einer Posttasche, die 1979 nicht mehr zugestellt wurde.
+   Eine Adresse meint nie einen bestimmten Ort, sondern eine ART von Ort —
+   sonst wäre die Geschichte nur dort spielbar, wo es den Ort zufällig gibt.
+   Zugestellt wird ausschließlich an Orte, an denen man noch nie war. */
+const POST_GAENGE = [
+  {n:1, name:"Der Innendienst", von:1, bis:6, min:0, wo:"Ortsmitte, alles zu Fuß in einer Runde"},
+  {n:2, name:"Die Nebenstraßen", von:7, bis:13, min:500, wo:"was man von der Hauptstraße aus nicht sieht"},
+  {n:3, name:"Die Randlagen", von:14, bis:20, min:1000, wo:"wo die Häuser aufhören"},
+  {n:4, name:"Über Land", von:21, bis:28, min:2000, wo:"Palm ist das mit dem Fahrrad gefahren"},
+  {n:5, name:"Die Einzelgehöfte", von:29, bis:36, min:3500, wo:"einer pro Weg, und der Weg ist lang"},
+  {n:6, name:"Der Nachbarbezirk", von:37, bis:45, min:5000, wo:"Bezirk 8. Zuständig war er nie"},
+  {n:7, name:"Wohin niemand mehr zustellt", von:46, bis:55, min:7000, wo:"Sendungen, die Palm selbst nicht mehr erklären konnte"},
+];
+const POST = [
+  {nr:1, adr:"An den nächstbesten. Ich halte mich nicht mehr an die Reihenfolge.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"die Zustellerkarte von Bezirk 7. Unausgefüllt.", beat:"In einem Schuppen steht eine Posttasche. Stillgelegt 1979, nie abgegeben."},
+  {nr:2, adr:"An den, der jeden Sonntag läutet und sonst schweigt.", ty:["faith", "historic"], los:"Sakralbau · Historischer Ort", inh:"eine Mahnung: das Abonnement „Der Landwirt“ läuft aus."},
+  {nr:3, adr:"An den steinernen Herrn, der schon vor mir hier stand.", ty:["memorial", "historic"], los:"Denkmal · Historischer Ort", inh:"eine Rechnung über 3,40 DM. „Reinigung, einmalig.“"},
+  {nr:4, adr:"An den, der Wasser gibt und nie fragt, wofür.", ty:["fountain", "park"], los:"Brunnen · Park & Garten", inh:"ein Zehnpfennigstück, durchgebogen."},
+  {nr:5, adr:"An die grüne Stube ohne Dach.", ty:["park", "fountain"], los:"Park & Garten · Brunnen", inh:"eine Samentüte. Die Sorte ist nicht mehr zu lesen.", pers:"Frau Oberhage", beat:"Sie hat im Sortierraum gearbeitet. „Der Palm hat die Tasche nie abgegeben.“"},
+  {nr:6, adr:"An alles, was hier noch steht und keinen Briefkasten hat.", ty:["historic", "memorial", "attraction"], los:"Historischer Ort · Denkmal · Sehenswürdigkeit", inh:"Palms Notizbuch. Erste Seite.", beat:"„Zugestellt: 6. Rest: 49. Das kriege ich noch hin.“"},
+  {nr:7, adr:"An das Haus, in dem alles hinter Glas liegt.", ty:["museum", "attraction"], los:"Museum · Sehenswürdigkeit", inh:"ein Schlüssel. Passt nirgends."},
+  {nr:8, adr:"An die Bank, von der aus man angeblich bis Holland sieht.", ty:["viewpoint", "historic"], los:"Aussichtspunkt · Historischer Ort", inh:"eine Postkarte. Unbeschrieben, aber frankiert."},
+  {nr:9, adr:"An den, der bunt ist, ohne dass ihn jemand gefragt hat.", ty:["artwork", "memorial"], los:"Kunst im Freien · Denkmal", inh:"eine Beschwerde. Datiert 1977.", pers:"Herr Nagel", beat:"Der Beschwerdeführer lebt noch. Er beschwert sich immer noch."},
+  {nr:10, adr:"Zuzustellen vor Sonnenaufgang. An einen Ort, wo Wasser fließt, ohne dass es regnet.", ty:["fountain", "park"], los:"Brunnen · Park & Garten", inh:"ein Zettel: „Bitte nicht klingeln.“", band:"morgen"},
+  {nr:11, adr:"An die zweite Kirche. Die erste hat es abgelehnt.", ty:["faith", "historic"], los:"Sakralbau · Historischer Ort", inh:"ein leerer Umschlag. Sorgfältig verschlossen."},
+  {nr:12, adr:"An irgendwas. An dem Tag war mir die Art egal.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"ein Foto. Rückseite: „Bezirk 7, 1961“."},
+  {nr:13, adr:"An den, der die ganze Straße kennt und nichts sagt.", ty:["memorial", "artwork"], los:"Denkmal · Kunst im Freien", inh:"Palms Notizbuch. Zweite Seite.", beat:"„Ich stelle das noch zu. Irgendwann.“ Datiert 1981. Zwei Jahre nach Schluss."},
+  {nr:14, adr:"An den Rand, wo die Häuser aufhören und keiner mehr wartet.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"der Wetterbericht vom 4. Juni 1979."},
+  {nr:15, adr:"An das Kreuz am Weg. Es gibt mehr davon, als man denkt.", ty:["historic", "memorial"], los:"Historischer Ort · Denkmal", inh:"eine getrocknete Blume, zwischen zwei Pappen."},
+  {nr:16, adr:"An den Turm, der nichts mehr bewacht.", ty:["castle", "historic", "viewpoint"], los:"Burg & Ruine · Historischer Ort · Aussichtspunkt", inh:"eine Eintrittskarte. Ungelocht.", pers:"Der Kassierer", beat:"Er lässt seit 1990 niemanden mehr ein. Gefragt hat auch keiner."},
+  {nr:17, adr:"An das, was einer aufgestellt hat, damit man es ansieht.", ty:["artwork", "memorial", "attraction"], los:"Kunst im Freien · Denkmal · Sehenswürdigkeit", inh:"die Rechnung des Bildhauers. Nie bezahlt."},
+  {nr:18, adr:"Zuzustellen nach Feierabend.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"ein Bierdeckel mit einer Telefonnummer.", band:"abend"},
+  {nr:19, adr:"An den Garten, der einem Toten gehört und trotzdem gepflegt wird.", ty:["park", "historic"], los:"Park & Garten · Historischer Ort", inh:"eine Gärtnerrechnung. Dauerauftrag, monatlich, läuft noch.", pers:"Katrin", beat:"Die Enkelin. Sie wusste nicht, dass der Dauerauftrag noch läuft."},
+  {nr:20, adr:"An den höchsten Punkt im Bezirk. Ich bin da immer hochgeschoben.", ty:["viewpoint", "historic"], los:"Aussichtspunkt · Historischer Ort", inh:"Palms Notizbuch. Dritte Seite.", beat:"„Oben ist es leichter. Da sieht man, wie wenig noch fehlt.“"},
+  {nr:21, adr:"An die Kapelle, die zu klein ist, um eine Kirche zu sein.", ty:["faith", "historic"], los:"Sakralbau · Historischer Ort", inh:"ein Kerzenstummel."},
+  {nr:22, adr:"An den Stein mit dem falschen Datum.", ty:["memorial", "historic"], los:"Denkmal · Historischer Ort", inh:"ein Leserbrief, der auf den Fehler hinweist. Ungedruckt."},
+  {nr:23, adr:"An das Wasser, das jemand eingefasst hat.", ty:["fountain", "park"], los:"Brunnen · Park & Garten", inh:"ein Zahn. Vermutlich vom Zahnarzt."},
+  {nr:24, adr:"An das Haus, in dem nichts mehr passiert, aber alles aufgehoben wird.", ty:["museum", "attraction"], los:"Museum · Sehenswürdigkeit", inh:"eine Inventarliste. Position 44 ist gestrichen."},
+  {nr:25, adr:"An die Mauer, die nichts mehr einschließt.", ty:["castle", "historic"], los:"Burg & Ruine · Historischer Ort", inh:"eine Ansichtskarte derselben Mauer. Aus einer Zeit, als sie noch etwas einschloss."},
+  {nr:26, adr:"Zuzustellen bei Tageslicht. Mittags, wenn die Leute Zeit haben.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"eine Einladung. Zur Feier am 12. Mai. Das Jahr fehlt.", band:"tag"},
+  {nr:27, adr:"An etwas, das aussieht wie ein Denkmal, aber keins ist.", ty:["artwork", "memorial"], los:"Kunst im Freien · Denkmal", inh:"ein Zettel: „Das ist kein Denkmal.“"},
+  {nr:28, adr:"An den Ort, an dem ich mich zum ersten Mal verlaufen habe.", ty:["historic", "attraction", "viewpoint"], los:"Historischer Ort · Sehenswürdigkeit · Aussichtspunkt", inh:"Palms Notizbuch. Vierte Seite.", pers:"Frau Oberhage", beat:"Sie rückt mit der Adresse raus. Heinrich Palm lebt noch. Er ist 91."},
+  {nr:29, adr:"An den einzelnen, weit draußen.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"ein Hufeisen."},
+  {nr:30, adr:"An den Heiligen in der Nische.", ty:["faith", "artwork", "historic"], los:"Sakralbau · Kunst im Freien · Historischer Ort", inh:"ein handschriftlicher Gebetszettel. Unleserlich."},
+  {nr:31, adr:"An die Bank am Ende des Feldwegs.", ty:["viewpoint", "park"], los:"Aussichtspunkt · Park & Garten", inh:"eine Brille. Ein Bügel fehlt."},
+  {nr:32, adr:"An das Grab dessen, den keiner kannte.", ty:["memorial", "historic"], los:"Denkmal · Historischer Ort", inh:"eine Rechnung der Gemeinde für die Grabpflege. Auf Palms Namen.", pers:"Frau Sikora", beat:"Die Friedhofsgärtnerin. Bezahlt wird seit 46 Jahren pünktlich."},
+  {nr:33, adr:"An das, was von einem Hof übrig ist.", ty:["historic", "castle"], los:"Historischer Ort · Burg & Ruine", inh:"ein Türschild. Der Name ist abgeschliffen."},
+  {nr:34, adr:"Im Dunkeln zuzustellen. Ich habe abends nachgeholt, was liegengeblieben ist.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"eine Taschenlampe. Die Batterien sind ausgelaufen.", band:"abendnacht"},
+  {nr:35, adr:"An den Baum, den sie unter Schutz gestellt haben.", ty:["historic", "park", "artwork"], los:"Historischer Ort · Park & Garten · Kunst im Freien", inh:"die Schutzverordnung. Drei Seiten."},
+  {nr:36, adr:"An die Stelle, wo der Bezirk aufhört.", ty:["viewpoint", "historic", "memorial"], los:"Aussichtspunkt · Historischer Ort · Denkmal", inh:"Palms Notizbuch. Fünfte Seite.", beat:"„Ab hier bin ich nicht mehr zuständig. Das hat mich nie gestört.“"},
+  {nr:37, adr:"An Bezirk 8. Wir haben uns nie gut verstanden.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"eine Dienstanweisung: „Bezirksüberschreitende Zustellung ist zu unterlassen.“"},
+  {nr:38, adr:"An die fremde Kirche.", ty:["faith", "historic"], los:"Sakralbau · Historischer Ort", inh:"ein Gesangbuch. Falscher Verlag.", pers:"Der Küster", beat:"Er kennt den Namen Palm. „Der hat hier nichts verloren gehabt.“"},
+  {nr:39, adr:"An das Denkmal, das größer ist als unseres.", ty:["memorial", "artwork"], los:"Denkmal · Kunst im Freien", inh:"ein Maßband."},
+  {nr:40, adr:"An den Park, in dem ich nie gearbeitet habe.", ty:["park", "fountain"], los:"Park & Garten · Brunnen", inh:"eine Konzertkarte von 1974."},
+  {nr:41, adr:"An das Museum, in dem ich einmal war. Privat.", ty:["museum", "attraction", "historic"], los:"Museum · Sehenswürdigkeit · Historischer Ort", inh:"eine Quittung aus dem Museumsladen. Ein Stück Seife."},
+  {nr:42, adr:"Früh zuzustellen. Vor allen anderen.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"eine Thermoskanne. Leer.", band:"morgen", pers:"Achim Roth", beat:"Zusteller von Bezirk 8, im Ruhestand. Er hat Palm nie leiden können und weiß trotzdem alles."},
+  {nr:43, adr:"An die Burg. Auch Bezirk 8 hat eine.", ty:["castle", "historic"], los:"Burg & Ruine · Historischer Ort", inh:"ein Stein. Beschriftet: „von der Mauer, 1968“."},
+  {nr:44, adr:"An etwas Buntes an einer fremden Wand.", ty:["artwork", "attraction"], los:"Kunst im Freien · Sehenswürdigkeit", inh:"eine Farbprobe."},
+  {nr:45, adr:"An den Punkt, von dem aus man unseren Bezirk sieht.", ty:["viewpoint", "historic"], los:"Aussichtspunkt · Historischer Ort", inh:"Palms Notizbuch. Sechste Seite.", beat:"Warum Schluss war: Bezirk 7 wurde 1979 aufgelöst. Zusammengelegt. Die Resttasche war zu vernichten."},
+  {nr:46, adr:"An niemanden. Nur damit es zugestellt ist.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"ein leerer Umschlag. Sorgfältig verschlossen."},
+  {nr:47, adr:"An das Wasser, weit weg.", ty:["fountain", "park"], los:"Brunnen · Park & Garten", inh:"ein Kieselstein."},
+  {nr:48, adr:"An das Alte, weit weg.", ty:["historic", "castle", "memorial"], los:"Historischer Ort · Burg & Ruine · Denkmal", inh:"ein Fahrplan von 1979."},
+  {nr:49, adr:"An das Bewahrte, weit weg.", ty:["museum", "attraction"], los:"Museum · Sehenswürdigkeit", inh:"eine Postkarte an Frau Oberhage. Nie abgeschickt."},
+  {nr:50, adr:"An das Geläut, weit weg.", ty:["faith", "historic"], los:"Sakralbau · Historischer Ort", inh:"ein Knopf von einer Uniformjacke."},
+  {nr:51, adr:"An die Aussicht, weit weg.", ty:["viewpoint", "historic"], los:"Aussichtspunkt · Historischer Ort", inh:"ein Fernglas. Ein Okular ist blind."},
+  {nr:52, adr:"An das Grün, weit weg.", ty:["park", "artwork"], los:"Park & Garten · Kunst im Freien", inh:"eine gepresste Blume. Dieselbe Sorte wie in Sendung 15."},
+  {nr:53, adr:"An das, wovon ich nur gehört habe.", ty:["alle"], los:"ein neuer Ort, egal welcher", inh:"eine Landkarte. Bezirk 7 ist eingekreist. Der Rest ist leer.", min:10000},
+  {nr:54, adr:"An den, der weitermacht.", ty:["heim"], los:"zurück zum Schuppen, wo die Tasche stand", inh:"die Zustellerkarte von Bezirk 7. Auf deinen Namen ausgestellt.", pers:"Heinrich Palm", beat:"Er sitzt da. Er hat die Karte 1979 geschrieben, ohne zu wissen, ob je jemand kommt."},
+  {nr:55, adr:"An den, der als Nächstes kommt.", ty:["alle"], los:"ein neuer Ort deiner Wahl", inh:"was du hineinlegst — ein Fundstück aus deiner Sammlung.", beat:"Du adressierst selbst und legst ihn ab. Die Tasche ist leer."},
+];
+
 
 const itemMarkers=new Map();
 function daySeed(){ const d=new Date(); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); }
@@ -4696,6 +4824,174 @@ function setTab(id){
   stepLive(id === "mehr");
 }
 
+/* ═══════════ Bezirk 7 — die Posttasche ═══════════
+   Zugestellt wird nur an Orte, an denen man noch nie war. Die Prüfung hängt
+   deshalb an der Ortsentdeckung: was schon in S.poisFound stand, zählt nicht. */
+const POST_HEIM = 60;              // Meter Toleranz für die Rückkehr zum Schuppen
+
+function postDef(nr){ return POST.find(p => p.nr === nr) || null; }
+function postGang(nr){ return POST_GAENGE.find(g => nr >= g.von && nr <= g.bis) || POST_GAENGE[0]; }
+function postCur(){ return S.post.nr <= POST.length ? postDef(S.post.nr) : null; }
+function postFertig(){ return S.post.nr > POST.length; }
+
+/* Mindestentfernung dieser Sendung vom Schuppen */
+function postMin(p){ return Math.max(postGang(p.nr).min, p.min || 0); }
+
+/* Passt die Tageszeit? "abendnacht" deckt den späten Nachholdienst ab. */
+function postBand(p){
+  if (!p.band) return true;
+  const b = timeBand();
+  if (p.band === "abendnacht") return b === "abend" || b === "nacht";
+  return b === p.band;
+}
+function postBandName(p){
+  if (!p.band) return "";
+  if (p.band === "abendnacht") return "abends oder nachts";
+  const b = BANDS.find(x => x.id === p.band);
+  return b ? b.name : "";
+}
+
+/* Der Schuppen ist der Punkt, an dem die Tasche gefunden wurde. */
+function postStart(lat, lng){
+  if (S.post.schuppen || lat == null) return;
+  S.post.schuppen = {la:lat, ln:lng, t:Date.now()};
+  save();
+}
+function postDist(lat, lng){
+  const s = S.post.schuppen;
+  if (!s || lat == null) return 0;
+  return haversine(lat, lng, s.la, s.ln);
+}
+
+/* Warum eine Zustellung (nicht) geht — für Anzeige und Prüfung dieselbe Quelle. */
+function postCheck(poi, lat, lng){
+  const p = postCur();
+  if (!p) return {ok:false, grund:"fertig"};
+  if (!S.post.schuppen) return {ok:false, grund:"kein Schuppen"};
+  if (p.ty[0] === "heim") return {ok:false, grund:"Rückweg"};
+  if (p.ty[0] !== "alle" && p.ty.indexOf(poi.type) < 0)
+    return {ok:false, grund:"falsche Art"};
+  const d = postDist(poi.lat, poi.lng), min = postMin(p);
+  if (d < min) return {ok:false, grund:"zu nah", fehlt:Math.ceil(min - d)};
+  if (!postBand(p)) return {ok:false, grund:"falsche Zeit"};
+  return {ok:true};
+}
+
+function postZustellen(p, ort){
+  S.post.done[p.nr] = {t:Date.now(), n:ort ? ort.n : "", ty:ort ? ort.ty : ""};
+  S.post.inh[p.inh] = (S.post.inh[p.inh] || 0) + 1;
+  S.post.nr = p.nr + 1;
+  grantXP(POST_XP);
+  toast("Sendung " + p.nr + " zugestellt", p.inh);
+  notify("ziele", "Sendung " + p.nr + " zugestellt", p.inh);
+  addLog("Sendung <b>" + p.nr + "</b> zugestellt" + (ort && ort.n ? " — " + ort.n : ""));
+  const g = postGang(p.nr);
+  if (p.nr === g.bis && !postFertig()){
+    const ng = postGang(p.nr + 1);
+    if (ng && ng.n !== g.n){
+      toast(ng.name, "Neuer Zustellgang · ab " + fmtD(ng.min) + " vom Schuppen");
+      notify("ziele", ng.name, "Neuer Zustellgang beginnt");
+    }
+  }
+  checkQuests(); renderPost(); updateHUD(); save();
+}
+const POST_XP = 45;
+
+/* Wird beim Entdecken eines neuen Ortes gerufen. */
+function postOnPoi(poi){
+  const p = postCur(); if (!p) return;
+  if (postCheck(poi).ok) postZustellen(p, {n:poi.name, ty:poi.type});
+}
+/* Sendung 54 führt zurück zum Schuppen. */
+function postOnMove(lat, lng){
+  const p = postCur(); if (!p || p.ty[0] !== "heim") return;
+  if (postDist(lat, lng) <= POST_HEIM) postZustellen(p, null);
+}
+
+function postArtText(p){
+  if (p.ty[0] === "alle") return "ein Ort, an dem du noch nie warst";
+  if (p.ty[0] === "heim") return "zurück zum Schuppen";
+  return p.los;
+}
+
+/* Wie viele passende, noch nicht besuchte Orte kennt die App gerade? */
+function postKandidaten(){
+  const p = postCur();
+  if (!p || p.ty[0] === "heim" || typeof POIS === "undefined") return [];
+  return POIS.filter(o => !S.poisFound[o.id]
+      && (p.ty[0] === "alle" || p.ty.indexOf(o.type) >= 0)
+      && postDist(o.lat, o.lng) >= postMin(p));
+}
+
+function renderPost(){
+  const box = $("post"); if (!box) return;
+  const p = postCur();
+  if (!S.post.schuppen){
+    box.innerHTML = '<div class="subline">Die Tasche liegt noch im Schuppen. '
+      + 'Starte einen Spaziergang — wo du losgehst, steht sie.</div>';
+    return;
+  }
+  const fertig = Object.keys(S.post.done).length;
+  let h = '<div class="subline">' + fertig + " von " + POST.length + " zugestellt</div>";
+  if (!p){
+    h += '<div class="prec done"><div class="padr">Die Tasche ist leer.</div>'
+      + '<div class="pinh">Bezirk 7 ist zugestellt. 46 Jahre zu spät.</div></div>';
+    box.innerHTML = h; return;
+  }
+  const g = postGang(p.nr);
+  const kand = postKandidaten().length;
+  h += '<div class="pgang">' + g.n + " · " + g.name
+     + '<span>ab ' + fmtD(g.min) + " vom Schuppen</span></div>";
+  h += '<div class="prec"><div class="pnr">Sendung ' + p.nr + "</div>"
+     + '<div class="padr">„' + escP(p.adr) + '“</div>'
+     + '<div class="pziel">' + escP(postArtText(p)) + "</div>";
+  if (p.band) h += '<div class="pzus">nur ' + postBandName(p)
+     + (postBand(p) ? ' <b class="pok">— jetzt</b>' : "") + "</div>";
+  if (postMin(p) > g.min) h += '<div class="pzus">mindestens ' + fmtD(postMin(p)) + " entfernt</div>";
+  if (p.ty[0] !== "heim")
+    h += '<div class="pkand">' + (kand
+      ? kand + (kand === 1 ? " passender Ort in Reichweite bekannt" : " passende Orte in Reichweite bekannt")
+      : "Kein passender Ort in Reichweite bekannt — lauf weiter, die Karte lädt unterwegs nach") + "</div>";
+  else
+    h += '<div class="pkand">' + Math.round(postDist(S.lat, S.lng)) + " m vom Schuppen</div>";
+  h += "</div>";
+  // Bereits zugestellt, neueste zuerst
+  const liste = POST.filter(x => S.post.done[x.nr]).reverse();
+  if (liste.length){
+    h += '<div class="clab">Zugestellt</div>';
+    h += liste.map(x => {
+      const d = S.post.done[x.nr];
+      return '<div class="prec done"><div class="pnr">' + x.nr
+        + '<span class="pwo">' + (d.n ? escP(d.n) : "Schuppen") + " · " + fmtAgo(d.t) + "</span></div>"
+        + '<div class="padr">„' + escP(x.adr) + '“</div>'
+        + '<div class="pinh">' + escP(x.inh) + "</div>"
+        + (x.pers ? '<div class="ppers">' + escP(x.pers) + "</div>" : "")
+        + (x.beat ? '<div class="pbeat">' + escP(x.beat) + "</div>" : "")
+        + "</div>";
+    }).join("");
+  }
+  box.innerHTML = h;
+}
+
+/* Unterseiten der Ziele */
+const ZTABS = [{id:"aufg", name:"Aufgaben"}, {id:"schatz", name:"Schatz"}, {id:"post", name:"Tasche"}];
+function setZTab(id){
+  S.ztab = id;
+  document.querySelectorAll("#ztabs button").forEach(b =>
+    b.classList.toggle("on", b.dataset.z === id));
+  document.querySelectorAll(".zpane").forEach(p =>
+    p.style.display = (p.dataset.z === id ? "block" : "none"));
+  if (id === "aufg")   renderQuests();
+  if (id === "schatz") renderTreasure();
+  if (id === "post")   renderPost();
+  save();
+}
+function wireZTabs(){
+  document.querySelectorAll("#ztabs button").forEach(b =>
+    b.onclick = () => setZTab(b.dataset.z));
+  setZTab(S.ztab || "aufg");
+}
+
 
 /* ═══════════ UI ═══════════ */
 const $=id=>document.getElementById(id);
@@ -4867,6 +5163,10 @@ function onMove(lat,lng,acc,credit,ghost){
   else meMarker.setLatLng([lat,lng]);
   if(follow) map.setView([lat,lng],Math.max(map.getZoom(),17),{animate:false});
 
+  // Bezirk 7: der Schuppen ist der Punkt, an dem die Tasche gefunden wird.
+  postStart(lat,lng);
+  postOnMove(lat,lng);
+
   // POIs prüfen
   POIS.forEach(p=>{
     if(S.poisFound[p.id]) return;
@@ -4882,6 +5182,7 @@ function onMove(lat,lng,acc,credit,ghost){
       addLog("<b>"+p.name+"</b> entdeckt (+"+d.xp+" XP)");
       today().pois++;
       checkQuests();
+      postOnPoi(p);            // Bezirk 7: zaehlt nur bei neu entdeckten Orten
       refreshPoiMarkers();
     }
   });
@@ -5670,7 +5971,7 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   renderQuests(); renderCollection(); renderStats(); renderCraft();
   renderNoti(); wireNoti(); wireSaver(); wireStep();
   $("placeQ").addEventListener("input",renderPlaces);
-  wireFogAnim(); wireKompass(); wireBTabs(); renderPlaces(); updateKompass(true);
+  wireFogAnim(); wireKompass(); wireBTabs(); wireZTabs(); renderPlaces(); updateKompass(true);
   renderTreasure(); drawTreasure(); setTab(S.tab);
   window.addEventListener("resize",kompPlatz);
   if(!S.seen) $("intro").classList.remove("hide");
@@ -5689,6 +5990,9 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              RECIPES,canCraft,doCraft,renderCraft,SEASONS,seasonOf,seasonName,
              spawnable,fitsSeason,craftBonusReveal,craftBonusFind,craftBonusItem,craftBonusPoi,
              renderQuests,renderCollection,renderStats,dayKey,BTABS,setBTab,wireBTabs,
+             POST,POST_GAENGE,POST_XP,POST_HEIM,postDef,postGang,postCur,postFertig,postMin,
+             postBand,postBandName,postStart,postDist,postCheck,postZustellen,postOnPoi,
+             postOnMove,postKandidaten,postArtText,renderPost,ZTABS,setZTab,wireZTabs,save,
              QUEST_DEFS,PERIODS,buildQuests,questList,questReward,questProgress,
              claimQuest,questPreview,pickIds,periodKey,periodIndex,periodLeft,
              weekKey,monthKey,migrateQuests,

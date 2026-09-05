@@ -1405,6 +1405,13 @@ body.panel-open #komp{display:none;}
 .rtrb{display:flex;gap:7px;}
 .rtrb .btn{width:auto;flex:1 1 auto;margin:0;font-size:12.5px;padding:9px 10px;}
 .rtout + .clab{margin-top:18px;}
+.iconbtn.on{background:var(--ember);color:#2a1802;--brd:var(--ember-dk);}
+.rtlauf{margin:0 0 9px;}
+.rtbar{--brd:var(--dark);height:11px;background:var(--night);overflow:hidden;
+  box-shadow:var(--frame);margin-bottom:6px;}
+.rtbar i{display:block;height:100%;background:repeating-linear-gradient(90deg,
+  var(--moss) 0 5px, #4aa87a 5px 7px);transition:width .3s steps(5);}
+.rtlauf span{font-family:var(--f-body);font-size:12.5px;color:var(--moss);}
 </style>
 </head>
 <body>
@@ -1424,6 +1431,7 @@ body.panel-open #komp{display:none;}
 <div id="komp" class="hide"></div>
 
 <div id="side">
+  <button class="iconbtn" id="btnFogDim" aria-label="Nebel durchscheinen lassen" aria-pressed="false"><svg viewBox="0 0 9 9" width="19" height="19" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="2" height="1"/><rect x="4" y="2" width="4" height="1"/><rect x="0" y="4" width="3" height="1"/><rect x="4" y="4" width="2" height="1"/><rect x="7" y="4" width="2" height="1"/><rect x="1" y="6" width="4" height="1"/><rect x="6" y="6" width="2" height="1"/></svg></button>
   <button class="iconbtn" id="btnCenter" aria-label="Auf Position zentrieren"><svg viewBox="0 0 9 9" width="19" height="19" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="4" y="0" width="1" height="2"/><rect x="4" y="7" width="1" height="2"/><rect x="0" y="4" width="2" height="1"/><rect x="7" y="4" width="2" height="1"/><rect x="2" y="2" width="5" height="1"/><rect x="2" y="6" width="5" height="1"/><rect x="2" y="3" width="1" height="3"/><rect x="6" y="3" width="1" height="3"/><rect x="4" y="4" width="1" height="1"/></svg></button>
   
 </div>
@@ -1594,6 +1602,15 @@ body.panel-open #komp{display:none;}
 </div>
 
 <!-- Help / diagnostics -->
+<div class="modal hide" id="routeDone">
+  <div class="sheet">
+    <div class="eyebrow">Runde geschafft</div>
+    <h1>Angekommen</h1>
+    <div id="doneRows"></div>
+    <button class="primary" id="doneClose">Weiter</button>
+  </div>
+</div>
+
 <div class="modal hide" id="summary">
   <div class="sheet">
     <div class="eyebrow">Runde beendet</div>
@@ -1779,9 +1796,9 @@ const S = {
   cellCount:0, trail:[], poisFound:{}, items:{}, itemsTaken:{},
   log:[], since:null, seen:false, lat:null, lng:null,
   styleId:"osm", gpsFilter:"normal", saver:false, font:"pixel", stepGate:true,
-  fogAnim:true, kompass:true, treasure:{},
+  fogAnim:true, fogDim:false, kompass:true, treasure:{},
   btab:"gear", craftF:"alle", colF:"alle", colQ:"", ztab:"aufg", ktab:"ansicht",
-  route:{km:5, art:"ruhig", neuland:true}, routen:[],
+  route:{km:5, art:"ruhig", neuland:true}, routen:[], lauf:null,
   post:{schuppen:null, nr:1, done:{}, inh:{}},
   placeSort:"neu",
   gear:{lantern:0,boots:0,compass:0,glass:0}, itemsTotal:0, coins:0,
@@ -1825,10 +1842,11 @@ function serialize(){
     poisFound:S.poisFound, items:S.items, itemsTaken:S.itemsTaken, log:S.log.slice(-40),
     since:S.since, seen:S.seen, lat:S.lat, lng:S.lng,
     styleId:S.styleId, gpsFilter:S.gpsFilter, saver:S.saver, font:S.font,
-    stepGate:S.stepGate, placeSort:S.placeSort, fogAnim:S.fogAnim, kompass:S.kompass,
+    stepGate:S.stepGate, placeSort:S.placeSort, fogAnim:S.fogAnim, fogDim:S.fogDim,
+    kompass:S.kompass,
     treasure:S.treasure, btab:S.btab, craftF:S.craftF, colF:S.colF, ztab:S.ztab,
     ktab:S.ktab, route:{km:RT.km, art:RT.art, neuland:RT.neuland},
-    routen:S.routen,
+    routen:S.routen, lauf:S.lauf,
     post:S.post,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
@@ -1846,6 +1864,7 @@ function hydrate(o){
   S.stepGate=(o.stepGate!==false);
   S.placeSort=o.placeSort||"neu";
   S.fogAnim=(o.fogAnim!==false);
+  S.fogDim=!!o.fogDim;
   S.kompass=(o.kompass!==false);
   S.treasure=o.treasure||{};
   S.btab=o.btab||"gear"; S.craftF=o.craftF||"alle"; S.colF=o.colF||"alle"; S.colQ="";
@@ -1853,6 +1872,11 @@ function hydrate(o){
   S.route=Object.assign({km:5,art:"ruhig",neuland:true},o.route||{});
   RT.km=S.route.km; RT.art=S.route.art; RT.neuland=S.route.neuland!==false;
   S.routen=Array.isArray(o.routen)?o.routen.filter(r=>r&&r.id&&Array.isArray(r.p)):[];
+  // Eine angefangene Runde ueberlebt den Neustart der App.
+  S.lauf=(o.lauf&&Array.isArray(o.lauf.probe)&&Array.isArray(o.lauf.punkte))?o.lauf:null;
+  RT.lauf=S.lauf;
+  if(S.lauf) RT.vorschlaege=[{punkte:S.lauf.punkte, laenge:S.lauf.soll,
+    abweichung:0, doppelt:0, neuland:0, wende:null}], RT.i=0;
   S.post=Object.assign({schuppen:null,nr:1,done:{},inh:{}},o.post||{});
   if(!S.post.done) S.post.done={};
   if(!S.post.inh)  S.post.inh={};
@@ -2304,6 +2328,7 @@ function buildMask(w,h,cX,cY,pxPerMerc){
 }
 
 let fogT=0;
+const FOG_DIM=0.38;      // wie viel Nebel im durchscheinenden Zustand bleibt
 function drawFog(){
   if(!map._loaded) return;
   const s=map.getSize(), w=s.x, h=s.y;
@@ -2320,8 +2345,15 @@ function drawFog(){
 
   fctx.setTransform(FOG_DPR,0,0,FOG_DPR,0,0);
   fctx.clearRect(0,0,w,h);
+  // Durchscheinender Nebel: der Grund und die Wolken werden schwaecher
+  // gezeichnet, das Aufgedeckte bleibt frei wie bisher. Bewusst hier und
+  // nicht ueber die Deckkraft der ganzen Leinwand - sonst verblasste auch
+  // die Route, die danach daraufkommt.
+  const dimA = S.fogDim ? FOG_DIM : 1;
+  fctx.globalAlpha=dimA;
   fctx.fillStyle="#14121f";
   fctx.fillRect(0,0,w,h);
+  fctx.globalAlpha=1;
 
   // Wolken: zwei Lagen, verschieden schnell und in verschiedene Richtungen
   fctx.imageSmoothingEnabled=false;
@@ -2336,8 +2368,8 @@ function drawFog(){
     fctx.fillRect(0,0,w+cv.width,h+cv.height);
     fctx.restore();
   };
-  lage(patA,noiseA, 0.22, 0.09, 0.50);
-  lage(patB,noiseB,-0.13, 0.05, 0.45);
+  lage(patA,noiseA, 0.22, 0.09, 0.50*dimA);
+  lage(patB,noiseB,-0.13, 0.05, 0.45*dimA);
 
   if(S.cellCount>0){
     fctx.save();
@@ -4171,11 +4203,26 @@ function rtMerc(v){
   v.__m = v.punkte.map(p=>[mx(p[1]), my(p[0])]);
   return v.__m;
 }
+/* Drei Rollen, drei Farben - sonst verwechselt man sie unterwegs:
+   Orange ist der Weg, den DU gegangen bist (wie bisher),
+   Blau ist die vorgeschlagene Runde,
+   Gruen der Teil davon, den du schon abgelaufen hast. */
+const RT_FARBE_PLAN = "#63c8f0";
+const RT_FARBE_AB   = "#6ee0a0";
+
 function rtMalen(ctx,w,h,cX,cY,pxPerMerc){
   const v=rtAktuell();
   if(!v && !RT.start) return;
   const toPx=(X,Y)=>[(X-cX)*pxPerMerc+w/2, (cY-Y)*pxPerMerc+h/2];
+  const zug=(pkte)=>{
+    ctx.beginPath();
+    for(let i=0;i<pkte.length;i++){
+      const p=toPx(mx(pkte[i][1]), my(pkte[i][0]));
+      if(i) ctx.lineTo(p[0],p[1]); else ctx.moveTo(p[0],p[1]);
+    }
+  };
   ctx.save();
+  ctx.lineJoin="round"; ctx.lineCap="round";
   if(v){
     const m=rtMerc(v);
     ctx.beginPath();
@@ -4183,14 +4230,25 @@ function rtMalen(ctx,w,h,cX,cY,pxPerMerc){
       const p=toPx(m[i][0],m[i][1]);
       if(i) ctx.lineTo(p[0],p[1]); else ctx.moveTo(p[0],p[1]);
     }
-    ctx.lineJoin="round"; ctx.lineCap="round";
     ctx.strokeStyle="rgba(20,18,31,.85)"; ctx.lineWidth=9; ctx.stroke();
-    ctx.strokeStyle="#ffb13b";            ctx.lineWidth=5; ctx.stroke();
+    ctx.strokeStyle=RT_FARBE_PLAN;        ctx.lineWidth=5; ctx.stroke();
+    // Schon abgelaufene Abschnitte darueber
+    const L=RT.lauf;
+    if(L && L.probe && L.probe.length){
+      let i=0;
+      while(i<L.probe.length){
+        if(!L.erreicht[i]){ i++; continue; }
+        let j=i; while(j+1<L.probe.length && L.erreicht[j+1]) j++;
+        if(j>i){ zug(L.probe.slice(i,j+1));
+                 ctx.strokeStyle=RT_FARBE_AB; ctx.lineWidth=5; ctx.stroke(); }
+        i=j+1;
+      }
+    }
   }
   if(RT.start){
     const p=toPx(mx(RT.start.lng), my(RT.start.lat));
-    ctx.fillStyle="#14121f"; ctx.fillRect(p[0]-8,p[1]-8,16,16);
-    ctx.fillStyle="#ffb13b"; ctx.fillRect(p[0]-6,p[1]-6,12,12);
+    ctx.fillStyle="#14121f";       ctx.fillRect(p[0]-8,p[1]-8,16,16);
+    ctx.fillStyle=RT_FARBE_PLAN;   ctx.fillRect(p[0]-6,p[1]-6,12,12);
   }
   ctx.restore();
 }
@@ -4214,6 +4272,34 @@ function rtPickAn(an){
     rtPickAn(false);
   };
   map.on("click",rtPickHandler);
+}
+
+/* Startpunkt "Hier". Liegt keine Position vor, wird sie ausdruecklich
+   angefragt - und wenn das scheitert, soll dastehen WARUM. "Geht nicht"
+   hilft niemandem weiter. */
+const RT_ORT_MS = 12000;
+function rtOrtFehler(code){
+  if(code===1) return "Kein Zugriff auf den Standort. In den Android-Einstellungen "
+    + "unter Apps → Fogwalk → Berechtigungen den Standort freigeben.";
+  if(code===2) return "Standort lässt sich gerade nicht ermitteln. Unter freiem "
+    + "Himmel klappt es meist — oder setz den Start auf der Karte.";
+  if(code===3) return "Der Standort kommt nicht rechtzeitig. Nochmal versuchen, "
+    + "oder den Start auf der Karte setzen.";
+  return "Standort nicht verfügbar. Setz den Start auf der Karte oder über eine Adresse.";
+}
+function rtHier(){
+  if(S.lat!=null){ rtSetStart(S.lat,S.lng,"aktuelle Position"); return; }
+  if(!("geolocation" in navigator)){
+    rtMeldung("Dieses Gerät bietet keine Standortermittlung. "
+            + "Setz den Start auf der Karte oder über eine Adresse.");
+    return;
+  }
+  rtMeldung("Suche deinen Standort …");
+  navigator.geolocation.getCurrentPosition(
+    p=>{ RT.meldung=""; rtSetStart(p.coords.latitude,p.coords.longitude,"aktuelle Position"); },
+    e=>{ rtMeldung(rtOrtFehler(e&&e.code)); },
+    {enableHighAccuracy:true, timeout:RT_ORT_MS, maximumAge:30000}
+  );
 }
 
 /* Startpunkt per Adresse */
@@ -4289,6 +4375,10 @@ function renderRoute(){
   if(v){
     h+='<div class="rtout">'
      + '<div class="rtlen">'+(v.laenge/1000).toFixed(1).replace(".",",")+" km</div>"
+     + (RT.lauf ? '<div class="rtlauf"><div class="rtbar"><i style="width:'
+         + Math.round(rtLaufAnteil()*100) + '%"></i></div>'
+         + '<span>' + Math.round(rtLaufAnteil()*100) + " % der Runde abgelaufen"
+         + (RT.lauf.fertig ? " · geschafft" : "") + "</span></div>" : "")
      + '<div class="rtdet">Wunsch '+RT.km.toFixed(1).replace(".",",")+" km · "
      + Math.round(v.neuland*100)+" % noch nicht begangen"
      + (v.doppelt>0.12 ? " · "+Math.round(v.doppelt*100)+" % doppelt" : "")
@@ -4297,6 +4387,8 @@ function renderRoute(){
      + (RT.vorschlaege.length>1
         ? '<button class="btn" id="rtNext">Andere Route ('+(RT.i+1)+"/"+RT.vorschlaege.length+")</button>"
         : "")
+     + (RT.lauf ? '<button class="btn" id="rtLaufStop">Nicht mehr verfolgen</button>'
+                : '<button class="btn" id="rtLaufGo">Diese Runde laufen</button>')
      + (v.gemerkt ? "" : '<button class="btn" id="rtSave">Merken</button>')
      + '<button class="btn" id="rtGpx">Als GPX</button>'
      + '<button class="btn" id="rtDrop">Verwerfen</button>'
@@ -4333,10 +4425,7 @@ function wireRoute(){
   box.querySelectorAll("#rtStart button").forEach(b=>b.onclick=()=>{
     RT.startArt=b.dataset.s;
     rtPickAn(RT.startArt==="karte");
-    if(RT.startArt==="hier"){
-      if(S.lat!=null) rtSetStart(S.lat,S.lng,"aktuelle Position");
-      else rtMeldung("Noch keine Position — starte einen Spaziergang.");
-    }
+    if(RT.startArt==="hier") rtHier();
     renderRoute(); save();
   });
   box.querySelectorAll("#rtArt button").forEach(b=>b.onclick=()=>{
@@ -4356,6 +4445,8 @@ function wireRoute(){
   const nx=$("rtNext"); if(nx) nx.onclick=rtAndere;
   const gx=$("rtGpx"); if(gx) gx.onclick=rtGpx;
   const dr=$("rtDrop"); if(dr) dr.onclick=rtVerwerfen;
+  const lg=$("rtLaufGo");   if(lg) lg.onclick=rtLaufStart;
+  const ls=$("rtLaufStop"); if(ls) ls.onclick=rtLaufAus;
   const sv=$("rtSave"); if(sv) sv.onclick=()=>{ RT.benennen=true; RT.name="";
     renderRoute(); const el=$("rtNam"); if(el) el.focus(); };
   const nam=$("rtNam");
@@ -4458,6 +4549,111 @@ function rtLoeschen(id){
   if(v && v.gemerkt && v.gemerkt.id===id) rtVerwerfen();
   toast("Gelöscht", weg.n);
   save(); renderRoute();
+}
+
+/* ═══════════ Eine Runde wirklich laufen ═══════════
+   Waehrend des Spaziergangs wird verfolgt, welche Teile der geplanten Runde
+   schon abgelaufen sind. Gemessen wird an Probepunkten in festem Abstand -
+   nicht an den Eckpunkten der Route, denn ein langer gerader Abschnitt
+   haette sonst nur zwei davon und gaelte schon nach dem ersten Schritt als
+   halb geschafft. */
+const RT_PROBE   = 25;     // Abstand der Probepunkte in Metern
+const RT_NAH     = 32;     // so nah muss man an einem Probepunkt vorbei
+const RT_ANTEIL  = 0.90;   // so viel der Runde gilt als geschafft
+const RT_HEIM    = 70;     // und so nah muss man zum Schluss am Start sein
+const RT_LAUF_XP = 150;
+
+function rtProben(punkte, abstand){
+  const A=abstand||RT_PROBE;
+  if(!punkte || punkte.length<2) return punkte ? punkte.slice() : [];
+  const raus=[punkte[0]];
+  let uebrig=A;                       // bis zum naechsten Probepunkt
+  for(let i=1;i<punkte.length;i++){
+    const a=punkte[i-1], b=punkte[i];
+    const d=haversine(a[0],a[1],b[0],b[1]);
+    if(d<=0) continue;
+    let pos=0;                        // schon verbrauchter Teil dieses Stuecks
+    while(d-pos >= uebrig){
+      pos+=uebrig;
+      const t=pos/d;
+      raus.push([a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]);
+      uebrig=A;
+    }
+    uebrig-=(d-pos);                  // Rest wird ins naechste Stueck mitgenommen
+  }
+  // Das Ende nur aufnehmen, wenn es nicht ohnehin fast auf dem letzten liegt
+  const l=raus[raus.length-1], e=punkte[punkte.length-1];
+  if(haversine(l[0],l[1],e[0],e[1]) > A*0.4) raus.push(e);
+  return raus;
+}
+
+function rtLaufStart(){
+  const v=rtAktuell(); if(!v) return null;
+  const probe=rtProben(v.punkte, RT_PROBE);
+  RT.lauf={
+    punkte:v.punkte, probe, erreicht:new Array(probe.length).fill(0),
+    soll:v.laenge, t0:Date.now(), dist0:S.dist, cells0:S.cellCount,
+    name:(v.gemerkt?v.gemerkt.n:rtVorschlagName(v)), fertig:false
+  };
+  S.lauf=RT.lauf;
+  setStatus("Runde scharf - " + fmtD(v.laenge) + " · viel Spaß.");
+  save(); rtZeichne(); renderRoute();
+  return RT.lauf;
+}
+function rtLaufAus(){
+  RT.lauf=null; S.lauf=null;
+  save(); rtZeichne(); renderRoute();
+}
+function rtLaufAnteil(){
+  const L=RT.lauf; if(!L||!L.probe.length) return 0;
+  let n=0; for(const e of L.erreicht) if(e) n++;
+  return n/L.probe.length;
+}
+
+/* Wird bei jeder gewerteten Position gerufen. */
+function rtLaufFix(lat,lng){
+  const L=RT.lauf;
+  if(!L || L.fertig || lat==null) return;
+  let neu=false;
+  for(let i=0;i<L.probe.length;i++){
+    if(L.erreicht[i]) continue;
+    if(haversine(lat,lng,L.probe[i][0],L.probe[i][1])<=RT_NAH){
+      L.erreicht[i]=1; neu=true;
+    }
+  }
+  if(neu){ rtZeichne(); renderRoute(); }
+  if(rtLaufAnteil()>=RT_ANTEIL){
+    const s=L.punkte[0];
+    if(haversine(lat,lng,s[0],s[1])<=RT_HEIM) rtLaufFertig();
+  }
+}
+
+function rtLaufFertig(){
+  const L=RT.lauf; if(!L || L.fertig) return;
+  L.fertig=true;
+  const gelaufen=S.dist-L.dist0, dauer=Date.now()-L.t0;
+  const anteil=rtLaufAnteil();
+  grantXP(RT_LAUF_XP);
+  addLog("Runde <b>"+L.name+"</b> geschafft (+"+RT_LAUF_XP+" XP)");
+  notify("ziele","Runde geschafft", L.name+" · "+fmtD(L.soll));
+  const rows=[
+    ["Runde", L.name],
+    ["Geplant", fmtD(L.soll)],
+    ["Tatsächlich gelaufen", fmtD(Math.round(gelaufen))],
+    ["Unterwegs", fmtDur(dauer)],
+    ["Von der Route", Math.round(anteil*100)+" % abgelaufen"],
+    ["Neu aufgedeckt", fmtA((S.cellCount-L.cells0)*Math.pow(MERC_CELL/mercScale(S.lat||51),2))],
+    ["Erfahrung", "+"+RT_LAUF_XP+" XP"]
+  ];
+  const box=$("doneRows");
+  if(box) box.innerHTML=rows.map(r=>
+    '<div class="srow"><span>'+escP(r[0])+"</span><b>"+escP(String(r[1]))+"</b></div>").join("");
+  const m=$("routeDone"); if(m) m.classList.remove("hide");
+  S.lauf=L; save(); rtZeichne(); renderRoute();
+}
+function rtDoneZu(){
+  const m=$("routeDone"); if(m) m.classList.add("hide");
+  rtLaufAus();
 }
 
 
@@ -5919,6 +6115,7 @@ function onMove(lat,lng,acc,credit,ghost){
   // Bezirk 7: der Schuppen ist der Punkt, an dem die Tasche gefunden wird.
   postStart(lat,lng);
   postOnMove(lat,lng);
+  rtLaufFix(lat,lng);            // Fortschritt auf einer geplanten Runde
 
   // POIs prüfen
   POIS.forEach(p=>{
@@ -6416,6 +6613,7 @@ $("btnMore").onclick=()=>{
 $("btnCenter").onclick=()=>{ follow=true; if(S.lat) map.setView([S.lat,S.lng],Math.max(map.getZoom(),17)); };
 $("btnHelp").onclick=openHelp;
 $("helpClose").onclick=()=>$("help").classList.add("hide");
+$("doneClose").onclick=()=>rtDoneZu();
 $("sumClose").onclick=()=>$("summary").classList.add("hide");
 $("qGo").onclick=search;
 $("q").addEventListener("keydown",e=>{ if(e.key==="Enter") search(); });
@@ -6625,6 +6823,24 @@ $("btnPoi").onclick=async()=>{ const c=map.getCenter();
 map.on("dragstart",()=>{ follow=false; });
 
 // Nach Bildschirmsperre oder Tab-Wechsel ist die Wake-Lock weg – neu anfordern.
+/* Der Umschalter auf der Karte. Gedacht fuer unterwegs: man sieht die
+   Strassennamen wieder, ohne dass die aufgedeckte Flaeche ihren Sinn
+   verliert - es bleibt sichtbar Nebel liegen. */
+function setFogDim(an){
+  S.fogDim=!!an;
+  const b=$("btnFogDim");
+  if(b){ b.classList.toggle("on",S.fogDim);
+         b.setAttribute("aria-pressed",S.fogDim?"true":"false"); }
+  maskDirty=true; fogRedraw(); save();
+}
+function wireFogDim(){
+  const b=$("btnFogDim"); if(!b) return;
+  b.onclick=()=>{ setFogDim(!S.fogDim);
+    setStatus(S.fogDim ? "Nebel durchscheinend - die Wege sind zu sehen."
+                       : "Nebel wieder dicht."); };
+  setFogDim(S.fogDim);
+}
+
 function fmtDur(ms){
   const s2=Math.round(ms/1000);
   if(s2<60) return s2+" s";
@@ -6762,7 +6978,8 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   renderQuests(); renderCollection(); renderStats(); renderCraft();
   renderNoti(); wireNoti(); wireSaver(); wireStep();
   $("placeQ").addEventListener("input",renderPlaces);
-  wireFogAnim(); wireKompass(); wireBTabs(); wireZTabs(); wireKTabs(); renderPlaces(); updateKompass(true);
+  wireFogAnim(); wireKompass(); wireBTabs(); wireZTabs(); wireKTabs(); wireFogDim();
+  renderPlaces(); updateKompass(true);
   renderTreasure(); drawTreasure(); setTab(S.tab);
   window.addEventListener("resize",kompPlatz);
   if(!S.seen) $("intro").classList.remove("hide");
@@ -6785,6 +7002,9 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              rtPlan,rtNeulandAnteil,rtRadius,rtLadeNetz,rtSetStart,rtBerechne,rtAndere,
              rtVerwerfen,rtAktuell,rtZeichne,rtMalen,rtAnpassen,rtGpx,rtAdresse,renderRoute,setKTab,wireKTabs,
              rtVereinfachen,rtRunden,rtMerken,rtLaden,rtLoeschen,rtVorschlagName,RT_MAX_GEMERKT,
+             rtProben,rtLaufStart,rtLaufAus,rtLaufFix,rtLaufAnteil,rtLaufFertig,rtDoneZu,
+             rtHier,rtOrtFehler,RT_PROBE,RT_NAH,RT_ANTEIL,RT_HEIM,RT_LAUF_XP,
+             RT_FARBE_PLAN,RT_FARBE_AB,fmtA,
              get rtNetz(){return rtNetz;}, set rtNetz(v){rtNetz=v;},
              set rtNetzUm(v){rtNetzUm=v;},
              POST,POST_GAENGE,POST_XP,POST_HEIM,postDef,postGang,postCur,postFertig,postMin,
@@ -6794,6 +7014,7 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              claimQuest,questPreview,pickIds,periodKey,periodIndex,periodLeft,
              weekKey,monthKey,migrateQuests,
              FONTS,applyFont,buildFontButtons,updateHUD,
+             setFogDim,wireFogDim,FOG_DIM,
              motion,MOT_FLOOR,MOT_FRAC,MOT_PROVEN,MOT_HOLD,MOT_DEAD,
              stepHint,wireStep,stepLive,BLOCK_KEEP,BLOCK_MOVED,
              saveFile,showCopy,loadSave,capPlugin,serialize,

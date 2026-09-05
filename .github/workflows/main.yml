@@ -33,11 +33,28 @@ jobs:
       # Ohne festen Schluessel erzeugt jeder Lauf einen neuen Signierschluessel.
       # Android verweigert dann das Update ("Paket in Konflikt mit einem
       # bestehenden Paket"). Darum liegt der Schluessel im Repo.
+      # Ohne festen Schluessel erzeugt jeder Lauf einen neuen Signierschluessel.
+      # Android verweigert dann das Update. Der Schluessel liegt deshalb im
+      # Repo und wird hier an die Stelle gelegt, an der Gradle ihn erwartet.
       - name: Signierschluessel einsetzen
         run: |
+          set -e
+          if [ ! -f debug.keystore.base64.txt ]; then
+            echo "::error::debug.keystore.base64.txt fehlt im Repo."
+            echo "Ohne diese Datei signiert jeder Lauf mit einem neuen Schluessel"
+            echo "und Android verweigert jedes Update."
+            exit 1
+          fi
           mkdir -p ~/.android
           base64 -d debug.keystore.base64.txt > ~/.android/debug.keystore
-          keytool -list -keystore ~/.android/debug.keystore -storepass android
+          # Zweite Ablage, auf die die Signierkonfiguration ausdruecklich zeigt
+          cp ~/.android/debug.keystore "$RUNNER_TEMP/fogwalk.keystore"
+          echo "FW_KEYSTORE=$RUNNER_TEMP/fogwalk.keystore" >> $GITHUB_ENV
+          echo "--- Schluessel im Repo ---"
+          keytool -list -v -keystore ~/.android/debug.keystore -storepass android \
+            | grep -iE "alias|sha256|valid|gueltig" || true
+          echo "--- Wo das Plugin sonst noch sucht ---"
+          echo "HOME=$HOME  ANDROID_SDK_HOME=${ANDROID_SDK_HOME:-nicht gesetzt}"
 
       - name: Abhaengigkeiten holen
         run: npm install
@@ -47,10 +64,58 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      # Jeder Build bekommt eine hoehere Versionsnummer. Capacitor legt sonst
+      # immer versionCode 1 an; Android sieht dann jedes Update als dieselbe
+      # Version und manche Geraete verweigern die Installation.
+      - name: Versionsnummer setzen
+        run: |
+          set -e
+          G=android/app/build.gradle
+          sed -i "s/versionCode .*/versionCode ${{ github.run_number }}/" $G
+          sed -i "s/versionName .*/versionName \"1.${{ github.run_number }}\"/" $G
+          grep -E "versionCode|versionName" $G
+
       - name: APK bauen
         run: |
+          set -e
+          cp signing.gradle android/signing.gradle 2>/dev/null || true
           chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug --no-daemon
+          cd android
+          if [ -f signing.gradle ]; then
+            ./gradlew assembleDebug --no-daemon -I signing.gradle
+          else
+            ./gradlew assembleDebug --no-daemon
+          fi
+
+      # Die eigentliche Kontrolle: mit welchem Schluessel wurde wirklich
+      # signiert? Weicht der Fingerabdruck ab, laesst sich die App nicht
+      # ueber die vorige druebersetzen – und das soll hier auffallen, nicht
+      # erst auf dem Handy.
+      - name: Signatur pruefen
+        run: |
+          set -e
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          ERWARTET="F3:58:47:EB:2E:42:C2:04:0A:83:F8:F7:08:AE:37:E9:51:95:6D:3D:F6:7B:8F:20:E1:06:DA:57:4C:06:26:C8"
+          SIGNER=$(ls -d $ANDROID_HOME/build-tools/*/ | tail -1)apksigner
+          if [ -x "$SIGNER" ]; then
+            IST=$("$SIGNER" verify --print-certs "$APK" \
+                  | grep -i "SHA-256 digest" | head -1 \
+                  | sed 's/.*: *//' | tr 'a-z' 'A-Z' \
+                  | sed 's/\(..\)/\1:/g;s/:$//')
+          else
+            IST=$(keytool -printcert -jarfile "$APK" \
+                  | grep -i "SHA256:" | head -1 | sed 's/.*SHA256: *//')
+          fi
+          echo "Signiert mit : $IST"
+          echo "Erwartet     : $ERWARTET"
+          if [ "$IST" = "$ERWARTET" ]; then
+            echo "::notice::Signatur stimmt. Updates gehen ohne Deinstallation."
+          else
+            echo "::error::Andere Signatur als erwartet – dieses Update laesst sich"
+            echo "nicht ueber die installierte App legen. Pruefe den Schritt"
+            echo "'Signierschluessel einsetzen'."
+            exit 1
+          fi
 
       - name: Als Release veroeffentlichen
         env:

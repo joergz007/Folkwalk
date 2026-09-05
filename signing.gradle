@@ -1,0 +1,42 @@
+/*
+ * Fogwalk: Signieren mit einem festen Schluessel.
+ *
+ * Ohne das erzeugt jeder Build-Lauf einen neuen Schluessel, und Android
+ * verweigert das Update mit "Paket in Konflikt mit einem bestehenden Paket".
+ *
+ * Der uebliche Weg ist, die Datei nach ~/.android/debug.keystore zu legen.
+ * Darauf ist aber kein Verlass: das Android-Gradle-Plugin sucht je nach
+ * Version und Umgebung auch unter ANDROID_SDK_HOME. Hier wird der Pfad
+ * deshalb ausdruecklich gesetzt.
+ *
+ * Eingehaengt wird ueber plugins.withId - das greift in dem Moment, in dem
+ * das Android-Plugin angewandt wird, also bevor die Varianten gebaut und
+ * die Signierkonfiguration festgeschrieben werden. Spaeter (etwa in
+ * projectsEvaluated) waere es je nach Plugin-Version zu spaet.
+ *
+ * Bewusst defensiv: schlaegt etwas fehl, bleibt es bei der Voreinstellung.
+ * Der Build soll daran nicht scheitern - der Pruefschritt danach meldet es.
+ */
+gradle.allprojects { p ->
+  p.plugins.withId('com.android.application') {
+    try {
+      def pfad = System.getenv('FW_KEYSTORE')
+      if (pfad == null || !new File(pfad).exists()) {
+        println "Fogwalk: FW_KEYSTORE fehlt - Voreinstellung bleibt."
+        return
+      }
+      // Bewusst direkte Zuweisung statt der DSL-Schreibweise
+      // (storePassword 'android'): die funktioniert nur, wenn Gradle das
+      // Objekt aufbereitet hat. Zuweisungen gehen ueber die Setter und
+      // damit immer.
+      def cfg = p.android.signingConfigs.getByName('debug')
+      cfg.storeFile     = new File(pfad)
+      cfg.storePassword = 'android'
+      cfg.keyAlias      = 'androiddebugkey'
+      cfg.keyPassword   = 'android'
+      println "Fogwalk: Debug-Signatur auf " + pfad + " gesetzt."
+    } catch (Throwable t) {
+      println "Fogwalk: Signierkonfiguration nicht gesetzt (" + t + ")"
+    }
+  }
+}

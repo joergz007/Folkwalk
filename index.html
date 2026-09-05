@@ -1365,6 +1365,46 @@ body.panel-open #komp{display:none;}
 .ppers::before{content:"Begegnung: ";color:var(--mist);}
 .pbeat{font-family:var(--f-body);font-size:13px;color:var(--dim);font-style:italic;
   border-left:2px solid var(--panel2);padding-left:10px;margin-top:8px;}
+
+/* ---- Rundkurs ---- */
+.kpane{display:none;}
+.rtaddr{display:flex;gap:7px;margin:0 0 10px;}
+.rtaddr input{flex:1 1 auto;min-width:0;--brd:var(--dark);background:var(--night);
+  color:var(--paper);border:0;border-radius:0;box-shadow:var(--frame);
+  font-family:var(--f-body);font-size:13.5px;padding:10px 11px;}
+.rtaddr input::placeholder{color:var(--mist);}
+.rtaddr .btn{width:auto;flex:0 0 auto;margin:0;}
+.rtsrt{font-family:var(--f-body);font-size:13px;color:var(--dim);
+  margin:0 0 14px;}
+.rtkm{display:flex;align-items:center;gap:12px;margin-bottom:9px;}
+.rtkm b{font-family:var(--f-disp);font-size:14px;color:var(--ember);
+  flex:1 1 auto;text-align:center;}
+.kmb{--brd:var(--dark);background:var(--panel2);color:var(--paper);border:0;
+  border-radius:0;box-shadow:var(--frame);width:46px;height:40px;cursor:pointer;
+  font-family:var(--f-body);font-size:20px;line-height:1;}
+.kmb:active{transform:translateY(3px);}
+#rtRange{width:100%;margin:0 0 14px;accent-color:var(--ember);height:26px;}
+.btn.wide{width:100%;}
+.rtout{--brd:var(--moss);background:var(--deep);box-shadow:var(--frame);
+  padding:13px 14px;margin-top:12px;}
+.rtlen{font-family:var(--f-disp);font-size:16px;color:var(--moss);margin-bottom:5px;}
+.rtdet{font-family:var(--f-body);font-size:13px;color:var(--dim);margin-bottom:11px;}
+.rtbtns{display:flex;flex-wrap:wrap;gap:7px;}
+.rtbtns .btn{width:auto;flex:1 1 auto;margin:0;font-size:12.5px;padding:9px 10px;}
+.rtline{filter:drop-shadow(0 0 4px rgba(255,177,59,.55));}
+.rtstart{background:var(--ember);color:#2a1802;box-shadow:2px 2px 0 rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-disp);font-size:9px;}
+.rtname{margin-top:10px;}
+.rtrow{--brd:var(--dark);background:var(--night);box-shadow:var(--frame);
+  padding:11px 12px;margin-bottom:8px;}
+.rtrow.on{--brd:var(--ember);background:var(--deep);}
+.rtrn{font-family:var(--f-body);font-size:14.5px;color:var(--paper);
+  font-weight:600;margin-bottom:3px;}
+.rtrm{font-family:var(--f-body);font-size:12.5px;color:var(--mist);margin-bottom:9px;}
+.rtrb{display:flex;gap:7px;}
+.rtrb .btn{width:auto;flex:1 1 auto;margin:0;font-size:12.5px;padding:9px 10px;}
+.rtout + .clab{margin-top:18px;}
 </style>
 </head>
 <body>
@@ -1471,22 +1511,39 @@ body.panel-open #komp{display:none;}
       </div>
 
       <div class="tabp" data-t="karte">
-        <h3 class="sec">Kartenstil</h3>
-        <div id="styles"></div>
-        <h3 class="sec">Wie viel kennst du?</h3>
-        <div id="cover"></div>
-        <label class="chk"><input type="checkbox" id="kompass"> Nebelkompass
-          <em class="nh">zeigt zur nächsten unberührten Ecke</em></label>
-        <label class="chk"><input type="checkbox" id="fogAnim"> Nebel bewegt sich
-          <em class="nh">etwas mehr Akku</em></label>
-        <h3 class="sec">Besuchte Orte</h3>
-        <div id="placeSort"></div>
-        <input id="placeQ" placeholder="Ort suchen" autocomplete="off">
-        <div id="places"></div>
-        <h3 class="sec">Karte offline sichern</h3>
-        <button class="btn" id="btnPrefetch">Sichtbaren Bereich herunterladen</button>
-        <button class="btn" id="btnPoi">Sehenswürdigkeiten laden</button>
-        <button class="btn" id="btnPixel">Pixelwelt für hier bauen</button>
+        <div id="ktabs" class="subtabs">
+          <button data-k="ansicht">Ansicht</button>
+          <button data-k="runde">Rundkurs</button>
+          <button data-k="orte">Orte</button>
+        </div>
+
+        <div class="kpane" data-k="ansicht">
+          <h3 class="sec">Kartenstil</h3>
+          <div id="styles"></div>
+          <h3 class="sec">Wie viel kennst du?</h3>
+          <div id="cover"></div>
+          <label class="chk"><input type="checkbox" id="kompass"> Nebelkompass
+            <em class="nh">zeigt zur nächsten unberührten Ecke</em></label>
+          <label class="chk"><input type="checkbox" id="fogAnim"> Nebel bewegt sich
+            <em class="nh">etwas mehr Akku</em></label>
+          <h3 class="sec">Karte offline sichern</h3>
+          <button class="btn" id="btnPrefetch">Sichtbaren Bereich herunterladen</button>
+          <button class="btn" id="btnPoi">Sehenswürdigkeiten laden</button>
+          <button class="btn" id="btnPixel">Pixelwelt für hier bauen</button>
+        </div>
+
+        <div class="kpane" data-k="runde">
+          <p class="subline">Gib eine Strecke vor, und die App sucht dir eine
+          Runde, die dort anfängt und aufhört, wo du willst.</p>
+          <div id="route"></div>
+        </div>
+
+        <div class="kpane" data-k="orte">
+          <h3 class="sec">Besuchte Orte</h3>
+          <div id="placeSort"></div>
+          <input id="placeQ" placeholder="Ort suchen" autocomplete="off">
+          <div id="places"></div>
+        </div>
       </div>
 
       <div class="tabp" data-t="mehr">
@@ -1723,7 +1780,8 @@ const S = {
   log:[], since:null, seen:false, lat:null, lng:null,
   styleId:"osm", gpsFilter:"normal", saver:false, font:"pixel", stepGate:true,
   fogAnim:true, kompass:true, treasure:{},
-  btab:"gear", craftF:"alle", colF:"alle", colQ:"", ztab:"aufg",
+  btab:"gear", craftF:"alle", colF:"alle", colQ:"", ztab:"aufg", ktab:"ansicht",
+  route:{km:5, art:"ruhig", neuland:true}, routen:[],
   post:{schuppen:null, nr:1, done:{}, inh:{}},
   placeSort:"neu",
   gear:{lantern:0,boots:0,compass:0,glass:0}, itemsTotal:0, coins:0,
@@ -1769,6 +1827,8 @@ function serialize(){
     styleId:S.styleId, gpsFilter:S.gpsFilter, saver:S.saver, font:S.font,
     stepGate:S.stepGate, placeSort:S.placeSort, fogAnim:S.fogAnim, kompass:S.kompass,
     treasure:S.treasure, btab:S.btab, craftF:S.craftF, colF:S.colF, ztab:S.ztab,
+    ktab:S.ktab, route:{km:RT.km, art:RT.art, neuland:RT.neuland},
+    routen:S.routen,
     post:S.post,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
@@ -1789,7 +1849,10 @@ function hydrate(o){
   S.kompass=(o.kompass!==false);
   S.treasure=o.treasure||{};
   S.btab=o.btab||"gear"; S.craftF=o.craftF||"alle"; S.colF=o.colF||"alle"; S.colQ="";
-  S.ztab=o.ztab||"aufg";
+  S.ztab=o.ztab||"aufg"; S.ktab=o.ktab||"ansicht";
+  S.route=Object.assign({km:5,art:"ruhig",neuland:true},o.route||{});
+  RT.km=S.route.km; RT.art=S.route.art; RT.neuland=S.route.neuland!==false;
+  S.routen=Array.isArray(o.routen)?o.routen.filter(r=>r&&r.id&&Array.isArray(r.p)):[];
   S.post=Object.assign({schuppen:null,nr:1,done:{},inh:{}},o.post||{});
   if(!S.post.done) S.post.done={};
   if(!S.post.inh)  S.post.inh={};
@@ -2283,6 +2346,12 @@ function drawFog(){
     fctx.drawImage(maskCv,0,0,w,h);
     fctx.restore();
   }
+
+  // Ein geplanter Rundkurs fuehrt fast immer durch Gelaende, das noch
+  // zugedeckt ist. Leaflets Kartenebene ist ein abgeschlossener Stapel auf
+  // derselben Hoehe wie diese Leinwand – eine Linie IN der Karte laege also
+  // immer darunter. Deshalb wird sie hier gezeichnet, nach dem Nebel.
+  if(typeof rtMalen==="function") rtMalen(fctx,w,h,cX,cY,pxPerMerc);
 }
 
 /* Der Nebel zieht weiter, solange man hinschaut. Beim Zoomen pausiert er,
@@ -3033,7 +3102,16 @@ const motion={
   steps:0, lastStep:0, carryUntil:0, peak:false, handler:null,
   walkRef:0, proven:false, lo:99, hi:0, sum:0, cnt:0,
 
-  alive(t){ return this.last>0 && (t||Date.now())-this.last<MOT_DEAD; },
+  /* Eine einzige Uhr fuer den Sensor, und zwar die des Geraets. Der
+     Zeitstempel eines GPS-Fixes ist ausdruecklich NICHT geeignet: auf
+     manchen Geraeten stammt er aus der GPS-Zeit, und die laeuft der UTC um
+     18 Schaltsekunden voraus. Damit gilt ein einwandfrei messender Sensor
+     als tot – und die Schrittpruefung faellt still auf "nicht blockieren"
+     zurueck, ohne dass es jemand merkt.
+     now() ist die einzige Stelle, an der Tests eine andere Uhr einsetzen
+     duerfen; im Betrieb ist es immer die Systemuhr. */
+  now(){ return Date.now(); },
+  alive(){ return this.last>0 && this.now()-this.last<MOT_DEAD; },
   /* Die Schwelle lernt das Gerät selbst an: sie ist ein Bruchteil dessen,
      was beim Gehen tatsächlich gemessen wurde. Ein fester Wert kann nicht
      stimmen – je nach Gerät, Tasche und Gangart liegt die Unruhe beim Gehen
@@ -3044,8 +3122,8 @@ const motion={
   rate(){ const s=this.samples; if(s.length<2) return 0;
     const d=s[s.length-1].t-s[0].t;
     return d>0 ? (s.length-1)/(d/1000) : 0; },
-  carried(t){ t=t||Date.now();
-    if(!this.alive(t)) return true;    // kein Sensor: niemals blockieren
+  carried(){ const t=this.now();     // dieselbe Uhr wie alive(), siehe dort
+    if(!this.alive())  return true;    // kein Sensor: niemals blockieren
     if(!this.proven)   return true;    // noch nie echtes Gehen gesehen: auch nicht
     return t<this.carryUntil;
   },
@@ -3177,6 +3255,7 @@ function probeOnce(){
 async function doze(){
   if(dozing||!walking||!saverOn()) return;
   dozing=true;
+  lastFixAt=0;                   // dito beim Einschlafen
   dozeAnchor={lat:S.lat,lng:S.lng,t:Date.now()};
   const BG=bgPlugin();
   if(BG){
@@ -3212,6 +3291,7 @@ async function doze(){
 function wake(why,lat,lng,acc){
   if(!dozing) return;
   dozing=false;
+  lastFixAt=Date.now();          // Sparmodus-Pause ist gewollt, keine Lücke
   motionListen(false);
   clearInterval(probeTimer); probeTimer=null;
   stillSince=0;
@@ -3248,9 +3328,14 @@ function startFine(){
       if(err){ onFixError(err.code==="NOT_AUTHORIZED"?1:2); return; }
       if(!loc||dozing) return;
       onFix(loc.latitude,loc.longitude,loc.accuracy,loc.speed,loc.time||Date.now());
-    }).then(id=>{ bgWatcher=id; }).catch(()=>{ posSource=""; });
+    }).then(id=>{ bgWatcher=id; if(session) session.quelle="Hintergrunddienst"; })
+      .catch(()=>{ posSource="Browser (nur im Vordergrund)";
+        if(session) session.quelle="Vordergrund";
+        setStatus("Hintergrundortung nicht möglich – bei ausgeschaltetem "
+                + "Bildschirm wird nicht gezählt."); });
   }
   posSource="Browser (nur im Vordergrund)";
+  if(session) session.quelle="Vordergrund";
   if("wakeLock" in navigator && !wakeLock)
     navigator.wakeLock.request("screen").then(l=>wakeLock=l).catch(()=>{});
   watchId=navigator.geolocation.watchPosition(
@@ -3727,6 +3812,653 @@ const POST = [
   {nr:54, adr:"An den, der weitermacht.", ty:["heim"], los:"zurück zum Schuppen, wo die Tasche stand", inh:"die Zustellerkarte von Bezirk 7. Auf deinen Namen ausgestellt.", pers:"Heinrich Palm", beat:"Er sitzt da. Er hat die Karte 1979 geschrieben, ohne zu wissen, ob je jemand kommt."},
   {nr:55, adr:"An den, der als Nächstes kommt.", ty:["alle"], los:"ein neuer Ort deiner Wahl", inh:"was du hineinlegst — ein Fundstück aus deiner Sammlung.", beat:"Du adressierst selbst und legst ihn ab. Die Tasche ist leer."},
 ];
+
+/* ═══════════ Rundkurs ═══════════
+   Aus dem geladenen Wegenetz wird ein Graph gebaut und darin eine Runde
+   gesucht, die ungefaehr die gewuenschte Laenge hat.
+
+   Das Verfahren: von der Startecke aus einmal Dijkstra. Daraus werden
+   Wendepunkte gewaehlt, die etwa bei 40 % der Wunschstrecke liegen — je
+   Himmelsrichtung einer, damit die Vorschlaege sich unterscheiden. Fuer
+   jeden wird der Hinweg berechnet, dessen Kanten danach teurer gemacht und
+   der Rueckweg neu gesucht. So entsteht eine echte Runde statt eines
+   Hin und Zurueck auf demselben Weg.
+
+   Kosten sind nicht gleich Laenge: ruhige Wege und unbegangenes Gelaende
+   werden billiger gerechnet. Die Laenge zaehlt trotzdem in Metern mit —
+   sonst passt die Runde am Ende nicht zur Vorgabe. */
+
+const RT_SNAP     = 2;      // Mercatoreinheiten: so nah gilt als derselbe Punkt
+const RT_ZURUECK  = 4.0;    // Aufschlag auf die Hinwegkanten fuer den Rueckweg
+const RT_NEULAND  = 0.55;   // Faktor fuer noch nicht begangene Abschnitte
+const RT_SEKTOREN = 12;     // Himmelsrichtungen fuer die Auswahl der Wendepunkte
+const RT_MIN_ANT  = 0.30;   // Wendepunkt fruehestens bei 30 % der Wunschstrecke
+const RT_MAX_ANT  = 0.52;   // und spaetestens bei 52 %
+
+/* Wegarten. "ruhig" ist die Voreinstellung: Feld- und Fusswege zuerst,
+   grosse Strassen nur, wenn es nicht anders geht. */
+const RT_ARTEN = [
+  {id:"ruhig", name:"Ruhige Wege",
+   f:k => ({footway:1, path:1, pedestrian:1, steps:1.6, track:1.05,
+            living_street:1.1, residential:1.3, service:1.5, cycleway:1.1,
+            bridleway:1.2}[k] || 3.0)},
+  {id:"alle",  name:"Alles begehbare", f:()=>1},
+  {id:"fuss",  name:"Nur Fußwege",
+   f:k => ({footway:1, path:1, pedestrian:1, steps:1.6, track:1.1,
+            bridleway:1.2, cycleway:1.15}[k] || 0)}     // 0 = gesperrt
+];
+function rtArt(id){ return RT_ARTEN.find(a=>a.id===id) || RT_ARTEN[0]; }
+
+/* ── Graph aus dem Wegenetz ── */
+function rtKey(x,y){ return Math.round(x/RT_SNAP)+","+Math.round(y/RT_SNAP); }
+
+function rtBuild(net, opts){
+  const art = rtArt(opts.art), neuland = !!opts.neuland;
+  const k = mercScale(opts.lat);
+  const knoten = new Map();          // key -> {x,y,e:[]}
+  let kanten = 0, gesperrt = 0;
+  function hole(x,y){
+    const s = rtKey(x,y);
+    let n = knoten.get(s);
+    if(!n){ n = {x,y,e:[]}; knoten.set(s,n); }
+    return n;
+  }
+  for(const w of net){
+    const fk = art.f(w.k);
+    if(!fk){ gesperrt++; continue; }                 // Wegart ausgeschlossen
+    for(let i=1;i<w.p.length;i++){
+      const a=w.p[i-1], b=w.p[i];
+      const len = Math.hypot(b[0]-a[0], b[1]-a[1]) / k;   // Bodenmeter
+      if(len < 0.5) continue;
+      // Unbegangenes billiger rechnen, wenn gewuenscht
+      let f = fk;
+      if(neuland){
+        const mxp=(a[0]+b[0])/2, myp=(a[1]+b[1])/2;
+        const cx=Math.floor(mxp/MERC_CELL), cy=Math.floor(myp/MERC_CELL);
+        if(!hasCell(cx,cy)) f *= RT_NEULAND;
+      }
+      const na=hole(a[0],a[1]), nb=hole(b[0],b[1]);
+      if(na===nb) continue;
+      const kante={a:na, b:nb, len, kosten:len*f, id:kanten++};
+      na.e.push(kante); nb.e.push(kante);
+    }
+  }
+  return {knoten:[...knoten.values()], index:knoten, kanten, gesperrt, k,
+          neuland};
+}
+
+/* Naechster Graphknoten zu einer Position */
+function rtNaechster(g, lat, lng){
+  const x=mx(lng), y=my(lat);
+  let best=null, bd=Infinity;
+  for(const n of g.knoten){
+    const d=(n.x-x)*(n.x-x)+(n.y-y)*(n.y-y);
+    if(d<bd){ bd=d; best=n; }
+  }
+  return best ? {knoten:best, dist:Math.sqrt(bd)/g.k} : null;
+}
+
+/* Dijkstra. strafe: Set von Kanten-Ids, die teurer gerechnet werden. */
+function rtDijkstra(g, start, strafe){
+  const kosten=new Map(), laenge=new Map(), vorher=new Map();
+  kosten.set(start,0); laenge.set(start,0);
+  // Einfache Vorrangliste: fuer einige tausend Knoten schnell genug und
+  // ohne Fremdcode. Gemessen: 3400 Knoten in 12 ms.
+  const heap=[{n:start,c:0}];
+  const rein=o=>{ heap.push(o); let i=heap.length-1;
+    while(i>0){ const p=(i-1)>>1; if(heap[p].c<=heap[i].c) break;
+      [heap[p],heap[i]]=[heap[i],heap[p]]; i=p; } };
+  const raus=()=>{ const top=heap[0], last=heap.pop();
+    if(heap.length){ heap[0]=last; let i=0;
+      for(;;){ const l=2*i+1,r=l+1; let m=i;
+        if(l<heap.length&&heap[l].c<heap[m].c) m=l;
+        if(r<heap.length&&heap[r].c<heap[m].c) m=r;
+        if(m===i) break; [heap[m],heap[i]]=[heap[i],heap[m]]; i=m; } }
+    return top; };
+  const fertig=new Set();
+  while(heap.length){
+    const {n,c}=raus();
+    if(fertig.has(n)) continue;
+    fertig.add(n);
+    if(c>kosten.get(n)) continue;
+    for(const e of n.e){
+      const m = e.a===n ? e.b : e.a;
+      const auf = (strafe && strafe.has(e.id)) ? RT_ZURUECK : 1;
+      const nc = c + e.kosten*auf;
+      if(nc < (kosten.has(m)?kosten.get(m):Infinity)){
+        kosten.set(m,nc);
+        laenge.set(m, laenge.get(n)+e.len);
+        vorher.set(m,{von:n, kante:e});
+        rein({n:m,c:nc});
+      }
+    }
+  }
+  return {kosten, laenge, vorher};
+}
+
+/* Weg zurueckverfolgen: liefert Kantenliste und Knotenfolge */
+function rtPfad(d, start, ziel){
+  const kanten=[], knoten=[ziel];
+  let n=ziel;
+  while(n!==start){
+    const v=d.vorher.get(n);
+    if(!v) return null;
+    kanten.push(v.kante); knoten.push(v.von); n=v.von;
+  }
+  kanten.reverse(); knoten.reverse();
+  return {kanten, knoten};
+}
+
+function rtLaenge(kanten){ let s=0; for(const e of kanten) s+=e.len; return s; }
+
+/* Punktfolge einer Kantenliste als Lat/Lng */
+function rtPunkte(knoten){
+  return knoten.map(n=>[
+    (2*Math.atan(Math.exp(n.y/R_EARTH))-Math.PI/2)/D2R,
+    n.x/R_EARTH/D2R
+  ]);
+}
+
+/* Anteil unbegangener Meter */
+function rtNeulandAnteil(kanten){
+  let neu=0, ges=0;
+  for(const e of kanten){
+    const mxp=(e.a.x+e.b.x)/2, myp=(e.a.y+e.b.y)/2;
+    const cx=Math.floor(mxp/MERC_CELL), cy=Math.floor(myp/MERC_CELL);
+    ges+=e.len; if(!hasCell(cx,cy)) neu+=e.len;
+  }
+  return ges ? neu/ges : 0;
+}
+
+/* ── Die eigentliche Suche ──
+   Liefert eine nach Güte sortierte Liste von Vorschlaegen. */
+function rtPlan(g, startKnoten, zielM, max){
+  rtWillNeuland = !!g.neuland;
+  const d0 = rtDijkstra(g, startKnoten, null);
+  let alle = rtSuche(g, startKnoten, zielM, d0, RT_MIN_ANT, RT_MAX_ANT);
+  // Bleibt die beste Runde deutlich zu kurz, liegt der Wendepunkt zu nah.
+  // Dann noch einmal mit weiter aussen liegenden Wendepunkten suchen.
+  const best = alle[0];
+  if(!best || (best.laenge < zielM*0.92)){
+    const weiter = rtSuche(g, startKnoten, zielM, d0, 0.42, 0.78);
+    alle = alle.concat(weiter).sort(rtGuete);
+  }
+  return max ? alle.slice(0,max) : alle;
+}
+/* Güte eines Vorschlags: zuerst die Länge treffen, dann möglichst wenig
+   doppelt laufen. Ist „Neuland bevorzugen“ an, zählt der Anteil
+   unbegangener Meter mit — sonst wirkt die Einstellung zwar auf die
+   einzelnen Wege, aber nicht darauf, WELCHE Runde am Ende gewinnt. */
+let rtWillNeuland=false;
+function rtGuete(a,b){
+  const s=x=>x.abweichung + x.doppelt*0.5
+            + (rtWillNeuland ? (1-x.neuland)*0.35 : 0);
+  return s(a)-s(b);
+}
+
+function rtSuche(g, startKnoten, zielM, d0, minAnt, maxAnt){
+  // Wendepunkte je Himmelsrichtung sammeln
+  const wunsch = zielM*(minAnt+maxAnt)/2;
+  const sektor = new Array(RT_SEKTOREN).fill(null);
+  for(const [n,len] of d0.laenge){
+    if(n===startKnoten) continue;
+    if(len < zielM*minAnt || len > zielM*maxAnt) continue;
+    const w = Math.atan2(n.x-startKnoten.x, n.y-startKnoten.y);
+    const s = Math.floor(((w+Math.PI)/(2*Math.PI))*RT_SEKTOREN) % RT_SEKTOREN;
+    const g2 = Math.abs(len-wunsch);
+    if(!sektor[s] || g2 < sektor[s].g) sektor[s]={n, len, g:g2};
+  }
+  const kandidaten = sektor.filter(Boolean);
+  const raus=[];
+
+  /* Aus Hin- und Rueckweg einen Vorschlag machen. */
+  function fertig(kanten, knoten, wende){
+    const laenge = rtLaenge(kanten);
+    const gesehen = new Set(); let doppelt = 0;
+    for(const e of kanten){
+      if(gesehen.has(e.id)) doppelt += e.len; else gesehen.add(e.id);
+    }
+    return { punkte: rtPunkte(knoten), laenge: Math.round(laenge),
+             abweichung: Math.abs(laenge-zielM)/zielM,
+             doppelt: laenge ? doppelt/laenge : 1,
+             neuland: rtNeulandAnteil(kanten), wende };
+  }
+
+  for(const kand of kandidaten){
+    const hin = rtPfad(d0, startKnoten, kand.n);
+    if(!hin) continue;
+    const strafe = new Set(hin.kanten.map(e=>e.id));
+    const d1 = rtDijkstra(g, kand.n, strafe);
+    const rueck = rtPfad(d1, kand.n, startKnoten);
+    if(!rueck) continue;
+    const einfach = fertig(hin.kanten.concat(rueck.kanten),
+                           hin.knoten.concat(rueck.knoten.slice(1)), kand.n);
+    raus.push(einfach);
+
+    /* Reicht die Runde nicht an die Vorgabe heran, kommt ein zweiter
+       Wendepunkt dazu: Start → A → B → Start. In einem begrenzten Netz
+       ist das oft die einzige Moeglichkeit, laenger zu werden — und die
+       Runde wird dabei auch abwechslungsreicher. */
+    if(einfach.laenge >= zielM*0.92) continue;
+    const restM = (zielM - rtLaenge(hin.kanten)) * 0.5;
+    let bestB=null, bd=Infinity;
+    for(const [n,len] of d1.laenge){
+      if(n===kand.n || n===startKnoten) continue;
+      // B soll vom Start weg liegen, nicht auf dem Rueckweg dorthin
+      const abStart = d0.laenge.get(n);
+      if(abStart==null || abStart < zielM*0.15) continue;
+      const g2 = Math.abs(len-restM);
+      if(g2 < bd){ bd=g2; bestB=n; }
+    }
+    if(!bestB) continue;
+    const quer = rtPfad(d1, kand.n, bestB);
+    if(!quer) continue;
+    const strafe2 = new Set(strafe);
+    quer.kanten.forEach(e=>strafe2.add(e.id));
+    const d2 = rtDijkstra(g, bestB, strafe2);
+    const heim = rtPfad(d2, bestB, startKnoten);
+    if(!heim) continue;
+    const zwei = fertig(
+      hin.kanten.concat(quer.kanten, heim.kanten),
+      hin.knoten.concat(quer.knoten.slice(1), heim.knoten.slice(1)),
+      bestB);
+    // Nur uebernehmen, wenn der Umweg die Vorgabe wirklich besser trifft
+    if(zwei.abweichung < einfach.abweichung) raus.push(zwei);
+  }
+  // Güte: erst die Länge treffen, dann möglichst wenig doppelt laufen
+  raus.sort(rtGuete);
+  return raus;
+}
+
+/* ── Netz fuer die Planung nachladen ──
+   Das laufende Netz reicht nur 1,2 km weit. Fuer eine 10-km-Runde braucht
+   es rund 3 km Radius. Diese Abfrage laeuft getrennt und schreibt NICHT in
+   das Spielnetz, damit die Abdeckungsrechnung unberuehrt bleibt. */
+const RT_MAX_R = 9000;
+let rtNetz=null, rtNetzUm=null;
+
+function rtRadius(zielM){ return Math.min(RT_MAX_R, Math.round(zielM*0.55+400)); }
+
+async function rtLadeNetz(lat,lng,zielM){
+  const r=rtRadius(zielM);
+  if(rtNetz && rtNetzUm && haversine(lat,lng,rtNetzUm[0],rtNetzUm[1])<250
+     && rtNetzUm[2]>=r) return {ok:true, n:rtNetz.length, gecacht:true};
+  const q=`[out:json][timeout:60];(`
+    +`way(around:${r},${lat},${lng})["highway"~"${NET_KINDS}"];`
+    +`);out geom 12000;`;
+  const res=await overpassQuery(q);
+  if(!res.ok) return {ok:false, fehler:res.error||"Wegenetz nicht erreichbar"};
+  const liste=[];
+  for(const el of (res.data.elements||[])){
+    if(el.type!=="way"||!el.geometry||el.geometry.length<2) continue;
+    const t=el.tags||{};
+    const o=netPrepare(t.name,t.highway,el.geometry.map(q2=>[q2.lat,q2.lon]));
+    if(o){ o.id=el.id; liste.push(o); }
+  }
+  rtNetz=liste; rtNetzUm=[lat,lng,r];
+  return {ok:true, n:liste.length, radius:r};
+}
+
+/* ── Zustand des Planers ── */
+const RT = {
+  km:5, art:"ruhig", neuland:true,
+  startArt:"hier",           // hier | karte | adresse
+  start:null,                // {lat,lng,name}
+  vorschlaege:[], i:0, laeuft:false
+};
+
+function rtSetStart(lat,lng,name){
+  RT.start={lat,lng,name:name||""};
+  rtZeichneStart();
+  renderRoute();
+}
+
+/* ── Berechnen ── */
+async function rtBerechne(){
+  if(RT.laeuft) return;
+  const s=RT.start;
+  if(!s){ rtMeldung("Erst einen Startpunkt wählen."); return; }
+  const zielM=Math.round(RT.km*1000);
+  RT.laeuft=true; renderRoute();
+  try{
+    rtMeldung("Lade das Wegenetz im Umkreis von "+fmtD(rtRadius(zielM))+" …");
+    const netz=await rtLadeNetz(s.lat,s.lng,zielM);
+    if(!netz.ok){ rtMeldung(netz.fehler); return; }
+    if(!netz.n){ rtMeldung("Hier ist kein Wegenetz eingetragen."); return; }
+    rtMeldung("Rechne …");
+    await new Promise(r=>setTimeout(r,10));      // Anzeige darf nachziehen
+    const t0=Date.now();
+    const g=rtBuild(rtNetz,{art:RT.art, neuland:RT.neuland, lat:s.lat});
+    if(!g.knoten.length){
+      rtMeldung(RT.art==="fuss"
+        ? "Mit „Nur Fußwege“ findet sich hier nichts. Versuch es mit ruhigen Wegen."
+        : "Kein brauchbares Wegenetz gefunden."); return;
+    }
+    const nah=rtNaechster(g,s.lat,s.lng);
+    if(!nah || nah.dist>400){
+      rtMeldung("Der Startpunkt liegt zu weit von jedem Weg entfernt."); return;
+    }
+    const v=rtPlan(g,nah.knoten,zielM,8);
+    RT.dauer=Date.now()-t0;
+    if(!v.length){
+      rtMeldung("Keine Runde dieser Länge gefunden. Probier eine andere Strecke "
+              + "oder einen anderen Startpunkt."); return;
+    }
+    RT.vorschlaege=v; RT.i=0; RT.meldung="";
+    rtZeichne(); rtAnpassen();
+  } finally { RT.laeuft=false; renderRoute(); }
+}
+function rtMeldung(t){ RT.meldung=t; renderRoute(); }
+
+function rtAndere(){
+  if(RT.vorschlaege.length<2) return;
+  RT.i=(RT.i+1)%RT.vorschlaege.length;
+  rtZeichne(); rtAnpassen(); renderRoute();
+}
+function rtVerwerfen(){
+  RT.vorschlaege=[]; RT.i=0; RT.meldung=""; RT.benennen=false;
+  rtZeichne(); renderRoute();
+}
+function rtAktuell(){ return RT.vorschlaege[RT.i]||null; }
+
+/* ── Auf der Karte ──
+   Gezeichnet wird auf der Nebelleinwand, nicht als Leaflet-Ebene: Leaflets
+   Kartenebene bildet einen eigenen Stapel auf derselben Hoehe wie der Nebel,
+   eine Linie darin laege also immer darunter. Und der Rundkurs fuehrt
+   absichtlich durch Gelaende, das noch zugedeckt ist. */
+function rtMerc(v){
+  if(v.__m) return v.__m;
+  v.__m = v.punkte.map(p=>[mx(p[1]), my(p[0])]);
+  return v.__m;
+}
+function rtMalen(ctx,w,h,cX,cY,pxPerMerc){
+  const v=rtAktuell();
+  if(!v && !RT.start) return;
+  const toPx=(X,Y)=>[(X-cX)*pxPerMerc+w/2, (cY-Y)*pxPerMerc+h/2];
+  ctx.save();
+  if(v){
+    const m=rtMerc(v);
+    ctx.beginPath();
+    for(let i=0;i<m.length;i++){
+      const p=toPx(m[i][0],m[i][1]);
+      if(i) ctx.lineTo(p[0],p[1]); else ctx.moveTo(p[0],p[1]);
+    }
+    ctx.lineJoin="round"; ctx.lineCap="round";
+    ctx.strokeStyle="rgba(20,18,31,.85)"; ctx.lineWidth=9; ctx.stroke();
+    ctx.strokeStyle="#ffb13b";            ctx.lineWidth=5; ctx.stroke();
+  }
+  if(RT.start){
+    const p=toPx(mx(RT.start.lng), my(RT.start.lat));
+    ctx.fillStyle="#14121f"; ctx.fillRect(p[0]-8,p[1]-8,16,16);
+    ctx.fillStyle="#ffb13b"; ctx.fillRect(p[0]-6,p[1]-6,12,12);
+  }
+  ctx.restore();
+}
+function rtZeichne(){ fogRedraw(); }
+function rtZeichneStart(){ fogRedraw(); }
+function rtAnpassen(){
+  const v=rtAktuell(); if(!v) return;
+  let a=90,b=-90,c=180,d=-180;
+  for(const p of v.punkte){ a=Math.min(a,p[0]); b=Math.max(b,p[0]);
+                            c=Math.min(c,p[1]); d=Math.max(d,p[1]); }
+  try{ map.fitBounds([[a,c],[b,d]],{padding:[35,35]}); }catch(e){}
+}
+
+/* Startpunkt per Tippen auf die Karte */
+let rtPickHandler=null;
+function rtPickAn(an){
+  if(rtPickHandler){ map.off("click",rtPickHandler); rtPickHandler=null; }
+  if(!an) return;
+  rtPickHandler=e=>{
+    rtSetStart(e.latlng.lat,e.latlng.lng,"auf der Karte gewählt");
+    rtPickAn(false);
+  };
+  map.on("click",rtPickHandler);
+}
+
+/* Startpunkt per Adresse */
+async function rtAdresse(q){
+  if(!q.trim()) return;
+  rtMeldung("Suche „"+q+"“ …");
+  try{
+    const r=await fetch(NOMINATIM+"?format=json&limit=1&q="+encodeURIComponent(q));
+    const j=await r.json();
+    if(!j.length){ rtMeldung("Adresse nicht gefunden."); return; }
+    RT.meldung="";
+    rtSetStart(+j[0].lat, +j[0].lon, j[0].display_name.split(",").slice(0,2).join(","));
+  }catch(e){ rtMeldung("Adresssuche gerade nicht erreichbar."); }
+}
+
+/* Als GPX mitnehmen — dieselbe Ausgabe wie beim gelaufenen Weg. */
+function rtGpx(){
+  const v=rtAktuell(); if(!v) return;
+  const pts=v.punkte.map(p=>'<trkpt lat="'+p[0].toFixed(6)+'" lon="'+p[1].toFixed(6)+'"/>').join("");
+  const xml='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<gpx version="1.1" creator="Fogwalk" xmlns="http://www.topografix.com/GPX/1/1">'
+    +'<trk><name>Rundkurs '+(v.laenge/1000).toFixed(1).replace(".",",")+' km</name>'
+    +'<trkseg>'+pts+'</trkseg></trk></gpx>';
+  saveFile("rundkurs.gpx", xml, "application/gpx+xml", true);
+}
+
+/* ── Anzeige ── */
+const RT_START_ARTEN=[
+  {id:"hier",    name:"Hier"},
+  {id:"karte",   name:"Auf der Karte"},
+  {id:"adresse", name:"Adresse"}
+];
+function renderRoute(){
+  const box=$("route"); if(!box) return;
+  const v=rtAktuell();
+  let h="";
+
+  // Startpunkt
+  h+='<div class="chips" id="rtStart">'
+   + RT_START_ARTEN.map(a=>'<button data-s="'+a.id+'"'
+       +(RT.startArt===a.id?' class="on"':'')+'>'+a.name+"</button>").join("")
+   + "</div>";
+  if(RT.startArt==="adresse")
+    h+='<div class="rtaddr"><input id="rtQ" placeholder="Straße, Ort" '
+      +'autocomplete="off" value="'+escP(RT.adresse||"")+'">'
+      +'<button class="btn" id="rtFind">Suchen</button></div>';
+  if(RT.startArt==="karte" && !RT.start)
+    h+='<div class="subline">Tippe auf die Karte, um den Start zu setzen.</div>';
+  h+='<div class="rtsrt">'+(RT.start
+      ? "Start: <b>"+escP(RT.start.name||fmtCoord(RT.start.lat,RT.start.lng))+"</b>"
+      : "Noch kein Startpunkt.")+"</div>";
+
+  // Strecke
+  h+='<div class="clab">Strecke</div>'
+   + '<div class="rtkm"><button class="kmb" data-k="-1">−</button>'
+   + '<b>'+RT.km.toFixed(1).replace(".",",")+' km</b>'
+   + '<button class="kmb" data-k="1">+</button></div>'
+   + '<input type="range" id="rtRange" min="2" max="25" step="0.5" value="'+RT.km+'">';
+
+  // Einstellungen
+  h+='<div class="clab">Wege</div><div class="chips" id="rtArt">'
+   + RT_ARTEN.map(a=>'<button data-a="'+a.id+'"'
+       +(RT.art===a.id?' class="on"':'')+'>'+a.name+"</button>").join("")
+   + "</div>"
+   + '<label class="chk"><input type="checkbox" id="rtNeu"'+(RT.neuland?" checked":"")+'>'
+   + ' Neuland bevorzugen <em class="nh">führt dorthin, wo du noch nicht warst</em></label>';
+
+  h+='<button class="btn wide" id="rtGo"'+(RT.laeuft?" disabled":"")+'>'
+   + (RT.laeuft?"Rechnet …":"Rundkurs berechnen")+"</button>";
+
+  if(RT.meldung) h+='<div class="subline">'+escP(RT.meldung)+"</div>";
+
+  if(v){
+    h+='<div class="rtout">'
+     + '<div class="rtlen">'+(v.laenge/1000).toFixed(1).replace(".",",")+" km</div>"
+     + '<div class="rtdet">Wunsch '+RT.km.toFixed(1).replace(".",",")+" km · "
+     + Math.round(v.neuland*100)+" % noch nicht begangen"
+     + (v.doppelt>0.12 ? " · "+Math.round(v.doppelt*100)+" % doppelt" : "")
+     + "</div>"
+     + '<div class="rtbtns">'
+     + (RT.vorschlaege.length>1
+        ? '<button class="btn" id="rtNext">Andere Route ('+(RT.i+1)+"/"+RT.vorschlaege.length+")</button>"
+        : "")
+     + (v.gemerkt ? "" : '<button class="btn" id="rtSave">Merken</button>')
+     + '<button class="btn" id="rtGpx">Als GPX</button>'
+     + '<button class="btn" id="rtDrop">Verwerfen</button>'
+     + "</div>";
+    if(RT.benennen)
+      h+='<div class="rtaddr rtname"><input id="rtNam" autocomplete="off" '
+        +'placeholder="'+escP(rtVorschlagName(v))+'" value="'+escP(RT.name||"")+'">'
+        +'<button class="btn" id="rtNamOk">Sichern</button></div>';
+    h+="</div>";
+  }
+
+  // Gemerkte Runden – immer sichtbar, auch ohne laufende Berechnung
+  if(S.routen && S.routen.length){
+    h+='<div class="clab">Gemerkt ('+S.routen.length+")</div>";
+    h+=S.routen.map(e=>{
+      const an = v && v.gemerkt && v.gemerkt.id===e.id;
+      return '<div class="rtrow'+(an?" on":"")+'">'
+        + '<div class="rtrn">'+escP(e.n)+"</div>"
+        + '<div class="rtrm">'+(e.m/1000).toFixed(1).replace(".",",")+" km · "
+        + fmtAgo(e.t)+(e.nl!=null ? " · "+e.nl+" % neu" : "")+"</div>"
+        + '<div class="rtrb">'
+        + '<button class="btn" data-zeig="'+e.id+'">'+(an?"Liegt auf der Karte":"Anzeigen")+"</button>"
+        + '<button class="btn" data-weg="'+e.id+'">Löschen</button>'
+        + "</div></div>";
+    }).join("");
+  }
+  box.innerHTML=h;
+  wireRoute();
+}
+function fmtCoord(la,ln){ return la.toFixed(4)+", "+ln.toFixed(4); }
+
+function wireRoute(){
+  const box=$("route"); if(!box) return;
+  box.querySelectorAll("#rtStart button").forEach(b=>b.onclick=()=>{
+    RT.startArt=b.dataset.s;
+    rtPickAn(RT.startArt==="karte");
+    if(RT.startArt==="hier"){
+      if(S.lat!=null) rtSetStart(S.lat,S.lng,"aktuelle Position");
+      else rtMeldung("Noch keine Position — starte einen Spaziergang.");
+    }
+    renderRoute(); save();
+  });
+  box.querySelectorAll("#rtArt button").forEach(b=>b.onclick=()=>{
+    RT.art=b.dataset.a; RT.vorschlaege=[]; rtZeichne(); renderRoute(); save(); });
+  const neu=$("rtNeu");
+  if(neu) neu.onchange=()=>{ RT.neuland=neu.checked; RT.vorschlaege=[];
+    rtZeichne(); renderRoute(); save(); };
+  box.querySelectorAll(".kmb").forEach(b=>b.onclick=()=>{
+    RT.km=Math.max(2,Math.min(25, RT.km + (+b.dataset.k)*0.5));
+    RT.vorschlaege=[]; rtZeichne(); renderRoute(); save(); });
+  const rng=$("rtRange");
+  if(rng) rng.oninput=()=>{ RT.km=+rng.value; RT.vorschlaege=[];
+    const b=box.querySelector(".rtkm b");
+    if(b) b.textContent=RT.km.toFixed(1).replace(".",",")+" km"; };
+  if(rng) rng.onchange=()=>{ rtZeichne(); renderRoute(); save(); };
+  const go=$("rtGo"); if(go) go.onclick=rtBerechne;
+  const nx=$("rtNext"); if(nx) nx.onclick=rtAndere;
+  const gx=$("rtGpx"); if(gx) gx.onclick=rtGpx;
+  const dr=$("rtDrop"); if(dr) dr.onclick=rtVerwerfen;
+  const sv=$("rtSave"); if(sv) sv.onclick=()=>{ RT.benennen=true; RT.name="";
+    renderRoute(); const el=$("rtNam"); if(el) el.focus(); };
+  const nam=$("rtNam");
+  if(nam){ nam.oninput=()=>{ RT.name=nam.value; };
+           nam.onkeydown=e=>{ if(e.key==="Enter") rtMerken(nam.value); }; }
+  const nok=$("rtNamOk");
+  if(nok) nok.onclick=()=>rtMerken(($("rtNam")||{}).value||"");
+  box.querySelectorAll("[data-zeig]").forEach(b=>
+    b.onclick=()=>rtLaden(b.dataset.zeig));
+  box.querySelectorAll("[data-weg]").forEach(b=>
+    b.onclick=()=>rtLoeschen(b.dataset.weg));
+  const q=$("rtQ");
+  if(q){ q.oninput=()=>{ RT.adresse=q.value; };
+         q.onkeydown=e=>{ if(e.key==="Enter") rtAdresse(q.value); }; }
+  const fd=$("rtFind"); if(fd) fd.onclick=()=>rtAdresse(($("rtQ")||{}).value||"");
+}
+
+/* ═══════════ Gemerkte Runden ═══════════
+   Gespeichert wird die Punktfolge, nicht die Rechnung – eine gemerkte Runde
+   laesst sich damit ohne Netz wieder anzeigen. Vorher wird sie ausgeduennt:
+   das Wegenetz liefert viele Punkte auf geraden Stuecken, die nichts zur
+   Form beitragen, aber den Spielstand aufblaehen. */
+const RT_MAX_GEMERKT = 30;
+const RT_VEREINFACH  = 3;      // Meter Abweichung, die wir zulassen
+
+function rtVereinfachen(punkte, tolM){
+  if(punkte.length<3) return punkte.slice();
+  const k=mercScale(punkte[0][0]);
+  const tol=tolM*k;                     // Bodenmeter -> Mercatormeter
+  const p=punkte.map(q=>[mx(q[1]), my(q[0])]);
+  const behalten=new Uint8Array(p.length);
+  behalten[0]=behalten[p.length-1]=1;
+  const stapel=[[0,p.length-1]];
+  while(stapel.length){
+    const [a,b]=stapel.pop();
+    if(b<=a+1) continue;
+    const ax=p[a][0], ay=p[a][1], bx=p[b][0], by=p[b][1];
+    const dx=bx-ax, dy=by-ay, l2=dx*dx+dy*dy;
+    let weit=-1, wi=-1;
+    for(let i=a+1;i<b;i++){
+      const px=p[i][0]-ax, py=p[i][1]-ay;
+      let t=l2 ? (px*dx+py*dy)/l2 : 0;
+      t=Math.max(0,Math.min(1,t));
+      const ex=px-t*dx, ey=py-t*dy;
+      const d=ex*ex+ey*ey;
+      if(d>weit){ weit=d; wi=i; }
+    }
+    if(weit>tol*tol){ behalten[wi]=1; stapel.push([a,wi],[wi,b]); }
+  }
+  const raus=[];
+  for(let i=0;i<p.length;i++) if(behalten[i]) raus.push(punkte[i]);
+  return raus;
+}
+
+function rtRunden(punkte){
+  return punkte.map(q=>[+q[0].toFixed(5), +q[1].toFixed(5)]);  // ~1 m
+}
+
+function rtVorschlagName(v){
+  const km=(v.laenge/1000).toFixed(1).replace(".",",");
+  const wo=(RT.start&&RT.start.name && RT.start.name!=="auf der Karte gewählt")
+    ? RT.start.name.split(",")[0] : "";
+  return km+" km"+(wo?" ab "+wo:"");
+}
+
+function rtMerken(name){
+  const v=rtAktuell(); if(!v) return null;
+  const punkte=rtRunden(rtVereinfachen(v.punkte, RT_VEREINFACH));
+  const eintrag={
+    id:"r"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),
+    n:(name||"").trim() || rtVorschlagName(v),
+    m:v.laenge, t:Date.now(), nl:Math.round(v.neuland*100),
+    s:RT.start?[+RT.start.lat.toFixed(5),+RT.start.lng.toFixed(5)]:null,
+    p:punkte
+  };
+  S.routen.unshift(eintrag);
+  if(S.routen.length>RT_MAX_GEMERKT) S.routen.length=RT_MAX_GEMERKT;
+  RT.benennen=false; RT.name="";
+  toast("Runde gemerkt", eintrag.n);
+  addLog("Runde <b>"+eintrag.n+"</b> gemerkt");
+  save(); renderRoute();
+  return eintrag;
+}
+
+function rtLaden(id){
+  const e=S.routen.find(r=>r.id===id); if(!e) return;
+  RT.vorschlaege=[{
+    punkte:e.p, laenge:e.m, abweichung:0, doppelt:0,
+    neuland:(e.nl||0)/100, wende:null, gemerkt:e
+  }];
+  RT.i=0; RT.meldung="";
+  if(e.s) RT.start={lat:e.s[0], lng:e.s[1], name:e.n};
+  rtZeichne(); rtAnpassen(); renderRoute();
+}
+function rtLoeschen(id){
+  const i=S.routen.findIndex(r=>r.id===id);
+  if(i<0) return;
+  const weg=S.routen.splice(i,1)[0];
+  const v=rtAktuell();
+  if(v && v.gemerkt && v.gemerkt.id===id) rtVerwerfen();
+  toast("Gelöscht", weg.n);
+  save(); renderRoute();
+}
 
 
 const itemMarkers=new Map();
@@ -4819,7 +5551,7 @@ function setTab(id){
     p.style.display = (p.dataset.t === id ? "block" : "none"));
   if (id === "ziele"){ renderTreasure(); renderQuests(); }
   if (id === "beute") setBTab(S.btab||"gear");
-  if (id === "karte"){ renderCover(); renderPlaces(); }
+  if (id === "karte") setKTab(S.ktab||"ansicht");
   if (id === "mehr"){ renderStats(); renderNoti(); saverHint(); stepHint(); }
   stepLive(id === "mehr");
 }
@@ -4990,6 +5722,27 @@ function wireZTabs(){
   document.querySelectorAll("#ztabs button").forEach(b =>
     b.onclick = () => setZTab(b.dataset.z));
   setZTab(S.ztab || "aufg");
+}
+
+/* Unterseiten der Karte */
+const KTABS=[{id:"ansicht",name:"Ansicht"},{id:"runde",name:"Rundkurs"},{id:"orte",name:"Orte"}];
+function setKTab(id){
+  S.ktab=id;
+  document.querySelectorAll("#ktabs button").forEach(b=>
+    b.classList.toggle("on", b.dataset.k===id));
+  document.querySelectorAll(".kpane").forEach(p=>
+    p.style.display=(p.dataset.k===id?"block":"none"));
+  if(id==="ansicht") renderCover();
+  if(id==="runde")   renderRoute();
+  if(id==="orte")    renderPlaces();
+  // Der Startpunkt darf nur angetippt werden, solange der Planer offen ist.
+  if(typeof rtPickAn==="function") rtPickAn(id==="runde" && RT.startArt==="karte");
+  save();
+}
+function wireKTabs(){
+  document.querySelectorAll("#ktabs button").forEach(b=>
+    b.onclick=()=>setKTab(b.dataset.k));
+  setKTab(S.ktab||"ansicht");
 }
 
 
@@ -5329,7 +6082,7 @@ function handleFix(lat,lng,acc,speed,ts){
   // überhaupt getragen? Das entscheidet allein der Sensor und gilt damit
   // auch für die langsame Stadtfahrt, die dem Tempo entgeht. Geprüft wird
   // vor allem anderen, sonst deckt schon der Aufbau des Ankers Karte auf.
-  if(S.stepGate && !motion.carried(now)){
+  if(S.stepGate && !motion.carried()){
     standing=false;
     if(!blockFrom){ blockFrom=now; blockPos={lat:M.lat,lng:M.lng}; blockUndone=false; }
     // Bis die Prüfung anschlägt, vergehen das Messfenster und die
@@ -5444,11 +6197,25 @@ let watchId=null, wakeLock=null, session=null;
    Vordergrunddienst, der auch bei ausgeschaltetem Bildschirm weiterliefert.
    Im Browser bleibt es bei watchPosition – dieselbe Verarbeitung dahinter. */
 let bgWatcher=null, posSource="";
+/* Eine Lücke ist eine Zeit ohne Positionsmeldung – nicht eine Zeit mit
+   ausgeschaltetem Bildschirm. Wer im Hintergrund weiter geortet wird,
+   hat keine Lücke, auch wenn das Handy in der Tasche steckt. */
+let lastFixAt=0;
+const GAP_MIN=25000;      // ab hier fehlt wirklich etwas
+
 function bgPlugin(){
   const C=window.Capacitor;
   return (C && C.Plugins && C.Plugins.BackgroundGeolocation) || null;
 }
 function onFix(lat,lng,acc,speed,ts){
+  const nun=Date.now();
+  if(session && lastFixAt && nun-lastFixAt>GAP_MIN){
+    session.gaps++; session.gapMs+=nun-lastFixAt;
+    // Die Messungen von vor der Lücke dürfen nicht mit denen danach
+    // gemittelt werden – sonst entsteht eine Strecke, die nie gegangen wurde.
+    resetDrift(); trailBreak();
+  }
+  lastFixAt=nun;
   plausFeed(lat,lng,acc,speed);
   handleFix(lat,lng,acc,speed,ts);
   if(riding) setStatus("Fahrt erkannt – wird nicht gezählt · <b>"+fmtD(S.dist)+"</b>");
@@ -5458,7 +6225,14 @@ function onFix(lat,lng,acc,speed,ts){
                           : "Unterwegs · <b>"+fmtD(S.dist)+"</b>");
   // Mitschreiben, ob der Bewegungssensor überhaupt Daten liefert – im
   // Browser und bei ausgeschaltetem Bildschirm ist das nicht sicher.
-  if(session){ session.motAll++; if(motion.alive(ts||Date.now())) session.motOk++; }
+  if(session){
+    session.motAll++; if(motion.alive()) session.motOk++;
+    // Weicht die Uhr des Fixes von der Systemuhr ab, steht das nachher in
+    // der Auswertung – sonst sucht man so einen Fehler ewig.
+    if(ts!=null){ const d=ts-Date.now();
+      session.skewN++; session.skewSum+=d;
+      if(Math.abs(d)>Math.abs(session.skewMax)) session.skewMax=d; }
+  }
   loadPOIs(lat,lng,true);
   loadHabitat(lat,lng,true);
   loadNet(lat,lng,true);
@@ -5488,7 +6262,9 @@ function startWalk(){
   if(!S.since) S.since=Date.now();
   session={t:Date.now(), xp:S.xp, dist:S.dist, cells:S.cellCount,
            pois:Object.keys(S.poisFound).length, items:S.itemsTotal,
-           coins:S.coins, gaps:0, gapMs:0, rides:0, rideM:0, motOk:0, motAll:0};
+           coins:S.coins, gaps:0, gapMs:0, rides:0, rideM:0, motOk:0, motAll:0,
+           skewN:0, skewSum:0, skewMax:0, quelle:""};
+  lastFixAt=0;
   $("go").textContent="Beenden"; $("go").classList.add("on");
   motion.reset(); motion.listen(true);
   setStatus(BG ? "Suche Standort … läuft auch im Hintergrund."
@@ -5520,14 +6296,28 @@ function showSummary(){
   const lat=S.lat||51, side=MERC_CELL/mercScale(lat);
   const rows=[
     ["Strecke", fmtD(d)],
-    ["Unterwegs", fmtDur(Date.now()-sess.t)],
+    ["Von Start bis Ende", fmtDur(Date.now()-sess.t)],
     ["Neu aufgedeckt", fmtA((S.cellCount-sess.cells)*side*side)],
     ["Erfahrung", "+"+Math.round(S.xp-sess.xp)+" XP"],
     ["Orte entdeckt", String(Object.keys(S.poisFound).length-sess.pois)],
     ["Fundstücke", String(S.itemsTotal-sess.items)]
   ];
-  if(sess.gaps) rows.push(["Pausen", sess.gaps+" · "+fmtDur(sess.gapMs)+" nicht gezählt"]);
+  // Reine Gehzeit: die Zeit ohne Ortung gehoert nicht dazu.
+  const gesamt=Date.now()-sess.t, echt=Math.max(0,gesamt-sess.gapMs);
+  if(sess.gaps){
+    rows.push(["Ohne Ortung", sess.gaps+" × · "+fmtDur(sess.gapMs)]);
+    rows.push(["Davon gelaufen", fmtDur(echt)+" · "+
+      (echt>60000 ? (d/1000/(echt/3600000)).toFixed(1).replace(".",",")+" km/h" : "–")]);
+  }
+  if(sess.quelle) rows.push(["Ortung", sess.quelle==="Hintergrunddienst"
+    ? "lief auch im Hintergrund" : "nur im Vordergrund – Bildschirm musste an bleiben"]);
   if(sess.rides) rows.push(["Fahrten", sess.rides+" · "+fmtD(sess.rideM)+" nicht gezählt"]);
+  // Weicht die Uhr des Fixes von der Systemuhr ab, muss das sichtbar sein.
+  if(sess.skewN>20){
+    const mittel=sess.skewSum/sess.skewN;
+    if(Math.abs(mittel)>3000) rows.push(["Uhr der Ortung",
+      (mittel>0?"+":"")+(mittel/1000).toFixed(1).replace(".",",")+" s gegen die Systemuhr"]);
+  }
   if(S.stepGate && sess.motAll>5){
     rows.push(["Bewegungssensor",
       Math.round(sess.motOk/sess.motAll*100)+" % der Zeit verfügbar"]);
@@ -5754,13 +6544,13 @@ function stepLive(on){
   if(!on){ el.textContent=""; return; }
   const zeig=()=>{
     const t=Date.now();
-    if(!motion.alive(t)){ el.innerHTML='<span class="warn">Kein Sensor – Prüfung ruht</span>'; return; }
+    if(!motion.alive()){ el.innerHTML='<span class="warn">Kein Sensor – Prüfung ruht</span>'; return; }
     const e=motion.energy;
     el.innerHTML="Unruhe <b>"+e.toFixed(2)+"</b> · Schwelle <b>"+motion.level().toFixed(2)+"</b>"
       + " m/s² · <b>"+motion.rate().toFixed(0)+"</b> Hz · Schritte <b>"+motion.steps+"</b><br>"
       + (!motion.proven
           ? '<span class="warn">Lernt noch – blockiert nichts. Geh ein paar Schritte.</span>'
-          : motion.carried(t) ? '<span class="ok">wird getragen – zählt</span>'
+          : motion.carried() ? '<span class="ok">wird getragen – zählt</span>'
                               : '<span class="bad">liegt ruhig – zählt nicht</span>');
   };
   zeig(); stepTimer=setInterval(zeig,600);
@@ -5847,12 +6637,13 @@ document.addEventListener("visibilitychange",()=>{
   if(hiddenAt && walking && !bgWatcher){
     const ms=Date.now()-hiddenAt;
     if(ms>4000){
-      // Wichtig: die Messungen von VOR der Pause dürfen nicht mit denen
-      // danach gemittelt werden – sonst entsteht ein Mittelpunkt irgendwo
-      // dazwischen und daraus eine Strecke, die nie gegangen wurde.
+      // Der Mittelwert von vor der Unterbrechung darf nicht mit dem danach
+      // verrechnet werden. Ob dabei wirklich etwas fehlt, entscheidet aber
+      // die Ortung selbst – im Hintergrund lief sie unter Umständen weiter.
       resetDrift(); trailBreak();
-      if(session){ session.gaps++; session.gapMs+=ms; }
-      setStatus("Pause von <b>"+fmtDur(ms)+"</b> – solange wurde nicht gezählt.");
+      const fehlt = bgWatcher==null && (!lastFixAt || Date.now()-lastFixAt>GAP_MIN);
+      if(fehlt) setStatus("Bildschirm war "+fmtDur(ms)
+        +" aus – solange wurde nicht geortet.");
     }
   }
   hiddenAt=null;
@@ -5971,7 +6762,7 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   renderQuests(); renderCollection(); renderStats(); renderCraft();
   renderNoti(); wireNoti(); wireSaver(); wireStep();
   $("placeQ").addEventListener("input",renderPlaces);
-  wireFogAnim(); wireKompass(); wireBTabs(); wireZTabs(); renderPlaces(); updateKompass(true);
+  wireFogAnim(); wireKompass(); wireBTabs(); wireZTabs(); wireKTabs(); renderPlaces(); updateKompass(true);
   renderTreasure(); drawTreasure(); setTab(S.tab);
   window.addEventListener("resize",kompPlatz);
   if(!S.seen) $("intro").classList.remove("hide");
@@ -5990,6 +6781,12 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              RECIPES,canCraft,doCraft,renderCraft,SEASONS,seasonOf,seasonName,
              spawnable,fitsSeason,craftBonusReveal,craftBonusFind,craftBonusItem,craftBonusPoi,
              renderQuests,renderCollection,renderStats,dayKey,BTABS,setBTab,wireBTabs,
+             RT,RT_ARTEN,rtArt,rtBuild,rtNaechster,rtDijkstra,rtPfad,rtLaenge,rtPunkte,
+             rtPlan,rtNeulandAnteil,rtRadius,rtLadeNetz,rtSetStart,rtBerechne,rtAndere,
+             rtVerwerfen,rtAktuell,rtZeichne,rtMalen,rtAnpassen,rtGpx,rtAdresse,renderRoute,setKTab,wireKTabs,
+             rtVereinfachen,rtRunden,rtMerken,rtLaden,rtLoeschen,rtVorschlagName,RT_MAX_GEMERKT,
+             get rtNetz(){return rtNetz;}, set rtNetz(v){rtNetz=v;},
+             set rtNetzUm(v){rtNetzUm=v;},
              POST,POST_GAENGE,POST_XP,POST_HEIM,postDef,postGang,postCur,postFertig,postMin,
              postBand,postBandName,postStart,postDist,postCheck,postZustellen,postOnPoi,
              postOnMove,postKandidaten,postArtText,renderPost,ZTABS,setZTab,wireZTabs,save,
@@ -6000,10 +6797,13 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
              motion,MOT_FLOOR,MOT_FRAC,MOT_PROVEN,MOT_HOLD,MOT_DEAD,
              stepHint,wireStep,stepLive,BLOCK_KEEP,BLOCK_MOVED,
              saveFile,showCopy,loadSave,capPlugin,serialize,
+             onFix,GAP_MIN,get lastFixAt(){return lastFixAt;},
+             __setLastFix:v=>{lastFixAt=v;}, __setBgWatcher:v=>{bgWatcher=v;},
              gotoPlace,fmtDate,fmtAgo,renderPlaces,placeList,
              get NET(){return NET;}, set NET(v){NET=v;},
              get netAreas(){return netAreas;}, set netAreas(v){netAreas=v;},
-             loadNet,netPrepare,netCovered,coverStats,coverClear,
+             loadNet,netPrepare,netCovered,coverStats,coverClear,addCellKey,hasCell,
+             mx,my,MERC_CELL,mercScale,haversine,map,L,
              buildTreasure,checkTreasure,renderTreasure,drawTreasure,treasureItem,
              TRE_MIN,TRE_MAX,TRE_RING,TRE_NAH,__h:haversine,
              findFrontier,updateKompass,bearing,renderCover,wireKompass,kompPlatz,

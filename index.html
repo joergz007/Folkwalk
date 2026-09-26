@@ -685,7 +685,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   --edge:#6b5a9c; --dark:#0a0812;
   --paper:#f4f0e4; --dim:#c2b8de; --mist:#9c8ccc;
   --ember:#ffb13b; --ember-dk:#b8741a; --ember-lt:#ffd489;
-  --moss:#6ee0a0; --sky:#63c8f0; --rose:#f07898; --violet:#cbaaf6;
+  --moss:#6ee0a0; --sky:#63c8f0;
+  /* Zweitfarbe: Tuerkis steht fuer Fortschritt, Orange fuer Aktion,
+     Gruen fuer fertig. */
+  --sec:#63c8f0; --sec-dk:#2f86ad; --rose:#f07898; --violet:#cbaaf6;
   /* Schriftrollen: --f-disp fuer Zahlen und Ueberschriften, --f-lbl fuer
      kleine Grossbuchstaben-Beschriftungen, --f-body fuer Fliesstext.
      Die beiden lesbaren Varianten tauschen nur die letzten beiden aus –
@@ -952,7 +955,7 @@ h3.sec{
 .bars{display:flex;align-items:flex-end;gap:4px;height:78px;margin-bottom:12px;}
 .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
 .bar i{display:block;width:100%;background:var(--panel2);margin-top:auto;}
-.bar i.on{background:var(--ember);}
+.bar i.on{background:var(--sec);}
 .bar span{font-family:var(--f-lbl);font-weight:700;font-size:8px;color:var(--mist);}
 
 #styles,#gpsf{display:flex;flex-wrap:wrap;gap:11px;margin-bottom:6px;}
@@ -1031,7 +1034,7 @@ h3.sec{
 #mats{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:12px;}
 .gearrow{--brd:var(--dark);background:var(--deep);padding:11px 12px;margin-bottom:12px;
   box-shadow:var(--frame);}
-.gearrow.done{opacity:.62;}
+.gearrow.done{opacity:.8;}
 .gh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .gn{font-family:var(--f-disp);font-size:9px;color:var(--ember);}
 .gp{display:flex;gap:4px;}
@@ -1438,6 +1441,63 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
 .rtbar i{display:block;height:100%;background:repeating-linear-gradient(90deg,
   var(--moss) 0 5px, #4aa87a 5px 7px);transition:width .3s steps(5);}
 .rtlauf span{font-family:var(--f-body);font-size:12.5px;color:var(--moss);}
+
+/* ═══════ Übersicht in den Untermenüs ═══════ */
+.bk{--brd:var(--dark);box-shadow:var(--frame);height:10px;background:var(--night);overflow:hidden;}
+.bk>i{display:block;height:100%;transition:width .3s steps(5);
+  background:repeating-linear-gradient(90deg,var(--sec) 0 6px,var(--sec-dk) 6px 8px);}
+.bk.voll>i{background:repeating-linear-gradient(90deg,var(--moss) 0 6px,#4aa87a 6px 8px);}
+.bk.seg{display:flex;gap:5px;background:none;box-shadow:none;overflow:visible;}
+.bk.seg>i{flex:1 1 0;min-width:0;height:100%;background:var(--night);box-shadow:var(--frame);}
+.bk.seg>i.on{background:var(--sec);}
+.bk.seg.voll>i{background:var(--moss);}
+.nh{display:none;}
+
+.qrow{padding:10px 12px 12px;margin-bottom:9px;}
+.qh{align-items:center;margin-bottom:9px;}
+.qz{font-family:var(--f-body);font-size:14px;color:var(--paper);min-width:0;}
+.qr{white-space:nowrap;}
+.qrow.done{--brd:var(--moss);}
+.qrow .gbtn{width:auto;flex:0 0 auto;padding:7px 14px;}
+.qok{font-family:var(--f-disp);font-size:11px;}
+.qgn{font-size:9px;}
+.streak{display:flex;align-items:center;gap:10px;}
+.streak .bk{flex:1;}
+
+.gearrow{padding:10px 12px 12px;margin-bottom:9px;}
+.gh{margin-bottom:6px;}
+.gl2{font-family:var(--f-body);font-size:12px;color:var(--mist);}
+.gearrow .bk{margin-bottom:10px;}
+.gfoot{display:flex;align-items:center;gap:10px;}
+.gfoot .ge{margin:0;flex:0 0 auto;font-size:13px;}
+.gfoot .gcost{flex:1 1 auto;margin:0;gap:6px;}
+.gfoot .gbtn{width:auto;flex:0 0 auto;padding:8px 12px;}
+.cc{background:linear-gradient(90deg,rgba(99,200,240,.30) 0 var(--f,0%),var(--night) var(--f,0%));
+  padding:5px 8px;font-size:12px;}
+.cc.ok{background:rgba(110,224,160,.22);}
+.cc.lack{--brd:var(--dark);}
+.cc.lack b{color:var(--paper)!important;}
+
+.ckopf{display:flex;align-items:center;gap:10px;margin:0 1px 12px;
+  font-family:var(--f-lbl);font-weight:700;font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--violet);}
+.ckopf .bk{flex:1;}
+.ckopf b{font-family:var(--f-disp);font-size:9px;color:var(--sec);letter-spacing:0;}
+.crec .gt{display:flex;align-items:center;gap:6px;}
+.crec .gt .bk{width:46px;height:8px;}
+.ctal{font-family:var(--f-disp);font-size:8px;color:var(--rose);}
+.chips button b{margin-left:5px;color:var(--sec);}
+
+.colt{display:flex;align-items:center;gap:10px;}
+.colt .bk{flex:1;height:8px;}
+.colc{padding:8px 4px 7px;gap:4px;}
+.colc.miss .colq{height:22px;}
+#colHead{display:flex;flex-direction:column;gap:8px;}
+#colHead .hier{font-family:var(--f-body);font-size:12px;color:var(--mist);}
+#colHead .hier b{color:var(--moss);font-weight:700;}
+
+.srow .bk{flex:0 0 110px;}
+#heute .hv{color:var(--sec);}
 </style>
 </head>
 <body>
@@ -1505,13 +1565,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
           <div id="quests"></div>
         </div>
         <div class="zpane" data-z="schatz">
-          <h3 class="sec">Tagesschatz</h3>
           <div id="treasure"></div>
         </div>
         <div class="zpane" data-z="post">
-          <p class="subline">Eine Posttasche der Landzustellung Bezirk 7,
-          stillgelegt 1979. 55 Sendungen, alle an Orte adressiert, an denen du
-          noch nie warst.</p>
           <div id="post"></div>
         </div>
       </div>
@@ -1532,8 +1588,6 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
         </div>
 
         <div class="bpane" data-b="craft">
-          <div class="subline">Was man aus Fundstücken wirklich bauen kann.
-            Diese Stücke gibt es nur hier.</div>
           <div id="craftFilter" class="chips"></div>
           <div id="craft"></div>
         </div>
@@ -1573,8 +1627,6 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
         </div>
 
         <div class="kpane" data-k="runde">
-          <p class="subline">Gib eine Strecke vor, und die App sucht dir eine
-          Runde, die dort anfängt und aufhört, wo du willst.</p>
           <div id="route"></div>
         </div>
 
@@ -2794,8 +2846,7 @@ function renderTreasure(){
   buildTreasure();
   const t=S.treasure;
   if(!t||!t.day||t.day!==dayKey()){
-    box.innerHTML='<div class="subline">Sobald das Wegenetz für deine Gegend '
-      + 'geladen ist, versteckt sich hier jeden Tag ein Fund.</div>';
+    box.innerHTML='<div class="subline">Kommt, sobald das Wegenetz geladen ist.</div>';
     return;
   }
   if(t.got){
@@ -2807,8 +2858,7 @@ function renderTreasure(){
   box.innerHTML='<button class="trow" id="treGo">'
     + '<span class="tn">Suchkreis</span>'
     + '<span class="tv">'+(d!=null?fmtD(d)+" entfernt":"auf der Karte")+"</span></button>"
-    + '<div class="subline">Irgendwo im Kreis liegt er. Lauf ihn ab – auf '
-    + TRE_NAH+' m kommt er von allein.</div>';
+    + '<div class="subline">Irgendwo im Kreis. Auf '+TRE_NAH+' m findest du ihn.</div>';
   const b=$("treGo");
   if(b) b.onclick=()=>{
     follow=false;
@@ -4946,8 +4996,7 @@ function renderNoti(){
   const perm = notiPerm();
   if (!S.notify.on){
     box.innerHTML =
-      '<div class="subline">Fogwalk meldet sich, wenn der Bildschirm aus ist – '
-      + 'bei neuen Orten, erfüllten Aufträgen und Stufenaufstiegen.</div>'
+      '<div class="subline">Neue Orte, Aufträge, Level – auch bei ausgeschaltetem Bildschirm.</div>'
       + '<button class="btn" id="notiOn">Meldungen einschalten</button>'
       + (notiLastErr === "abgelehnt"
           ? '<div class="ghint">Abgelehnt. Du kannst es in den Einstellungen des Geräts '
@@ -5365,8 +5414,11 @@ function renderCraft(){
   // Machbares zuerst, danach das noch Unbekannte
   liste.sort((a,b) => (canCraft(b)-canCraft(a)) || ((!S.found[a.aus])-(!S.found[b.aus])));
   const zahl = RECIPES.filter(r => canCraft(r)).length;
-  const kopf = '<div class="subline">' + zahl + " von " + RECIPES.length
-    + " machbar · " + RECIPES.filter(r => S.found[r.aus]).length + " schon gebaut</div>";
+  const gebaut = RECIPES.filter(r => S.found[r.aus]).length;
+  const kopf = '<div class="ckopf">Gebaut' + balken(gebaut, RECIPES.length)
+    + "<b>" + gebaut + "</b></div>";
+  const mb = document.querySelector('#craftFilter button[data-f="ok"]');
+  if (mb) mb.innerHTML = "Machbar" + (zahl ? "<b>" + zahl + "</b>" : "");
   if (!liste.length){ box.innerHTML = kopf + '<div class="subline">Hier ist gerade nichts.</div>'; return; }
   box.innerHTML = kopf + liste.map(r => {
     const it = itemByName(r.aus);
@@ -5375,9 +5427,8 @@ function renderCraft(){
     const auf = craftOpen === r.id;
     const st = craftReady(r);
     // Kurzstand rechts in der Kopfzeile
-    const stand = geht ? '<b class="cok">machbar</b>'
-      : '<span class="cnum">' + st.da + "/" + st.alle + " Zutaten"
-        + (st.geld ? "" : " · Taler fehlen") + "</span>";
+    const stand = balken(st.da, st.alle, geht)
+      + (st.geld ? "" : '<span class="ctal" title="Taler fehlen">T</span>');
     let h = '<div class="crec' + (geht ? " on" : "") + (auf ? " auf" : "") + '">'
       + '<button class="ch" data-o="' + r.id + '" aria-expanded="' + auf + '">'
       + '<span class="gspr">' + (it ? spriteSVG(it,20) : "") + "</span>"
@@ -5386,17 +5437,16 @@ function renderCraft(){
       + '<span class="carr">' + (auf ? "▲" : "▼") + "</span></button>";
     if (auf){
       h += '<div class="cbody">'
-        + '<div class="qt">' + r.txt + " · " + (it ? TIER_NAME[it.r] : "")
-        + (habe ? " · schon gebaut" : "") + "</div>"
-        + '<div class="clab">Zutaten</div>'
+        + '<div class="qt">' + r.txt + "</div>"
         + '<div class="gcost">'
         + r.zu.map(([n,k]) => {
             const da = S.items[n]||0;
-            return '<span class="cc' + (da>=k ? "" : " lack") + '"><b>' + k + "</b> "
-              + n + ' <i>' + da + " da</i></span>";
+            return '<span class="cc' + (da>=k ? " ok" : " lack") + '" style="--f:'
+              + Math.min(100, da/k*100).toFixed(0) + '%" title="' + da + ' da"><b>' + k + "</b> " + n + "</span>";
           }).join("")
-        + '<span class="cc' + (S.coins>=r.t ? "" : " lack") + '"><b>' + r.t
-        + "</b> Taler <i>" + S.coins + " da</i></span>"
+        + '<span class="cc' + (S.coins>=r.t ? " ok" : " lack") + '" style="--f:'
+        + Math.min(100, r.t ? S.coins/r.t*100 : 100).toFixed(0) + '%" title="' + S.coins
+        + ' da"><b>' + r.t + "</b> Taler</span>"
         + "</div>"
         + '<button class="gbtn' + (geht ? "" : " off") + '" data-c="' + r.id + '"'
         + (geht ? "" : " disabled") + ">Herstellen</button></div>";
@@ -5551,6 +5601,23 @@ function exportGPX(){
 }
 
 /* ═══════════ Anzeigen ═══════════ */
+/* Ein Balken fuer alle Fortschritte. Kleine Ziele als einzelne Bloecke,
+   damit man die Anzahl ohne Zahl ablesen kann, grosse durchgehend. */
+function balken(p, ziel, fertig){
+  ziel = Math.max(0, ziel || 0);
+  const v = Math.max(0, Math.min(p || 0, ziel));
+  const voll = fertig != null ? fertig : (ziel > 0 && v >= ziel);
+  const aria = ' role="progressbar" aria-valuemin="0" aria-valuemax="' + ziel
+             + '" aria-valuenow="' + Math.floor(v) + '"';
+  if (ziel >= 1 && ziel <= 10 && ziel === Math.round(ziel)){
+    let h = "";
+    for (let i = 0; i < ziel; i++) h += '<i' + (i < Math.floor(v) ? ' class="on"' : "") + "></i>";
+    return '<div class="bk seg' + (voll ? " voll" : "") + '"' + aria + ">" + h + "</div>";
+  }
+  const pct = ziel > 0 ? v / ziel * 100 : 0;
+  return '<div class="bk' + (voll ? " voll" : "") + '"' + aria
+       + '><i style="width:' + pct.toFixed(1) + '%"></i></div>';
+}
 function renderQuests(){
   buildQuests();
   const box = $("quests"); if (!box) return;
@@ -5559,26 +5626,23 @@ function renderQuests(){
     const offen = list.filter(q => q.done && !q.paid).length;
     return '<div class="qgrp"><div class="qgh"><span class="qgn">' + P.head + "</span>"
       + '<span class="qgl' + (offen ? " has" : "") + '">'
-      + (offen ? offen + " abzuholen · " : "") + periodLeft(P.id) + "</span></div>"
+      + (offen ? offen + " abholen · " : "") + periodLeft(P.id) + "</span></div>"
       + list.map((q, i) => {
           const d = questDef(q.id), p = Math.min(q.goal, questProgress(q));
-          const pct = Math.min(100, p / q.goal * 100);
           const r = questReward(P.id, q.gi);
-          return '<div class="qrow' + (q.paid ? " paid" : "") + '">'
-            + '<div class="qh"><span class="qn">' + d.name + "</span>"
-            + '<span class="qr">' + r.coin + " Taler · " + r.xp + " XP</span></div>"
-            + '<div class="qt">' + d.text(q.goal) + "</div>"
-            + '<div class="qbar"><i style="width:' + pct.toFixed(1) + '%"></i></div>'
-            + '<div class="qf"><span>' + d.fmt(p) + " / " + d.fmt(q.goal) + "</span>"
-            + (q.paid ? '<span class="qok">abgeholt</span>'
-                      : q.done ? '<button class="gbtn" data-p="' + P.id + '" data-q="' + i + '">Abholen</button>'
-                               : "") + "</div></div>";
+          return '<div class="qrow' + (q.paid ? " paid" : q.done ? " done" : "") + '"'
+            + ' title="' + d.name + ": " + d.fmt(p) + " / " + d.fmt(q.goal) + '">'
+            + '<div class="qh"><span class="qz">' + d.text(q.goal) + "</span>"
+            + (q.paid ? '<span class="qok">✓</span>'
+              : q.done ? '<button class="gbtn" data-p="' + P.id + '" data-q="' + i + '">Abholen</button>'
+              : '<span class="qr">' + r.coin + " Taler · " + r.xp + " XP</span>")
+            + "</div>" + balken(p, q.goal, q.done || p >= q.goal) + "</div>";
         }).join("")
       + "</div>";
   }).join("")
-  + '<div class="streak">Serie: <b>' + (S.streak.n || 0) + "</b> Tage"
-  + (streakBonus() > 0 ? " · Erfahrungsbonus <b>+" + Math.round(streakBonus() * 100) + " %</b>" : "")
-  + "</div>";
+  + '<div class="streak">Serie <b>' + (S.streak.n || 0) + "</b>"
+  + balken(streakBonus(), 0.30)
+  + "<b>+" + Math.round(streakBonus() * 100) + " % XP</b></div>";
   box.querySelectorAll("button[data-q]").forEach(b =>
     b.onclick = () => claimQuest(b.dataset.p, +b.dataset.q));
 }
@@ -5588,9 +5652,10 @@ function renderCollection(){
   const head = $("colHead");
   if (head){
     const h = S.lat != null ? habAt(S.lat, S.lng) : "";
-    head.innerHTML = seenCount() + " von " + ITEMS.length + " gefunden"
-      + ' · hier: <b class="hnow">' + habName(h) + "</b>, " + bandName()
-      + ", " + seasonName(seasonOf());
+    head.innerHTML = '<div class="ckopf">Gefunden' + balken(seenCount(), ITEMS.length)
+      + "<b>" + seenCount() + "</b></div>"
+      + '<div class="hier">Hier: <b>' + habName(h) + "</b> · " + bandName()
+      + " · " + seasonName(seasonOf()) + "</div>";
   }
   const hier = typeof habAt === "function" && S.lat != null ? habAt(S.lat, S.lng) : "";
   const f = S.colF || "alle";
@@ -5613,7 +5678,10 @@ function renderCollection(){
   box.innerHTML = [1,2,3,4].map(t =>
     (ITEMS.filter(i => i.r === t && passt(i)).length
       ? '<div class="colgrp"><div class="colt" style="color:' + TIER_COL[t] + '">'
-        + TIER_NAME[t] + (S.setDone[t] ? " ✓" : "") + "</div><div class=\"colg\">"
+        + TIER_NAME[t] + (S.setDone[t] ? " ✓" : "")
+        + balken(ITEMS.filter(i => i.r === t && S.found[i.n]).length,
+                 ITEMS.filter(i => i.r === t).length, !!S.setDone[t])
+        + "</div><div class=\"colg\">"
       : "<div class=\"colgrp hide\"><div><div>")
     + ITEMS.filter(i => i.r === t && passt(i)).map(i => {
         const have = !!S.found[i.n];
@@ -5625,7 +5693,7 @@ function renderCollection(){
         return '<div class="colc' + (have ? "" : " miss") + (now ? " now" : "")
           + '" title="' + i.n + " – " + wo + (band ? ", nur " + band : "") + '">'
           + (have ? spriteSVG(i, 30) : '<div class="colq">?</div>')
-          + '<span>' + (have ? i.n : "unbekannt") + "</span>"
+          + (have ? "<span>" + i.n + "</span>" : "")
           + '<em>' + wo + (band ? " · " + band : "") + (jz ? " · " + jz : "") + "</em></div>";
       }).join("")
     + "</div></div>").join("");
@@ -5648,10 +5716,8 @@ function renderStats(){
         + (vals[i] ? ' class="on"' : "") + '></i><span>' + wd[0] + "</span></div>";
     }).join("") + "</div>"
     + '<div class="srow"><span>14 Tage</span><b>' + fmtD(sum) + "</b></div>"
-    + '<div class="srow"><span>Tage unterwegs</span><b>' + active + " / 14</b></div>"
+    + '<div class="srow"><span>Tage unterwegs</span>' + balken(active, 14) + "</div>"
     + '<div class="srow"><span>Bester Tag</span><b>' + fmtD(max) + "</b></div>"
-    + '<div class="srow"><span>Insgesamt</span><b>' + fmtD(S.dist) + "</b></div>"
-    + '<div class="srow"><span>Fundstücke</span><b>' + S.itemsTotal + "</b></div>"
     + '<div class="srow"><span>Tageszeit</span><b>' + bandName() + "</b></div>"
     + '<div class="srow"><span>Umgebung</span><b>'
       + (S.lat != null ? habName(habAt(S.lat, S.lng)) : "noch unbekannt") + "</b></div>";
@@ -5958,12 +6024,11 @@ function renderPost(){
   const box = $("post"); if (!box) return;
   const p = postCur();
   if (!S.post.schuppen){
-    box.innerHTML = '<div class="subline">Die Tasche liegt noch im Schuppen. '
-      + 'Starte einen Spaziergang — wo du losgehst, steht sie.</div>';
+    box.innerHTML = '<div class="subline">Liegt im Schuppen – er steht dort, wo du losgehst.</div>';
     return;
   }
   const fertig = Object.keys(S.post.done).length;
-  let h = '<div class="subline">' + fertig + " von " + POST.length + " zugestellt</div>";
+  let h = '<div class="ckopf">Zugestellt' + balken(fertig, POST.length) + "<b>" + fertig + "</b></div>";
   if (!p){
     h += '<div class="prec done"><div class="padr">Die Tasche ist leer.</div>'
       + '<div class="pinh">Bezirk 7 ist zugestellt. 46 Jahre zu spät.</div></div>';
@@ -6081,7 +6146,6 @@ function renderGear(){
     const l=S.gear[g.id]||0, done=l>=g.max, c=gearCost(l), ok=canAfford(c);
     const row=document.createElement("div");
     row.className="gearrow"+(done?" done":"");
-    const pips=Array.from({length:g.max},(_,i)=>'<i class="'+(i<l?"on":"")+'"></i>').join("");
 
     // Jede Kostenposition als eigenes Kästchen – dadurch bleibt sie auch
     // auf schmalen Bildschirmen lesbar und bricht sauber um.
@@ -6093,21 +6157,22 @@ function renderGear(){
                                    have:tierCount(t), col:TIER_COL[t]});
       });
       if(c.coin) parts.push({n:c.coin, txt:"Taler", have:S.coins, col:"#ffb13b"});
-      cost='<div class="clab">Kosten</div><div class="gcost">'
-        +parts.map(p=>'<span class="cc'+(p.have>=p.n?"":" lack")+'">'
-          +'<b style="color:'+(p.have>=p.n?p.col:"")+'">'+p.n+"</b>"+p.txt
-          +'<em>'+p.have+" da</em></span>").join("")
-        +"</div>"
-        +(ok?"":'<div class="ghint">Dafür fehlt noch Material.</div>');
+      // Jedes Kaestchen fuellt sich mit dem, was schon da ist.
+      cost='<div class="gcost">'
+        +parts.map(p=>'<span class="cc'+(p.have>=p.n?" ok":" lack")+'" style="--f:'
+          +Math.min(100,p.have/p.n*100).toFixed(0)+'%" title="'+p.have+' da">'
+          +'<b style="color:'+(p.have>=p.n?p.col:"")+'">'+p.n+"</b>"+p.txt+"</span>").join("")
+        +"</div>";
     }
 
     row.innerHTML=
-      '<div class="gh"><span class="gn">'+g.name+'</span><span class="gp">'+pips+"</span></div>"
-      +'<div class="glab">'+g.label+" · Stufe "+l+" von "+g.max+"</div>"
-      +'<div class="ge">'+g.eff(l)+(done?"":' <span class="arw">→</span> <b>'+g.eff(l+1)+"</b>")+"</div>"
-      +(done?'<div class="clab done">Voll ausgebaut</div>'
+      '<div class="gh"><span class="gn">'+g.name+'</span><span class="gl2">'+g.label+"</span></div>"
+      +balken(l,g.max,done)
+      +'<div class="gfoot"><div class="ge">'+g.eff(l)
+        +(done?"":' <span class="arw">→</span> <b>'+g.eff(l+1)+"</b>")+"</div>"
+      +(done?""
             :cost+'<button class="gbtn'+(ok?"":" off")+'" data-g="'+g.id+'"'+(ok?"":" disabled")
-              +">Ausbauen</button>");
+              +">Ausbauen</button>")+"</div>";
     box.appendChild(row);
   });
   box.querySelectorAll("button[data-g]").forEach(b=>{ b.onclick=()=>upgradeGear(b.dataset.g); });
@@ -6733,17 +6798,15 @@ $("qGo").onclick=search;
 $("q").addEventListener("keydown",e=>{ if(e.key==="Enter") search(); });
 $("introGo").onclick=()=>{ $("intro").classList.add("hide"); S.seen=true; save(); };
 const GPS_HINTS={
-  loose :"Reagiert früh auf Bewegung. Gut im offenen Gelände mit sauberem Signal.",
-  normal:"Ausgewogen. Kleine Sprünge beim Stehen werden verworfen.",
-  strict:"Ignoriert alles unter etwa 15 m. Für Innenhöfe, enge Gassen und schlechten Empfang."
+  loose :"Reagiert früh. Für offenes Gelände.",
+  normal:"Ausgewogen.",
+  strict:"Erst ab etwa 15 m. Für enge Gassen und schlechten Empfang."
 };
 /* ═══════════ Schrift ═══════════ */
 const FONTS=[
-  {id:"pixel", name:"Pixel",   hint:"Die Spielschrift – am meisten Charakter, am wenigsten Platz."},
-  {id:"klar",  name:"Klar",    hint:"Atkinson Hyperlegible: eigens für gute Lesbarkeit gezeichnet, "
-    + "I, l und 1 sind klar unterscheidbar. Zahlen und Überschriften bleiben pixelig."},
-  {id:"rund",  name:"Rund",    hint:"Nunito: weiche, offene Formen, angenehm bei kleinen Größen. "
-    + "Zahlen und Überschriften bleiben pixelig."}
+  {id:"pixel", name:"Pixel",   hint:"Die Spielschrift."},
+  {id:"klar",  name:"Klar",    hint:"Am besten lesbar."},
+  {id:"rund",  name:"Rund",    hint:"Weich und offen."}
 ];
 function applyFont(id,write){
   const f=FONTS.find(x=>x.id===id)||FONTS[0];
@@ -6770,9 +6833,7 @@ function buildFontButtons(){
 function renderCover(){
   const box=$("cover"); if(!box) return;
   if(!NET.length){
-    box.innerHTML='<div class="subline">Das Wegenetz ist für hier noch nicht '
-      + 'geladen. Es kommt beim Gehen von allein – oder sofort über '
-      + '„Sehenswürdigkeiten laden“.</div>';
+    box.innerHTML='<div class="subline">Wegenetz noch nicht geladen.</div>';
     return;
   }
   const c=coverStats();
@@ -6784,10 +6845,10 @@ function renderCover(){
   const zeige=liste.slice(0,60);
   box.innerHTML=
     '<div class="cbig"><b>'+pct.toFixed(1).replace(".",",")+' %</b>'
-      + '<span>der Wege im geladenen Umkreis</span></div>'
-    + '<div class="qbar"><i style="width:'+Math.min(100,c.q*100).toFixed(1)+'%"></i></div>'
-    + '<div class="srow"><span>Abgelaufen</span><b>'+fmtD(c.offen)+" von "+fmtD(c.ganz)+"</b></div>"
-    + '<div class="srow"><span>Straßen ganz</span><b>'+c.fertig+" von "+c.strassen.length+"</b></div>"
+      + '<span>der Wege hier</span></div>'
+    + balken(c.q*1000, 1000)
+    + '<div class="srow"><span>Abgelaufen</span><b>'+fmtD(c.offen)+"</b></div>"
+    + '<div class="srow"><span>Straßen ganz</span>'+balken(c.fertig, c.strassen.length)+"</div>"
     + '<input id="coverQ" placeholder="Straße suchen" autocomplete="off" value="'
       + q.replace(/"/g,"&quot;")+'">'
     + '<div class="clist">'
@@ -6840,10 +6901,8 @@ function wireFogAnim(){
 function stepHint(){
   const el=$("stepHint"); if(!el) return;
   el.textContent = S.stepGate
-    ? "Der Bewegungssensor prüft, ob das Gerät wirklich mitgeht. Damit fällt "
-      + "auch eine langsame Fahrt durch, die über das Tempo nicht auffällt. "
-      + "Meldet das Gerät keinen Sensor, wird nichts blockiert."
-    : "Es zählt allein das Tempo. Eine Fahrt im Schritttempo würde mitgezählt.";
+    ? "Der Bewegungssensor erkennt, ob du das Gerät trägst."
+    : "Es zählt nur das Tempo.";
 }
 /* Laufende Messwerte – damit man selbst sehen kann, was der Sensor liefert,
    und ob die Schwelle zum eigenen Gerät passt. */
@@ -6883,10 +6942,8 @@ function wireStep(){
 function saverHint(){
   const el=$("saverHint"); if(!el) return;
   el.textContent = S.saver
-    ? "Nach 1,5 Minuten Stillstand schaltet die Ortung auf grob herunter. "
-      + "Sie wacht auf, sobald der Bewegungssensor Schritte spürt oder du dich "
-      + "um " + WAKE_M + " m verschoben hast – der Weg dazwischen wird nachgetragen."
-    : "Die Ortung läuft durchgehend. Genauer, aber der Akku hält kürzer.";
+    ? "Ortung ruht beim Stehen, wacht bei Schritten auf."
+    : "Ortung läuft durchgehend.";
 }
 function wireSaver(){
   const c=$("saver"); if(!c) return;

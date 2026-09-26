@@ -828,10 +828,35 @@ html,body{
 #side{position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:1000;
   display:flex;flex-direction:column;gap:12px;}
 #side .iconbtn{width:42px;height:42px;font-size:12px;}
-body.panel-open #side{top:22%;transform:none;}
 
 .iconbtn svg{display:block;}
-#btnMore.flip svg{transform:scaleY(-1);}
+/* ---------- Feldbuch: Schublade von links ---------- */
+#buch{position:absolute;left:0;top:0;bottom:var(--dock,96px);z-index:1400;
+  width:min(84vw,360px);display:flex;flex-direction:column;
+  background:var(--panel);box-shadow:3px 0 0 0 var(--dark),6px 0 0 0 rgba(10,8,18,.35);
+  transform:translateX(calc(-100% - 8px));transition:transform .22s steps(5);}
+body.buch-open #buch{transform:none;}
+body.buch-open #komp{display:none;}
+#buchHead{flex:0 0 auto;display:flex;align-items:center;gap:10px;
+  padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;
+  background:var(--night);box-shadow:0 3px 0 0 var(--dark);}
+#buchTitle{flex:1;min-width:0;font-family:var(--f-disp);font-size:12px;color:var(--paper);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#buchBack.hide{visibility:hidden;}
+#buchBody{flex:1 1 auto;overflow-y:auto;padding:14px 13px 16px;}
+#buchToc.hide,#buchPage.hide{display:none;}
+.toc{margin-bottom:6px;}
+.toc h4{margin:16px 0 6px;font-family:var(--f-lbl);font-weight:700;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--violet);}
+.toc button{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  width:100%;background:none;border:0;border-bottom:3px solid var(--deep);
+  padding:11px 2px;cursor:pointer;color:var(--paper);text-align:left;
+  font-family:var(--f-body);font-size:15px;}
+.toc button i{font-style:normal;font-size:12px;color:var(--mist);}
+.toc button:active{background:var(--deep);}
+.toc button.last{color:var(--ember-lt);}
+.toc button.last i{color:var(--ember);}
+#buchHint{font-family:var(--f-body);font-size:12px;color:var(--mist);margin-top:14px;}
 
 /* ---------- unteres Feld ---------- */
 #bottom{
@@ -840,7 +865,6 @@ body.panel-open #side{top:22%;transform:none;}
   box-shadow:0 -3px 0 0 var(--dark), inset 0 3px 0 0 rgba(255,255,255,.10);
   padding:9px 13px calc(12px + env(safe-area-inset-bottom,0px));
 }
-#grip{width:38px;height:5px;background:var(--mist);margin:0 auto 10px;}
 #row{display:flex;align-items:center;gap:10px;}
 #go{
   --brd:var(--ember-dk); --hl:rgba(255,255,255,.34); --sh:rgba(0,0,0,.26);
@@ -859,10 +883,7 @@ body.panel-open #side{top:22%;transform:none;}
   margin:0 1px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 #stat b{color:var(--ember-lt);font-weight:700;}
-.leaflet-bottom.leaflet-right{bottom:88px;}
-#more{max-height:0;overflow:hidden;transition:max-height .3s steps(8);}
-#more.open{max-height:58vh;overflow-y:auto;}
-#moreIn{padding:14px 4px 4px;}
+.leaflet-bottom.leaflet-right{bottom:calc(var(--dock,96px) - 8px);}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 .cell{--brd:var(--dark);background:var(--deep);padding:10px 11px;}
@@ -882,12 +903,6 @@ h3.sec{
 .btn:active{transform:translateY(3px);background:var(--panel);}
 .btn.ghost{background:var(--deep);color:var(--dim);--brd:var(--panel2);}
 
-#tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:4px;}
-#tabs button{--brd:var(--dark);border:0;cursor:pointer;background:var(--deep);
-  color:var(--mist);padding:11px 2px;font-family:var(--f-body);font-size:13px;
-  box-shadow:var(--frame);}
-#tabs button.on{background:var(--ember);color:#2a1802;--brd:var(--ember-dk);font-weight:700;}
-#tabs button:active{transform:translateY(3px);}
 .tabp{display:none;}
 .subline{font-family:var(--f-body);font-size:12.5px;color:var(--mist);margin:-4px 1px 10px;}
 
@@ -1240,7 +1255,6 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
   z-index:1000;display:flex;align-items:center;gap:9px;
   --brd:var(--dark);background:var(--panel);box-shadow:var(--frame);
   padding:9px 12px 9px 10px;cursor:pointer;max-width:62vw;}
-body.panel-open #komp{display:none;}
 #komp.hide{display:none;}
 #komp .kp{flex:0 0 auto;display:flex;color:var(--ember);}
 #komp .kt{font-family:var(--f-body);font-size:12.5px;color:var(--dim);
@@ -1420,6 +1434,7 @@ body.panel-open #komp{display:none;}
 <canvas id="fog"></canvas>
 
 <div id="top">
+  <button class="iconbtn" id="btnBuch" aria-label="Feldbuch öffnen" aria-expanded="false"><svg viewBox="0 0 9 9" width="19" height="19" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="0" y="1" width="4" height="1"/><rect x="5" y="1" width="4" height="1"/><rect x="0" y="2" width="1" height="6"/><rect x="8" y="2" width="1" height="6"/><rect x="4" y="2" width="1" height="7"/><rect x="0" y="8" width="4" height="1"/><rect x="5" y="8" width="4" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/></svg></button>
   <div id="lvl"><b id="lvlNum">1</b><span>Level</span></div>
   <div id="xpbox">
     <div id="xptrack"><div id="xpfill"></div></div>
@@ -1440,27 +1455,32 @@ body.panel-open #komp{display:none;}
 <div id="toasts"></div>
 
 <div id="bottom">
-  <div id="grip"></div>
   <div id="stat">Bereit.</div>
   <div id="row">
     <button id="go">Spaziergang starten</button>
-    <button class="iconbtn" id="btnMore" aria-label="Details anzeigen"><svg viewBox="0 0 9 9" width="19" height="19" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/></svg></button>
   </div>
-  <div id="more">
-    <div id="moreIn">
+</div>
+
+<!-- Feldbuch: Inhaltsverzeichnis und Seiten liegen ueber der Karte,
+     das Dock unten bleibt davon unberuehrt. -->
+<aside id="buch" aria-label="Feldbuch" aria-hidden="true">
+  <div id="buchHead">
+    <button class="iconbtn" id="buchBack" aria-label="Zum Inhaltsverzeichnis">‹</button>
+    <div id="buchTitle">Feldbuch</div>
+    <button class="iconbtn" id="buchClose" aria-label="Feldbuch schließen">✕</button>
+  </div>
+  <div id="buchBody">
+    <div id="buchToc">
       <div class="grid">
         <div class="cell"><div class="k">Strecke</div><div class="v mono" id="sDist">0 m</div></div>
         <div class="cell"><div class="k">Aufgedeckt</div><div class="v mono" id="sArea">0 m²</div></div>
         <div class="cell"><div class="k">Orte entdeckt</div><div class="v mono" id="sPoi">0</div></div>
         <div class="cell"><div class="k">Fundstücke</div><div class="v mono" id="sItems">0</div></div>
       </div>
-
-      <div id="tabs">
-        <button data-t="ziele">Ziele</button>
-        <button data-t="beute">Beute</button>
-        <button data-t="karte">Karte</button>
-        <button data-t="mehr">Mehr</button>
-      </div>
+      <div class="toc" id="toc"></div>
+      <div id="buchHint">Die Karte rechts bleibt bedienbar – auch während das Buch offen ist.</div>
+    </div>
+    <div id="buchPage">
 
       <div class="tabp" data-t="ziele">
         <!-- Drei Bereiche: laufende Aufgaben, Tagesschatz und die Posttasche. -->
@@ -1555,9 +1575,9 @@ body.panel-open #komp{display:none;}
       </div>
 
       <div class="tabp" data-t="mehr">
-        <h3 class="sec">Statistik</h3>
+        <h3 class="sec" id="mStat">Statistik</h3>
         <div id="stats"></div>
-        <h3 class="sec">GPS-Filter</h3>
+        <h3 class="sec" id="mEinst">GPS-Filter</h3>
         <div id="gpsf"></div>
         <div id="gpsHint"></div>
         <h3 class="sec">Schrift</h3>
@@ -1579,7 +1599,7 @@ body.panel-open #komp{display:none;}
         <h3 class="sec">Mitnehmen</h3>
         <button class="btn" id="btnMapImg">Kartenbild speichern</button>
         <button class="btn" id="btnGpx">Weg als GPX speichern</button>
-        <h3 class="sec">Spielstand</h3>
+        <h3 class="sec" id="mStand">Spielstand</h3>
         <button class="btn ghost" id="btnExport">Spielstand exportieren</button>
         <button class="btn ghost" id="btnImport">Spielstand aus Datei laden</button>
         <button class="btn ghost" id="btnPaste">Spielstand einfügen</button>
@@ -1587,7 +1607,7 @@ body.panel-open #komp{display:none;}
       </div>
     </div>
   </div>
-</div>
+</aside>
 
 <!-- Intro -->
 <div class="modal hide" id="intro">
@@ -2774,9 +2794,7 @@ function renderTreasure(){
   if(b) b.onclick=()=>{
     follow=false;
     map.setView([t.cla,t.cln],16,{animate:true});
-    $("more").classList.remove("open");
-    document.body.classList.remove("panel-open");
-    $("btnMore").classList.remove("flip");
+    buchZu();
     setStatus("Tagesschatz: irgendwo in diesem Kreis.");
   };
 }
@@ -3002,9 +3020,7 @@ function gotoPlace(id){
   if(la==null||ln==null){ setStatus("Zu diesem Ort fehlen die Koordinaten."); return; }
   follow=false;                       // sonst zieht die nächste Ortung zurück
   map.setView([la,ln],18,{animate:true});
-  $("more").classList.remove("open");
-  document.body.classList.remove("panel-open");
-  $("btnMore").classList.remove("flip");
+  buchZu();
   if(flashRing){ map.removeLayer(flashRing); flashRing=null; }
   // Als Marker mit eigenem Element statt als Vektorkreis: Leaflet legt die
   // SVG-Ebene sonst erst verzoegert an, und der Ring bliebe unsichtbar.
@@ -5738,11 +5754,71 @@ function wireBTabs(){
   setBTab(S.btab||"gear");
 }
 
+/* ═══════════ Feldbuch ═══════════
+   Eine Schublade von links mit Inhaltsverzeichnis statt Reiterleiste. Sie
+   liegt ueber der Karte, verschiebt sie aber nicht, und laesst das Dock
+   mit dem Start-Knopf frei. Das Buch merkt sich die zuletzt offene Seite. */
+const BUCH=[
+  {t:"ziele", name:"Ziele", subs:[["aufg","Aufgaben","laufende Aufträge"],["schatz","Schatz","Tagesschatz"],["post","Tasche","Posttasche Bezirk 7"]]},
+  {t:"beute", name:"Beute", subs:[["gear","Ausrüstung","Laterne, Stiefel …"],["craft","Werkstatt","bauen"],["inv","Fundbuch","was du trägst"],["col","Sammlung","alle Fundstücke"]]},
+  {t:"karte", name:"Karte", subs:[["ansicht","Ansicht","Stil, Nebel, offline"],["runde","Rundkurs","Runde planen"],["orte","Orte","besuchte Orte"]]},
+  {t:"mehr",  name:"Mehr",  subs:[["mStat","Statistik",""],["mEinst","Einstellungen","GPS, Schrift, Akku"],["mStand","Spielstand","sichern, laden"]]}
+];
+let buchSeiteOffen=null;              // {t, sub} oder null = Inhaltsverzeichnis
+function dockMessen(){
+  const h=$("bottom").offsetHeight;
+  document.documentElement.style.setProperty("--dock", h+"px");
+}
+function buchToc(){
+  const last=buchSeiteOffen;
+  $("toc").innerHTML=BUCH.map(g=>'<h4>'+g.name+'</h4>'
+    + g.subs.map(([id,name,info])=>'<button data-t="'+g.t+'" data-s="'+id+'"'
+      + (last&&last.t===g.t&&last.sub===id?' class="last"':'')+'>'+name
+      + (info?'<i>'+info+'</i>':'')+'</button>').join("")).join("");
+  $("toc").querySelectorAll("button").forEach(b=>b.onclick=()=>buchSeite(b.dataset.t,b.dataset.s));
+}
+function buchAuf(){
+  dockMessen();
+  document.body.classList.add("buch-open");
+  $("buch").setAttribute("aria-hidden","false");
+  $("btnBuch").classList.add("on");
+  $("btnBuch").setAttribute("aria-expanded","true");
+  if(buchSeiteOffen) buchSeite(buchSeiteOffen.t, buchSeiteOffen.sub); else buchInhalt();
+}
+function buchZu(){
+  document.body.classList.remove("buch-open");
+  $("buch").setAttribute("aria-hidden","true");
+  $("btnBuch").classList.remove("on");
+  $("btnBuch").setAttribute("aria-expanded","false");
+}
+function buchInhalt(){
+  buchSeiteOffen=null;
+  buchToc();
+  $("buchTitle").textContent="Feldbuch";
+  $("buchBack").classList.add("hide");
+  $("buchToc").classList.remove("hide");
+  $("buchPage").classList.add("hide");
+  $("buchBody").scrollTop=0;
+}
+function buchSeite(t, sub){
+  buchSeiteOffen={t, sub};
+  setTab(t);
+  if(t==="ziele") setZTab(sub);
+  else if(t==="beute") setBTab(sub);
+  else if(t==="karte") setKTab(sub);
+  const g=BUCH.find(x=>x.t===t);
+  $("buchTitle").textContent=g ? g.name : "";
+  $("buchBack").classList.remove("hide");
+  $("buchToc").classList.add("hide");
+  $("buchPage").classList.remove("hide");
+  const body=$("buchBody"), ziel=(t==="mehr") ? $(sub) : null;
+  body.scrollTop = ziel ? ziel.offsetTop-body.offsetTop-10 : 0;
+  save();
+}
+
 /* Reiter im Bedienfeld */
 function setTab(id){
   S.tab = id;
-  document.querySelectorAll("#tabs button").forEach(b =>
-    b.classList.toggle("on", b.dataset.t === id));
   document.querySelectorAll(".tabp").forEach(p =>
     p.style.display = (p.dataset.t === id ? "block" : "none"));
   if (id === "ziele"){ renderTreasure(); renderQuests(); }
@@ -6602,14 +6678,23 @@ async function search(){
 
 /* ═══════════ Buttons ═══════════ */
 $("go").onclick=()=>walking?stopWalk():startWalk();
-$("btnMore").onclick=()=>{
-  const open=$("more").classList.toggle("open");
-  // Bei aufgeklapptem Feld wandern die Seitenknoepfe nach oben,
-  // sonst liegen sie darunter und sind nicht mehr antippbar.
-  document.body.classList.toggle("panel-open",open);
-  $("btnMore").classList.toggle("flip",open);
-  $("btnMore").setAttribute("aria-label",open?"Details verbergen":"Details anzeigen");
-};
+$("btnBuch").onclick=()=>{ document.body.classList.contains("buch-open") ? buchZu() : buchAuf(); };
+$("buchClose").onclick=buchZu;
+$("buchBack").onclick=buchInhalt;
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") buchZu(); });
+// Nach links wischen klappt das Buch zu.
+(()=>{ let x0=null, y0=0;
+  const el=$("buch");
+  el.addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; y0=e.touches[0].clientY; },{passive:true});
+  el.addEventListener("touchend",e=>{
+    if(x0==null) return;
+    const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+    x0=null;
+    if(dx<-60 && Math.abs(dx)>Math.abs(dy)*1.5) buchZu();
+  },{passive:true});
+})();
+window.addEventListener("resize",dockMessen);
+dockMessen();
 $("btnCenter").onclick=()=>{ follow=true; if(S.lat) map.setView([S.lat,S.lng],Math.max(map.getZoom(),17)); };
 $("btnHelp").onclick=openHelp;
 $("helpClose").onclick=()=>$("help").classList.add("hide");
@@ -6697,9 +6782,7 @@ function renderCover(){
       const ln=X/(R_EARTH*D2R);
       follow=false;
       map.setView([la,ln],17,{animate:true});
-      $("more").classList.remove("open");
-      document.body.classList.remove("panel-open");
-      $("btnMore").classList.remove("flip");
+      buchZu();
       setStatus("<b>"+b.querySelector(".cn").textContent+"</b> · "
         + b.querySelector(".cq").textContent+" abgelaufen");
     };
@@ -6867,7 +6950,6 @@ document.addEventListener("visibilitychange",()=>{
     navigator.wakeLock.request("screen").then(l=>wakeLock=l).catch(()=>{});
 });
 
-document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{ setTab(b.dataset.t); save(); });
 $("btnMapImg").onclick=exportMapImage;
 $("btnGpx").onclick=exportGPX;
 $("btnExport").onclick=async()=>{

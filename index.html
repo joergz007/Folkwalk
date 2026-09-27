@@ -1545,6 +1545,21 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
 .gfoot .gcost{flex:0 1 auto;}
 .gfoot .gbtn{margin-left:auto;}
 .gh .gn{flex:0 0 auto;}
+
+/* ---- Waehrend du weg warst ---- */
+#wegDauer{color:var(--mist);letter-spacing:.06em;}
+.weglv{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;
+  --brd:var(--ember-dk);box-shadow:var(--frame);background:var(--ember);color:#2a1802;
+  font-family:var(--f-disp);font-size:11px;}
+.wegl{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px;}
+.wegf{display:flex;align-items:center;gap:6px;--brd:var(--dark);box-shadow:var(--frame);
+  background:var(--deep);padding:5px 8px 5px 5px;font-family:var(--f-body);font-size:13px;color:var(--paper);}
+.wegf b{font-family:var(--f-disp);font-size:9px;color:var(--sec);}
+.wegf.rar{--brd:var(--ember);}
+.wego{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;max-height:30vh;overflow-y:auto;}
+.wego span{display:flex;align-items:center;gap:8px;font-family:var(--f-body);font-size:13.5px;color:var(--dim);}
+.wego .ico{color:var(--sec);}
+.wego .mehr{color:var(--mist);padding-left:22px;}
 </style>
 </head>
 <body>
@@ -1746,6 +1761,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ember);outline-
     <h1>Angekommen</h1>
     <div id="doneRows"></div>
     <button class="primary" id="doneClose">Weiter</button>
+  </div>
+</div>
+
+<div class="modal hide" id="weg">
+  <div class="sheet">
+    <div class="eyebrow">Während du weg warst <span id="wegDauer"></span></div>
+    <h1>Unterwegs gefunden</h1>
+    <div id="wegRows"></div>
+    <button class="primary" id="wegClose">Weiter</button>
   </div>
 </div>
 
@@ -1988,7 +2012,7 @@ function serialize(){
     post:S.post,
     gear:S.gear, itemsTotal:S.itemsTotal, coins:S.coins,
     rareTotal:S.rareTotal, found:S.found, setDone:S.setDone, quests:S.quests,
-    streak:S.streak, days:S.days, tab:S.tab, notify:S.notify };
+    streak:S.streak, days:S.days, tab:S.tab, notify:S.notify, weg:S.weg||null };
 }
 function hydrate(o){
   if(!o) return;
@@ -2026,6 +2050,7 @@ function hydrate(o){
   S.quests=migrateQuests(o.quests);
   S.streak=o.streak||{n:0,last:""};
   S.days=o.days||{}; S.tab=o.tab||"ziele";
+  S.weg=(o.weg&&Array.isArray(o.weg.list))?o.weg:null;
   S.notify=Object.assign({on:false,level:true,orte:true,ziele:true,funde:true},o.notify||{});
   S.cells=new Map(); S.cellCount=0;
   (o.cells||[]).forEach(k=>addCellKey(k));
@@ -2882,8 +2907,8 @@ function checkTreasure(lat,lng){
   S.coins+=taler;
   grantXP((it?it.xp:80)*2);
   drawTreasure();
-  toast((it?spriteSVG(it,16)+" ":"")+"Tagesschatz gehoben",
-        t.item+" · +"+taler+" Taler");
+  melde({k:"sonst", n:"Tagesschatz: "+t.item},
+        (it?spriteSVG(it,16)+" ":"")+"Tagesschatz gehoben", t.item+" · +"+taler+" Taler");
   notify("funde","Tagesschatz gehoben",t.item+" · +"+taler+" Taler");
   addLog("Tagesschatz: <b>"+t.item+"</b> (+"+taler+" Taler)");
   checkQuests(); renderInv(); renderGear(); renderTreasure(); updateHUD(); save();
@@ -5119,7 +5144,8 @@ function touchStreak(){
   if (today().dist < STREAK_MIN) return;
   S.streak.n = (S.streak.last === dayBefore(k)) ? (S.streak.n || 0) + 1 : 1;
   S.streak.last = k;
-  toast("Serie: " + S.streak.n + (S.streak.n === 1 ? " Tag" : " Tage"),
+  melde({k:"sonst", n:"Serie: " + S.streak.n + (S.streak.n === 1 ? " Tag" : " Tage")},
+        "Serie: " + S.streak.n + (S.streak.n === 1 ? " Tag" : " Tage"),
         "Erfahrungsbonus +" + Math.round(streakBonus() * 100) + " %");
   addLog("Serie auf <b>" + S.streak.n + "</b> Tage");
 }
@@ -5312,7 +5338,8 @@ function checkQuests(){
       if (questProgress(q) >= q.goal){
         q.done = true; changed = true;
         const wo = P.id === "tag" ? "" : " (" + P.name + ")";
-        toast("Auftrag erfüllt", questDef(q.id).name + wo + " – Belohnung abholen");
+        melde({k:"auftrag", n:"Auftrag erfüllt: "+questDef(q.id).name},
+              "Auftrag erfüllt", questDef(q.id).name + wo + " – Belohnung abholen");
         notify("ziele", "Auftrag erfüllt" + wo,
                questDef(q.id).name + " – die Belohnung wartet");
       }
@@ -5341,7 +5368,7 @@ function markSeen(name){
   if (S.found[name]) return;
   S.found[name] = true;
   const it = itemByName(name);
-  if (it && it.r >= 3) toast("Neu in der Sammlung", name);
+  if (it && it.r >= 3) melde({k:"sonst", n:"Neu in der Sammlung: "+name}, "Neu in der Sammlung", name);
   // Belohnung, sobald eine Seltenheitsstufe vollständig ist
   [1,2,3,4].forEach(t => {
     const all = ITEMS.filter(i => i.r === t);
@@ -5349,7 +5376,8 @@ function markSeen(name){
       S.setDone[t] = true;
       const coin = t * 60, xp = t * 220;
       S.coins += coin; grantXP(xp);
-      toast("Stufe „" + TIER_NAME[t] + "“ komplett", "+" + coin + " Taler · +" + xp + " XP");
+      melde({k:"sonst", n:"Stufe „" + TIER_NAME[t] + "“ komplett", xp:xp},
+            "Stufe „" + TIER_NAME[t] + "“ komplett", "+" + coin + " Taler · +" + xp + " XP");
       notify("funde", "Sammlung vollständig", "Stufe „" + TIER_NAME[t] + "“ · +" + coin + " Taler");
       addLog("Sammlung <b>" + TIER_NAME[t] + "</b> vollständig");
     }
@@ -6073,14 +6101,14 @@ function postZustellen(p, ort){
   S.post.inh[p.inh] = (S.post.inh[p.inh] || 0) + 1;
   S.post.nr = p.nr + 1;
   grantXP(POST_XP);
-  toast("Sendung " + p.nr + " zugestellt", p.inh);
+  melde({k:"post", n:"Sendung " + p.nr + " zugestellt"}, "Sendung " + p.nr + " zugestellt", p.inh);
   notify("ziele", "Sendung " + p.nr + " zugestellt", p.inh);
   addLog("Sendung <b>" + p.nr + "</b> zugestellt" + (ort && ort.n ? " — " + ort.n : ""));
   const g = postGang(p.nr);
   if (p.nr === g.bis && !postFertig()){
     const ng = postGang(p.nr + 1);
     if (ng && ng.n !== g.n){
-      toast(ng.name, "Neuer Zustellgang · ab " + fmtD(ng.min) + " vom Schuppen");
+      melde({k:"post", n:"Neuer Zustellgang: " + ng.name}, ng.name, "Neuer Zustellgang · ab " + fmtD(ng.min) + " vom Schuppen");
       notify("ziele", ng.name, "Neuer Zustellgang beginnt");
     }
   }
@@ -6207,6 +6235,102 @@ function wireKTabs(){
 /* ═══════════ UI ═══════════ */
 const $=id=>document.getElementById(id);
 function setStatus(html){ $("stat").innerHTML=html; }
+/* ═══════════ Fundmeldungen ═══════════
+   Funde melden sich nicht mehr jeder fuer sich. Was im Hintergrund oder
+   beim Nachholen direkt nach der Rueckkehr passiert, sammelt sich fuer
+   die Karte "Waehrend du weg warst". Kommen beim Gehen mehrere Funde
+   kurz hintereinander, erscheint eine einzige Sammelmeldung. */
+const MELD_BUENDEL = 900;          // so lange wird auf weitere Funde gewartet
+const MELD_EINZELN = 2;            // bis zu so vielen Funden einzeln zeigen
+const WEG_NACHLAUF = 1600;         // Ruhe nach der Rueckkehr, bevor die Karte kommt
+let meldQ=[], meldT=null, aufholBis=0, wegT=null, wegBasis=null;
+function wegModus(){ return document.visibilityState==="hidden" || Date.now()<aufholBis; }
+/* e: {k:"ort"|"fund"|"lvl"|"auftrag"|"post"|"sonst", n, xp, r, it} */
+function melde(e, title, sub){
+  if(wegModus()){
+    if(!S.weg){
+      // Bilanz ab dem Moment, in dem die App in den Hintergrund ging –
+      // so zaehlen auch Strecke und Flaeche mit.
+      const b=wegBasis || {t:Date.now(), xp:S.xp-(e.xp||0)};
+      S.weg={t:b.t, xp:b.xp, lv:levelOf(b.xp).lv, list:[]};
+    }
+    S.weg.list.push({k:e.k, n:e.n||title, xp:e.xp||0, r:e.r||0, s:e.it?e.it.n:null});
+    if(S.weg.list.length>200) S.weg.list.shift();
+    save();                          // falls die App im Hintergrund beendet wird
+    wegPlanen();
+    return;
+  }
+  meldQ.push({e, title, sub});
+  if(!meldT) meldT=setTimeout(meldFlush, MELD_BUENDEL);
+}
+function meldFlush(){
+  const q=meldQ; meldQ=[]; meldT=null;
+  if(q.length<=MELD_EINZELN){ q.forEach(m=>toast(m.title, m.sub)); return; }
+  const zahl=k=>q.filter(m=>m.e.k===k).length;
+  const lvl=q.filter(m=>m.e.k==="lvl").pop();
+  const teile=[];
+  if(zahl("ort"))  teile.push(zahl("ort")+(zahl("ort")===1?" Ort":" Orte"));
+  if(zahl("fund")) teile.push(zahl("fund")+(zahl("fund")===1?" Fundstück":" Fundstücke"));
+  const rest=q.length-zahl("ort")-zahl("fund")-(lvl?1:0);
+  if(rest>0) teile.push(rest+" weitere");
+  const xp=q.reduce((a,m)=>a+(m.e.xp||0),0);
+  toast(lvl ? lvl.title : "Unterwegs gefunden",
+        teile.join(" · ")+(xp?" · +"+Math.round(xp)+" XP":""));
+}
+function wegPlanen(){
+  clearTimeout(wegT);
+  wegT=setTimeout(wegZeigen, document.visibilityState==="hidden" ? 400 : WEG_NACHLAUF);
+}
+function wegZeigen(){
+  wegT=null;
+  if(document.visibilityState==="hidden") return;   // kommt beim naechsten Aufwachen
+  aufholBis=0;
+  const w=S.weg; if(!w||!w.list.length){ S.weg=null; return; }
+  // Nicht ueber einen offenen Dialog legen – kurz danach nochmal versuchen.
+  if(document.querySelector(".modal:not(.hide)")){ wegT=setTimeout(wegZeigen,1500); return; }
+  const orte=w.list.filter(x=>x.k==="ort"), funde=w.list.filter(x=>x.k==="fund");
+  const andere=w.list.filter(x=>x.k!=="ort"&&x.k!=="fund"&&x.k!=="lvl");
+  const lvNeu=levelOf(S.xp).lv, xp=Math.max(0,Math.round(S.xp-w.xp));
+  const kachel=(ic,wert,lab)=>'<div title="'+lab+'">'+ico(ic,26)+"<b>"+wert+"</b><span>"+lab+"</span></div>";
+  let h='<div class="sumk">'
+    + kachel("xp","+"+xp,"Erfahrung")
+    + kachel("ort",orte.length,"Orte")
+    + kachel("fund",funde.length,"Fundstücke")
+    + "</div>";
+  if(lvNeu>w.lv) h+='<div class="weglv">'+ico("xp",22)+"Level "+lvNeu+" erreicht</div>";
+  if(funde.length){
+    // Gleiche Stuecke zusammenfassen, Seltenes zuerst
+    const zaehl={};
+    funde.forEach(f=>{ zaehl[f.n]=(zaehl[f.n]||0)+1; });
+    const namen=Object.keys(zaehl).sort((a,b)=>{
+      const ra=(itemByName(a)||{}).r||0, rb=(itemByName(b)||{}).r||0; return rb-ra; });
+    h+='<div class="wegl">'+namen.map(n=>{
+      const it=itemByName(n);
+      return '<span class="wegf'+(it&&it.r>=3?" rar":"")+'">'+(it?spriteSVG(it,20):"")
+        +escP(n)+(zaehl[n]>1?" <b>×"+zaehl[n]+"</b>":"")+"</span>"; }).join("")+"</div>";
+  }
+  if(orte.length){
+    const zeig=orte.slice(-8).reverse();
+    h+='<div class="wego">'+zeig.map(o=>"<span>"+ico("ort",14)+escP(o.n)+"</span>").join("")
+      +(orte.length>zeig.length?'<span class="mehr">+ '+(orte.length-zeig.length)+" weitere</span>":"")
+      +"</div>";
+  }
+  if(andere.length) h+='<div class="wego">'+andere.map(a=>"<span>"+ico(a.k==="post"?"tasche":"aufgaben",14)
+      +escP(a.n)+"</span>").join("")+"</div>";
+  $("wegRows").innerHTML=h;
+  $("wegDauer").textContent=w.t ? "seit "+fmtDur(Date.now()-w.t) : "";
+  S.weg=null; wegBasis=null; save();
+  $("weg").classList.remove("hide");
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState!=="visible"){
+    if(!S.weg) wegBasis={t:Date.now(), xp:S.xp};
+    return;
+  }
+  // Was jetzt noch an Ortungen nachkommt, gehoert zum Weg davor.
+  aufholBis=Date.now()+WEG_NACHLAUF+400;
+  wegPlanen();
+});
 function toast(title,sub){
   const d=document.createElement("div");
   d.className="toast"; d.innerHTML=title+(sub?'<span class="s">'+sub+"</span>":"");
@@ -6308,7 +6432,7 @@ function grantXP(n){
   today().xp+=n;
   const after=levelOf(S.xp).lv;
   if(after>before){
-    toast("Level "+after+" erreicht","Der Nebel weicht weiter zurück.");
+    melde({k:"lvl", n:"Level "+after}, "Level "+after+" erreicht","Der Nebel weicht weiter zurück.");
     notify("level","Stufe "+after+" erreicht","Der Nebel weicht weiter zurück.");
   }
   lastLv=after;
@@ -6394,7 +6518,7 @@ function onMove(lat,lng,acc,credit,ghost){
       S.poisFound[p.id]={t:Date.now(), n:p.name, la:p.lat, ln:p.lng, ty:p.type};
       const ox=poiXP(d.xp);
       grantXP(ox);
-      toast(p.name,"Entdeckt · +"+ox+" XP");
+      melde({k:"ort", n:p.name, xp:ox}, p.name,"Entdeckt · +"+ox+" XP");
       notify("orte",p.name,"Neuer Ort entdeckt · +"+ox+" XP");
       addLog("<b>"+p.name+"</b> entdeckt (+"+ox+" XP)");
       today().pois++;
@@ -6414,7 +6538,8 @@ function onMove(lat,lng,acc,credit,ghost){
       today().items++;
       markSeen(i.it.n);
       grantXP(i.it.xp*(1+craftBonusItem()));
-      toast(spriteSVG(i.it,16)+" "+i.it.n,"+"+i.it.xp+" XP · "+TIER_NAME[i.it.r]);
+      melde({k:"fund", n:i.it.n, xp:i.it.xp, r:i.it.r, it:i.it},
+            spriteSVG(i.it,16)+" "+i.it.n,"+"+i.it.xp+" XP · "+TIER_NAME[i.it.r]);
       if(i.it.r>=3) notify("funde",i.it.n+" gefunden",TIER_NAME[i.it.r]+" · +"+i.it.xp+" XP");
       addLog("<b>"+i.it.n+"</b> gefunden (+"+i.it.xp+" XP)");
       checkQuests();
@@ -6896,6 +7021,7 @@ $("btnHelp").onclick=openHelp;
 $("helpClose").onclick=()=>$("help").classList.add("hide");
 $("doneClose").onclick=()=>rtDoneZu();
 $("sumClose").onclick=()=>$("summary").classList.add("hide");
+$("wegClose").onclick=()=>$("weg").classList.add("hide");
 $("qGo").onclick=search;
 $("q").addEventListener("keydown",e=>{ if(e.key==="Enter") search(); });
 $("introGo").onclick=()=>{ $("intro").classList.add("hide"); S.seen=true; save(); };
@@ -7213,6 +7339,7 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   if(db) st=await kvGet("state");
   if(!st) st=lsGet("nebelpfad.state");
   hydrate(st);
+  if(S.weg) wegPlanen();          // beim letzten Mal nicht mehr gezeigt
   if(db){
     const p=await kvGet("pois");
     if(p&&p.list){ POIS=p.list; poiAreas=p.areas||{}; }
@@ -7254,7 +7381,7 @@ if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   window.addEventListener("resize",kompPlatz);
   if(!S.seen) $("intro").classList.remove("hide");
   setTimeout(()=>{ map.invalidateSize(); sizeFog(); fogRedraw(); fogAnimStart(); },200);
-  window.__nb={S,map,onMove,reveal,loadPOIs,applyStyle,STYLES,tileUrlFor,styleById,handleFix,
+  window.__nb={S,map,melde,wegZeigen,onMove,reveal,loadPOIs,applyStyle,STYLES,tileUrlFor,styleById,handleFix,
              get standing(){return standing;}, get anchor(){return anchor;},
              get driftRejects(){return driftRejects;}, resetDrift,
              get riding(){return riding;}, rideCheck, undoSince, delCellKey,

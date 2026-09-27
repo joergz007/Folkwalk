@@ -7332,9 +7332,18 @@ $("btnReset").onclick=()=>{
 };
 
 /* ═══════════ Start ═══════════ */
-// Nur beim Hosten über http(s) sinnvoll – als lokale Datei liegt die App ohnehin
-// schon auf dem Gerät und braucht keinen Service Worker.
-if(location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
+// Nur beim Hosten über http(s) sinnvoll. In der Android-App liegt die Seite
+// ohnehin im APK – ein Service Worker hielte dort nach einem Update die alte
+// Fassung fest. Darum wird er dort abgemeldet und sein Cache geleert.
+const NATIV = !!(window.Capacitor && window.Capacitor.isNativePlatform
+                 && window.Capacitor.isNativePlatform());
+if(NATIV && "serviceWorker" in navigator){
+  navigator.serviceWorker.getRegistrations()
+    .then(l=>Promise.all(l.map(r=>r.unregister()))).catch(()=>{});
+  if(window.caches) caches.keys()
+    .then(k=>Promise.all(k.map(n=>caches.delete(n)))).catch(()=>{});
+}
+if(!NATIV && location.protocol.indexOf("http")===0 && "serviceWorker" in navigator){
   window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js")
     .then(r=>{ swReg=r; if(!swReg.showNotification) return;
                return navigator.serviceWorker.ready.then(r2=>{ swReg=r2; }); })

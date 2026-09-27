@@ -2,7 +2,7 @@
    Nur nötig, wenn die App über http(s) gehostet wird: er legt die Seite selbst
    in den Cache, damit sie auch ohne Netz startet. Die Kartenkacheln verwaltet
    die App getrennt davon in ihrer eigenen IndexedDB. */
-const CACHE = "nebelpfad-v1";
+const CACHE = "fogwalk-v2";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", e => {
@@ -27,17 +27,18 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;   // Kacheln/Overpass macht die App selbst
 
+  // Netz zuerst: eine neue Fassung soll sofort ankommen. Der Cache springt
+  // nur ein, wenn kein Netz da ist. (Bis v1 war es umgekehrt – dadurch blieb
+  // nach einem Update die alte Seite haengen.)
   e.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(hit => {
-      if (hit) return hit;
-      return fetch(req).then(res => {
-        if (res && res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
-        }
-        return res;
-      }).catch(() => caches.match("./index.html", { ignoreSearch: true }));
-    })
+    fetch(req).then(res => {
+      if (res && res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+      }
+      return res;
+    }).catch(() => caches.match(req, { ignoreSearch: true })
+      .then(hit => hit || caches.match("./index.html", { ignoreSearch: true })))
   );
 });
 

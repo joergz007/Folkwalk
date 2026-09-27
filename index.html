@@ -4842,7 +4842,14 @@ function itemsNear(lat,lng){
   }
   return out;
 }
+/* Fundstuecke gehoeren zum laufenden Spaziergang. Danach verschwinden sie
+   von der Karte – auch wenn noch eine verspaetete Ortung eintrifft. */
+function itemsAbraeumen(){
+  itemMarkers.forEach(m=>map.removeLayer(m));
+  itemMarkers.clear();
+}
 function refreshItems(lat,lng){
+  if(!walking){ itemsAbraeumen(); return []; }
   const near=itemsNear(lat,lng);
   const keep=new Set(near.map(i=>i.id));
   itemMarkers.forEach((m,id)=>{ if(!keep.has(id)){ map.removeLayer(m); itemMarkers.delete(id); } });
@@ -6872,6 +6879,7 @@ function stopWalk(){
   }
   if(wakeLock){ try{wakeLock.release();}catch(e){} wakeLock=null; }
   last=null; resetDrift();
+  itemsAbraeumen();
   setStatus("Pausiert · <b>"+fmtD(S.dist)+"</b>"); save();
   showSummary();
 }
